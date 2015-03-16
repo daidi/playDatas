@@ -25,8 +25,9 @@ class Apps_AppsController extends Yaf_Controller_Abstract
     public function appDetailAction()
     {
         $packageName = isset($_GET['packageName']) ? trim($_GET['packageName']) : exit;
+        $language = isset($_GET['language']) ? trim($_GET['language']) : 'en';
         $app_mod = new AppsModel();
-        $json = $app_mod->getDetailJson($packageName);
+        $json = $app_mod->getDetailJson($packageName,$language);
         file_put_contents('../json.json',$json);//推入文件，方便查看
         echo $json;
     }
@@ -67,9 +68,10 @@ class Apps_AppsController extends Yaf_Controller_Abstract
     //搜索应用返回数据接口
     public function searchAppAction()
     {
-        $keywords = isset($_GET['keywords']) ? $_GET['keywords'] : die('参数错误~'); 
-        $page = isset($_GET['p']) ? (int)$_GET['p'] : 0;
-        $app_mod = new AppsModel();
+        $keywords = isset($_GET['keywords']) ? $_GET['keywords'] : exit; 
+        $language = isset($_GET['language']) ? $_GET['language'] : ''; 
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : '';
+        $app_mod = new AppsModel('','',2,'',$language);
         $json = $app_mod->searchList($keywords,$page);
         file_put_contents('../json.json',$json);//推入文件，方便查看
         echo $json;

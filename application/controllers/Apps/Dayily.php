@@ -11,7 +11,7 @@ class Apps_DayilyController extends Yaf_Controller_Abstract
         $templateUpdateTime = isset($_GET['templateUpdateTime']) ? $_GET['templateUpdateTime'] : '1419057214a';
         $dayily_mod = new DayilyModel($language);
         $json = $dayily_mod->getJson($page,$templateUpdateTime);
-        file_put_contents('../json.json',$json);//推入文件，方便查看
+       file_put_contents('../json.json',$json);//推入文件，方便查看
         echo $json;
     }
 }

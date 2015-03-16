@@ -3,7 +3,6 @@
 *   是否更新接口
 *	收藏接口
 * 	关键词发送接口
-*   用户反馈接口
 */
 class Apps_UpdateController extends Yaf_Controller_Abstract 
 {

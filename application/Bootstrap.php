@@ -6,6 +6,7 @@ class Bootstrap extends Yaf_Bootstrap_Abstract {
     /*get a copy of the config*/
     public function _initBootstrap()
     {
+        error_reporting(E_ERROR);
         $this->_config = Yaf_Application::app()->getConfig();
         Yaf_Dispatcher::getInstance()->disableView();//关闭视图显示
     }

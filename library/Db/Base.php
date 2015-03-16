@@ -162,10 +162,9 @@ class Db_Base
         return $this->_db->getRow($sql);        
     }
 
-    public function getTemplateId($id){
-        $sql = "select id,templateName from appbox_template where type=$id";
-        $data = $this->_db->getRow($sql);
-        return $data;
+    public function getMytemplate($id){
+        $sql = "select templateName,type from appbox_template where id=$id";
+        return $this->_db->getRow($sql);
     }
     /**
      *   返回推广位置1：精选，2：游戏，3：应用，4礼包
@@ -175,105 +174,51 @@ class Db_Base
     public function getBanners($pos)
     {
         $this->redis->select(6);
-        $sql = "select id from appbox_banner_group where position=$pos and status=1 order by sort desc,id desc";
-        $group = $this->_db->getAll($sql);
-        if(!$group) return '';
-        //循环获取所有的数据（广告和礼包，模块）
-        $data = array();
-        foreach($group as $val){
-            //获取当前行的全部列表
-            $sql = "select type,typeId from appbox_banner_group_list where gId={$val['id']} order by sort desc,id desc";
-            $tempData = $this->_db->getAll($sql);
-            if($tempData){
-                //获取单条数据的所有信息
-                foreach($tempData as $k=>$v){
-                    switch($v['type']){
-                        case 'banner':
-                            $sql = "select img,id,imgWidth,imgHeight,template_id from appbox_banner ";
-                            $sql .= "where id={$v['typeId']} and releaseTime<=".time()." and status=1";
-                            $arr = $this->_db->getRow($sql);
-                            if($arr){
-                                $arr = $this->bannersJump($arr,$v['typeId']);
-                                $template = $this->getTemplateId($arr['template_id']);
-                                $field = $this->getField($template['id'],'banner');//取出与其对应模板的内容
-                                $view = $this->getView($field['data'],$arr);
-                                $extraData = array('iconUrl'=>$arr['img']);
-                                unset($arr['img']);
-                                $extraData = array_merge($extraData,$arr);
-                                $temp[] = array('xmlType'=>$template['templateName'],'extraData'=>$extraData,'view'=>$view);
-                            }
+        $sql = "select img as iconUrl,id,imgWidth,imgHeight from appbox_banner where position=$pos and status=1 and releaseTime<=".time()." order by sort desc,id desc limit 0,4";
+        $data = $this->_db->getAll($sql);
+        if(!$data) return '';
+        foreach($data as $key=>$val)
+        {
+            $sql = "select type,typeId from appbox_banner_list where bannerId={$val['id']}";
+            $banner = $this->_db->getAll($sql);
+            $count = count($banner);
+            if($count > 1)//如果推广位是多个的话，就让他跳到推广列表
+            {
+                $data[$key]['processType'] = 106; //100下载应用 101 启动应用 102 礼包详情 103 应用详情 104 专题详情 105 打开网址 106 banner跳转到列表详情
+                $data[$key]['url'] = $this->site_root."/Apps_Spread/bannerDetail?id={$val['id']}";
+            }
+            else//如果推广位是单个的话，就让他调到对应的当个应用上去
+            {   
+                foreach($banner as $k=>$v)
+                {
+                    switch($v['type'])
+                    {
+                        case 'url':
+                            $data[$key]['processType'] = 104;
+                            $data[$key]['urlId'] = $v['typeId'];
                             break;
                         case 'gift':
-                            $sql = "select template_id from appbox_gift_position where id={$v['typeId']}";
-                            $arr = $this->_db->getRow($sql);
-                            $template = $this->getTemplateId($arr['template_id']);
-                            $field = $this->getField($template['id'],'banner');//取出与其对应模板的内容
-                            $view = $this->getView($field['data'],$arr);
-                            $temp[] = array('xmlType'=>$template['templateName'],'view'=>$view);
+                            $data[$key]['processType'] = 102;
+                            $data[$key]['giftId'] = $v['typeId'];
                             break;
-                    }
+                        case 'app':
+                            $data[$key]['processType'] = 103;
+                            $sql = "select package_name as packageName from appbox_app where package_id={$v['typeId']}";
+                            $app = $this->_db->getRow($sql);
+                            $data[$key]['packageName'] = $app['packageName'];
+                            break;
+                    }                    
                 }
-                
-                //滚动模板做特殊的处理
-                $specialArr = array();
-                foreach($temp as $k=>$v){
-                    if($v['extraData']['template_id'] == 9){
-                        $specialArr[0]['xmlType'] = $v['xmlType'];
-                        $specialArr[0]['view'] = $v['view'];
-                        $specialArr[0]['extraData'][] = $v['extraData'];
-                        unset($temp[$k]);
-                    }
-                }
-                if(!empty($specialArr)) $temp = array_merge($temp,$specialArr);
-                $data[] = $temp;
-                unset($temp);
             }
         }
-        //缓存到redis
-        if($data && !empty($data))
+        if($data && !empty($data))//缓存到redis
         {
             $this->redis->set('appboxbL_'.$this->language.'_'.$pos,json_encode($data));
             $this->redis->expire('appboxbL_'.$this->language.'_'.$pos,$this->expire);
         }
-
         return $data;
     }
 
-    //确定广告的跳转方式
-    public function bannersJump($data,$id){
-        $sql = "select type,typeId from appbox_banner_list where bannerId=$id";
-        $banner = $this->_db->getAll($sql);
-        $count = count($banner);
-        if($count > 1)//如果推广位是多个的话，就让他跳到推广列表
-        {
-            $data['processType'] = 106; //100下载应用 101 启动应用 102 礼包详情 103 应用详情 104 专题详情 105 打开网址 106 banner跳转到列表详情
-            $data['url'] = $this->site_root."/Apps_Spread/bannerDetail?id=$id";
-        }
-        else//如果推广位是单个的话，就让他调到对应的当个应用上去
-        {   
-            foreach($banner as $k=>$v)
-            {
-                switch($v['type'])
-                {
-                    case 'url':
-                        $data['processType'] = 104;
-                        $data['urlId'] = $v['typeId'];
-                        break;
-                    case 'gift':
-                        $data['processType'] = 102;
-                        $data['giftId'] = $v['typeId'];
-                        break;
-                    case 'app':
-                        $data['processType'] = 103;
-                        $sql = "select package_name as packageName from appbox_app where package_id={$v['typeId']}";
-                        $app = $this->_db->getRow($sql);
-                        $data['packageName'] = $app['packageName'];
-                        break;
-                }                    
-            }
-        }
-        return $data;
-    }
     /**
     *   判断是否还存在分页
     *   @param $sql string sql查询语句
@@ -356,7 +301,7 @@ class Db_Base
         $sql = "select $field,app.id as appId,gift.logo,gift.get_count,gift.start_time,gift.package_name
                     from appbox_gift as gift
                     left join appbox_app as app on app.package_name=gift.package_name left join appbox_gift_desc as descs on gift.id=descs.gid
-                    where gift.id=$id and descs.language='$language' ";
+                    where gift.id=$id and descs.language='$language' and app.language = '{$language}' ";
         $datas = $this->_db->getRow($sql);
         if(!$datas['name'] && $language != 'en')
         {

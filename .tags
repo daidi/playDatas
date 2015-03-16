@@ -19,11 +19,9 @@ CLIENT_MULTI_RESULTS	.\library\Db\Mysql.php	/^define ( 'CLIENT_MULTI_RESULTS', 1
 CaptchaController	.\application\controllers\Captcha.php	/^class CaptchaController extends Yaf_Controller_Abstract$/;"	c
 DB_MYSQL_SLAVE_KEY	.\library\Db\Mysql.php	/^define ( 'DB_MYSQL_SLAVE_KEY', '_DB_MYSQL_SLAVE_KEY_' );$/;"	d
 DS	.\index.php	/^define("DS", '\/');$/;"	d
-Data	.\library\Db\Base.php	/^            $Data = $this->getAppDetail($template, $packageId, $this->language);$/;"	v
-Data	.\library\Db\Base.php	/^            $Data = $this->getGiftDetail($template, $giftId, $this->language);$/;"	v
-Data	.\library\Db\Base.php	/^            $Data = $this->getSpreadDetail($template, $spreadId, $this->language);$/;"	v
 DayilyModel	.\application\models\Dayily.php	/^class DayilyModel extends RedisModel$/;"	c
 Db	.\application\Bootstrap.php	/^        $Db = new Db_Mysql ($this->_config->database->config->toArray());$/;"	v
+Db_Base	.\library\Db\Base-copy.php	/^class Db_Base$/;"	c
 Db_Base	.\library\Db\Base.php	/^class Db_Base$/;"	c
 Db_Mysql	.\library\Db\Mysql.php	/^class Db_Mysql {$/;"	c
 ErrorController	.\application\controllers\Error.php	/^class ErrorController extends Yaf_Controller_Abstract {$/;"	c
@@ -33,19 +31,21 @@ IndexAction	.\application\controllers\Captcha.php	/^	public function IndexAction
 IndexController	.\application\controllers\Index.php	/^class IndexController extends Yaf_Controller_Abstract $/;"	c
 OtherModel	.\application\models\Other.php	/^class OtherModel extends Db_Base$/;"	c
 RedisModel	.\application\models\Redis.php	/^class RedisModel extends Db_Base$/;"	c
-SpreadModel	.\application\models\Spread.php	/^class SpreadModel extends Db_Base$/;"	c
+SpreadModel	.\application\models\Spread.php	/^class SpreadModel extends RedisModel$/;"	c
 __construct	.\application\models\Apps.php	/^    public function __construct($category = '', $is_game = '', $pos = '', $order = '', $language = '', $cid = '', $where = '',$templateType='')$/;"	f
 __construct	.\application\models\Dayily.php	/^    public function __construct($language='') $/;"	f
 __construct	.\application\models\Gifts.php	/^    public function __construct($language = '')$/;"	f
 __construct	.\application\models\Other.php	/^    public function __construct($language='')$/;"	f
 __construct	.\application\models\Redis.php	/^    public function __construct()$/;"	f
 __construct	.\application\models\Spread.php	/^    public function __construct($language='') $/;"	f
+__construct	.\library\Db\Base-copy.php	/^	public function __construct() $/;"	f
 __construct	.\library\Db\Base.php	/^	public function __construct() $/;"	f
 __construct	.\library\Db\Mysql.php	/^	public function __construct($config) {$/;"	f
 _config	.\application\Bootstrap.php	/^        $this->_config = Yaf_Application::app()->getConfig();$/;"	v
 _config	.\application\Bootstrap.php	/^    private $_config;$/;"	v
 _config	.\application\controllers\Error.php	/^        $this->_config = Yaf_Application::app()->getConfig();$/;"	v
 _config	.\application\controllers\Error.php	/^    private $_config;$/;"	v
+_db	.\library\Db\Base-copy.php	/^		$this->_db = Yaf_Registry::get("Db");$/;"	v
 _db	.\library\Db\Base.php	/^		$this->_db = Yaf_Registry::get("Db");$/;"	v
 _initBootstrap	.\application\Bootstrap.php	/^    public function _initBootstrap()$/;"	f
 _initDefaultDbAdapter	.\application\Bootstrap.php	/^    \/\/ public function _initDefaultDbAdapter(){$/;"	f
@@ -60,14 +60,18 @@ _initRoutes	.\application\Bootstrap.php	/^    public function _initRoutes(){$/;"
 _pageNotFound	.\application\controllers\Error.php	/^    private function _pageNotFound(){$/;"	f
 _unknownError	.\application\controllers\Error.php	/^    private function _unknownError(){$/;"	f
 addFavoriteAction	.\application\controllers\Apps\Update.php	/^    public function addFavoriteAction()$/;"	f
+android_version	.\application\models\Other.php	/^        $android_version = isset($_REQUEST['android_version']) ? $_REQUEST['android_version'] : '';$/;"	v
 angle_l	.\application\controllers\Captcha.php	/^		$angle_l    = -14;  \/\/ 左偏角$/;"	v
 angle_r	.\application\controllers\Captcha.php	/^		$angle_r    = 14;   \/\/ 右偏角$/;"	v
 app	.\application\models\Gifts.php	/^                $app = $this->getLocalData($v['id'], $field['field']);\/\/获取这条专题的内容$/;"	v
 app	.\application\models\Other.php	/^        $app = $this->_db->getRow($sql);\/\/应用游戏$/;"	v
 app	.\application\models\Spread.php	/^                         $app = $this->_db->getRow($sql);$/;"	v
 app	.\index.php	/^$app  = new Yaf_Application(APP_PATH . "conf\/application.ini");$/;"	v
+app	.\library\Db\Base-copy.php	/^                            $app = $this->_db->getRow($sql);$/;"	v
+app	.\library\Db\Base-copy.php	/^            $app = $this->getApp($packageId,$field['field'],$this->language);\/\/获取这条app的内容$/;"	v
+app	.\library\Db\Base-copy.php	/^        $app = array('app_name','install_count','score','icon');$/;"	v
 app	.\library\Db\Base.php	/^                            $app = $this->_db->getRow($sql);$/;"	v
-app	.\library\Db\Base.php	/^        $app = $this->getApp($appId,$field['field'],$language);\/\/获取这条app的内容$/;"	v
+app	.\library\Db\Base.php	/^            $app = $this->getApp($packageId,$field['field'],$this->language);\/\/获取这条app的内容$/;"	v
 app	.\library\Db\Base.php	/^        $app = array('app_name','install_count','score','icon');$/;"	v
 appDetailAction	.\application\controllers\Apps\Apps.php	/^    public function appDetailAction()$/;"	f
 app_mod	.\application\controllers\Apps\Apps.php	/^        $app_mod = new AppsModel('','',2,'',$language);$/;"	v
@@ -78,14 +82,17 @@ app_mod	.\application\controllers\Apps\Apps.php	/^        $app_mod = new AppsMod
 app_mod	.\application\controllers\Apps\Games.php	/^        $app_mod = new AppsModel(2,2,2,$order,$language,$cid,$where,3);$/;"	v
 app_mod	.\application\controllers\Apps\Games.php	/^        $app_mod = new AppsModel(2,2,2,$order,$language,$cid,'',2);$/;"	v
 app_mod	.\application\controllers\Apps\Games.php	/^        $app_mod = new AppsModel(2,2,2,'',$language,$cid,'',1);$/;"	v
+apps	.\application\models\Apps.php	/^            $apps = $this->_db->getAll($sql);$/;"	v
 apps	.\application\models\Apps.php	/^            $apps = $this->getList($page, $this->order);$/;"	v
-apps	.\application\models\Apps.php	/^        $apps = $this->_db->getAll($sql);$/;"	v
+appsCount	.\application\models\Apps.php	/^            $appsCount = count($returnApps);$/;"	v
 arr	.\application\models\Apps.php	/^            $arr = $this->cursive($val['category_id'], $arr);$/;"	v
 arr	.\application\models\Apps.php	/^            $arr = array('status' => 1);$/;"	v
 arr	.\application\models\Apps.php	/^        $arr = $this->getTemplate($templateUpdateTime);$/;"	v
 arr	.\application\models\Apps.php	/^        $arr = array('status' => 1);$/;"	v
 arr	.\application\models\Apps.php	/^    public function cursive($cid, $arr = array())$/;"	v
 arr	.\application\models\Dayily.php	/^        $arr = $this->getTemplate($templateUpdateTime);$/;"	v
+arr	.\application\models\Dayily.php	/^        $arr = explode(',',$nums);$/;"	v
+arr	.\application\models\Gifts.php	/^            $arr = explode(',',$packageName);$/;"	v
 arr	.\application\models\Gifts.php	/^        $arr = $this->getTemplate($templateUpdateTime);$/;"	v
 arr	.\application\models\Gifts.php	/^        $arr = array('status' => 1);$/;"	v
 arr	.\application\models\Gifts.php	/^        $arr = array();\/\/要返回的json$/;"	v
@@ -96,6 +103,11 @@ arr	.\application\models\Spread.php	/^            $arr = json_decode(htmlspecial
 arr	.\application\models\Spread.php	/^            $arr = json_decode(htmlspecialchars_decode($data['name']),true);$/;"	v
 arr	.\application\models\Spread.php	/^        $arr = $this->getTemplate($templateUpdateTime);$/;"	v
 arr	.\application\models\Spread.php	/^        $arr = array();$/;"	v
+arr	.\library\Db\Base-copy.php	/^            $arr = $this->getAppsCategory($val['categoryId'],$arr);$/;"	v
+arr	.\library\Db\Base-copy.php	/^            $arr = json_decode($data['content'],true);$/;"	v
+arr	.\library\Db\Base-copy.php	/^            $arr = json_decode(htmlspecialchars_decode($data['description']),true);$/;"	v
+arr	.\library\Db\Base-copy.php	/^            $arr = json_decode(htmlspecialchars_decode($data['name']),true);$/;"	v
+arr	.\library\Db\Base-copy.php	/^        $arr = array('data'=>$data);$/;"	v
 arr	.\library\Db\Base.php	/^            $arr = $this->getAppsCategory($val['categoryId'],$arr);$/;"	v
 arr	.\library\Db\Base.php	/^            $arr = json_decode($data['content'],true);$/;"	v
 arr	.\library\Db\Base.php	/^            $arr = json_decode(htmlspecialchars_decode($data['description']),true);$/;"	v
@@ -104,7 +116,9 @@ arr	.\library\Db\Base.php	/^        $arr = array('data'=>$data);$/;"	v
 arr	.\library\Db\Mysql.php	/^		$arr = $this->getArray ( $rs );$/;"	v
 arr	.\library\Db\Mysql.php	/^		$arr = array ();$/;"	v
 arr1	.\application\models\Gifts.php	/^            $arr1 = $this->_db->getAll($sql);$/;"	v
+autoInsert	.\application\models\Dayily.php	/^    public function autoInsert($value){$/;"	f
 banner	.\application\models\Spread.php	/^                $banner = $this->getBanner($data['id'],$field['field'],$this->language);\/\/获取这条专题的内容  $/;"	v
+banner	.\library\Db\Base-copy.php	/^            $banner = $this->_db->getAll($sql);$/;"	v
 banner	.\library\Db\Base.php	/^            $banner = $this->_db->getAll($sql);$/;"	v
 bannerDetailAction	.\application\controllers\Apps\Spread.php	/^    public function bannerDetailAction()$/;"	f
 bannerDetailJson	.\application\models\Spread.php	/^    public function bannerDetailJson($id,$page='')$/;"	f
@@ -119,6 +133,7 @@ cancel	.\application\controllers\Apps\Update.php	/^    	$cancel = isset($_GET['c
 category	.\application\models\Apps.php	/^        $this->category = isset($category) && $category ? $category : $this->category;$/;"	v
 category	.\application\models\Apps.php	/^    protected $category = 1;\/\/分类，1，应用，2游戏$/;"	v
 category	.\application\models\Dayily.php	/^    protected $category = 1;\/\/分类，1，应用，2游戏$/;"	v
+chargePoint	.\application\controllers\Apps\Gifts.php	/^        $chargePoint = isset($_GET['chargePoint']) ? $_GET['chargePoint'] : '';$/;"	v
 chargePoint	.\application\controllers\Apps\Gifts.php	/^        $chargePoint = isset($_GET['chargePoint']) ? $_GET['chargePoint'] : '';\/\/计费点$/;"	v
 cid	.\application\controllers\Apps\Apps.php	/^        $cid = isset($_GET['cid']) ? (int)$_GET['cid'] : '';$/;"	v
 cid	.\application\controllers\Apps\Games.php	/^        $cid = isset($_GET['cid']) ? (int)$_GET['cid'] : '';                 $/;"	v
@@ -146,64 +161,114 @@ config	.\library\Db\Mysql.php	/^		$this->config = $config;$/;"	v
 config	.\library\Db\Mysql.php	/^	private $config = array ();$/;"	v
 connect	.\library\Db\Mysql.php	/^	private function connect(&$config) {$/;"	f
 coords	.\application\controllers\Captcha.php	/^			$coords = imagettftext($image, $font_size*$scale,$rand, $base_point_x, $base_point_y, $color,$font_path, mb_substr($word, $i, 1, 'utf-8'));$/;"	v
+count	.\application\models\Apps.php	/^            $count = count($datas);$/;"	v
+count	.\application\models\Dayily.php	/^                $count = count($datas);$/;"	v
+count	.\application\models\Gifts.php	/^                $count = count($temp);$/;"	v
+count	.\application\models\Gifts.php	/^            $count = count($temp);$/;"	v
 count	.\application\models\Other.php	/^                $count = $this->_db->getRow($sql);$/;"	v
 count	.\application\models\Other.php	/^            $count = count($gift);$/;"	v
+count	.\library\Db\Base-copy.php	/^            $count = count($banner);$/;"	v
+count	.\library\Db\Base-copy.php	/^        $count = $this->_db->getRow($sql);$/;"	v
 count	.\library\Db\Base.php	/^            $count = count($banner);$/;"	v
 count	.\library\Db\Base.php	/^        $count = $this->_db->getRow($sql);$/;"	v
+country	.\application\models\Other.php	/^        $country = isset($_REQUEST['country']) ? $_REQUEST['country'] : '';$/;"	v
+currentKeywords	.\application\models\Other.php	/^        $currentKeywords = isset($keywords[strtoupper($this->language)]) ? $keywords[strtoupper($this->language)] : $keywords['en'];$/;"	v
+currentPage	.\application\models\Dayily.php	/^                $currentPage = $this->page;$/;"	v
 cursive	.\application\models\Apps.php	/^    public function cursive($cid, $arr = array())$/;"	f
 data	.\application\controllers\Index.php	/^        $data = array(1,2,3,4);$/;"	v
-data	.\application\models\Apps.php	/^                $data = $this->_db->getRow($sql);$/;"	v
-data	.\application\models\Apps.php	/^                $data = file_get_contents('http:\/\/play.mobappbox.com\/index.php?m=Admin&c=Application&a=getAppInfo&flag=1&language='.$language.'&package_name=' . $packageName);$/;"	v
+data	.\application\models\Apps.php	/^                    $data = $this->_db->getRow($sql);$/;"	v
 data	.\application\models\Apps.php	/^            $data = $this->_db->getRow($sql);$/;"	v
+data	.\application\models\Dayily.php	/^            $data = $this->mergeGift($gift,$spread);\/\/组合的礼包和专题$/;"	v
+data	.\application\models\Dayily.php	/^        $data = $this->makeData($dayily);$/;"	v
+data	.\application\models\Dayily.php	/^        $data = array();\/\/放回的礼包专题组合数据$/;"	v
+data	.\application\models\Gifts.php	/^                $data = $this->_db->getAll($sql);$/;"	v
 data	.\application\models\Gifts.php	/^                $data = $this->_db->getRow($sql);$/;"	v
+data	.\application\models\Gifts.php	/^                $data = $this->_db->getRow($sqls);$/;"	v
 data	.\application\models\Gifts.php	/^            $data = $this->_db->getRow($sql);$/;"	v
+data	.\application\models\Gifts.php	/^        $data = $this->_db->getAll($sql);$/;"	v
 data	.\application\models\Gifts.php	/^        $data = $this->_db->getRow($sql);$/;"	v
 data	.\application\models\Gifts.php	/^        $data = $this->_db->getRow($sql);\/\/游戏详情$/;"	v
 data	.\application\models\Gifts.php	/^        $data = explode(',', $packageName);$/;"	v
+data	.\application\models\Other.php	/^            $data = $this->_db->getRow($sql);$/;"	v
 data	.\application\models\Other.php	/^        $data = $this->_db->getAll($sql);$/;"	v
 data	.\application\models\Redis.php	/^                    $data = $this->redis->get($val);$/;"	v
 data	.\application\models\Redis.php	/^            $data = $this->redis->get($val);$/;"	v
 data	.\application\models\Redis.php	/^        $data = $this->_db->getRow($sql);$/;"	v
+data	.\application\models\Spread.php	/^                $data = $this->getSpreadDetailRedis($redis_datas);$/;"	v
+data	.\application\models\Spread.php	/^                $data = $this->getSpreadDetailRedis($redis_datas,'appbox_banner_url');$/;"	v
 data	.\application\models\Spread.php	/^        $data = $this->_db->getRow($sql);    $/;"	v
 data	.\application\models\Spread.php	/^        $data = $this->_db->getRow($sql);$/;"	v
+data	.\library\Db\Base-copy.php	/^            $data = $this->_db->getAll($sql);$/;"	v
+data	.\library\Db\Base-copy.php	/^        $data =  $this->_db->getRow($sql);$/;"	v
+data	.\library\Db\Base-copy.php	/^        $data = $this->_db->getAll($sql);$/;"	v
+data	.\library\Db\Base-copy.php	/^        $data = $this->_db->getRow($sql);    $/;"	v
+data	.\library\Db\Base-copy.php	/^        $data = array_merge($self,$arr);$/;"	v
 data	.\library\Db\Base.php	/^            $data = $this->_db->getAll($sql);$/;"	v
 data	.\library\Db\Base.php	/^        $data =  $this->_db->getRow($sql);$/;"	v
 data	.\library\Db\Base.php	/^        $data = $this->_db->getAll($sql);$/;"	v
 data	.\library\Db\Base.php	/^        $data = $this->_db->getRow($sql);    $/;"	v
+data	.\library\Db\Base.php	/^        $data = $this->_db->getRow($sql);$/;"	v
 data	.\library\Db\Base.php	/^        $data = array_merge($self,$arr);$/;"	v
 dataArr	.\application\models\Other.php	/^                $dataArr = json_decode($jsonData,true);$/;"	v
-datas	.\application\models\Spread.php	/^                $datas = $this->getSpreadDetail($template,$data['id'],$this->language);$/;"	v
+datas	.\application\models\Apps.php	/^                $datas = array_merge($returnGifts,$returnApps);$/;"	v
+datas	.\application\models\Apps.php	/^                $datas = array_merge($returnGifts,$returnApps,$returnSpreads);$/;"	v
+datas	.\application\models\Apps.php	/^            $datas = $returnGifts;$/;"	v
+datas	.\application\models\Apps.php	/^            $datas = $this->matchTemplate(json_decode($datas,true));$/;"	v
+datas	.\application\models\Apps.php	/^            $datas = file_get_contents($url);$/;"	v
+datas	.\application\models\Apps.php	/^        $datas = array();\/\/返回的数组$/;"	v
+datas	.\application\models\Dayily.php	/^                $datas = $this->autoInsert($value);$/;"	v
+datas	.\application\models\Dayily.php	/^                $datas = $this->makeData($datas);$/;"	v
+datas	.\application\models\Spread.php	/^                $datas = $this->getSpreadDetail($data['releaseTime'],$data['id']);$/;"	v
 datas	.\application\models\Spread.php	/^                $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);$/;"	v
+datas	.\library\Db\Base-copy.php	/^                $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);$/;"	v
+datas	.\library\Db\Base-copy.php	/^        $datas = $this->_db->getRow($sql);$/;"	v
+datas	.\library\Db\Base.php	/^                $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);$/;"	v
 datas	.\library\Db\Base.php	/^        $datas = $this->_db->getRow($sql);$/;"	v
-datas	.\library\Db\Base.php	/^        $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);        $/;"	v
-datas	.\library\Db\Base.php	/^        $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);$/;"	v
-dayily	.\application\models\Dayily.php	/^            $dayily = $this->getList($page);$/;"	v
+dayily	.\application\models\Dayily.php	/^                $dayily = $this->getList($page);$/;"	v
+dayily	.\application\models\Dayily.php	/^            $dayily = $this->getList(0);$/;"	v
+dayily	.\application\models\Dayily.php	/^        $dayily = $this->getList($start);$/;"	v
 dayily	.\application\models\Other.php	/^        $dayily = $this->_db->getAll($sql);$/;"	v
 dayilyUpdateTime	.\application\controllers\Apps\Update.php	/^        $dayilyUpdateTime = isset($_GET['dayilyUpdateTime']) ? (int)$_GET['dayilyUpdateTime'] : 0;$/;"	v
 dayily_mod	.\application\controllers\Apps\Dayily.php	/^        $dayily_mod = new DayilyModel($language);$/;"	v
 db	.\library\Db\Mysql.php	/^$db = new db_mysql($cfg);$/;"	v
 dbAdapter	.\application\Bootstrap.php	/^        $dbAdapter = new Zend_Db_Adapter_Pdo_Sqlite($/;"	v
 dbAdapter	.\application\Bootstrap.php	/^    \/\/     $dbAdapter = new Zend_Db_Adapter_Pdo_Mysql($/;"	v
-descs	.\library\Db\Base.php	/^        $descs = array('description','name');$/;"	v
+descs	.\library\Db\Base-copy.php	/^        $descs = array('description','name','keywords');$/;"	v
+descs	.\library\Db\Base.php	/^        $descs = array('description','name','keywords');$/;"	v
 doExecute	.\library\Db\Mysql.php	/^	private function doExecute($sql) {$/;"	f
 downloadAction	.\application\controllers\Apps\Apps.php	/^    public function downloadAction()$/;"	f
 downloadAction	.\application\controllers\Apps\Games.php	/^    public function downloadAction()$/;"	f
+email	.\application\models\Other.php	/^        $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';$/;"	v
 errorAction	.\application\controllers\Error.php	/^    public function errorAction() {$/;"	f
 exception	.\application\controllers\Error.php	/^        $exception = $this->getRequest()->getParam('exception');$/;"	v
 execute	.\library\Db\Mysql.php	/^	public function execute($sql = '') {$/;"	f
-expire	.\library\Db\Base.php	/^    protected $expire = '3600';\/\/缓存的更新过期时间$/;"	v
+expire	.\library\Db\Base-copy.php	/^    protected $expire = '86400';\/\/缓存的更新过期时间$/;"	v
+expire	.\library\Db\Base.php	/^    protected $expire = '86400';\/\/缓存的更新过期时间$/;"	v
 extraData	.\application\models\Spread.php	/^                $extraData = array('bannerId'=>$data['id'],'imgWidth'=>$data['imgWidth'],'imgHeight'=>$data['imgHeight']);$/;"	v
-extraData	.\library\Db\Base.php	/^        $extraData = array('appId'=>$appId,'packageName'=>$app['package_name'],'market_url'=>$this->url.$app['package_name'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'download_count'=>$app['install_count'],'templateId'=>$template['id']);$/;"	v
-extraData	.\library\Db\Base.php	/^        $extraData = array('giftId'=>$giftId,'appId'=>$gift['appId'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'download_count'=>$gift['install_count']);$/;"	v
-extraData	.\library\Db\Base.php	/^        $extraData = array('spreadId'=>$spreadId,'imgWidth'=>$spread['imgWidth'],'imgHeight'=>$spread['imgHeight']);$/;"	v
-extraData	.\library\Db\Base.php	/^        $extraData = array('urlId'=>$urlId,'url'=>$url['url'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'imgWidth'=>$url['imgWidth'],'imgHeight'=>$url['imgHeight']);$/;"	v
+extraData	.\library\Db\Base-copy.php	/^                $extraData = array('appId'=>$packageId,'packageName'=>$app['package_name'],'market_url'=>$this->url.$app['package_name'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'download_count'=>$app['install_count'],'templateId'=>$template['id'],'haveGift'=>$haveGift);$/;"	v
+extraData	.\library\Db\Base-copy.php	/^                $extraData = array('giftId'=>$giftId,'appId'=>$gift['appId'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'download_count'=>$gift['install_count'],'acquireTime'=>$gift['get_count'],'isHot'=>$is_hot,'isNew'=>$is_new,'pkg_name'=>$gift['package_name']);$/;"	v
+extraData	.\library\Db\Base-copy.php	/^                $extraData = array('spreadId'=>$spreadId,'imgWidth'=>$spread['imgWidth'],'imgHeight'=>$spread['imgHeight']);$/;"	v
+extraData	.\library\Db\Base-copy.php	/^                $extraData = array('urlId'=>$urlId,'url'=>$url['url'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'imgWidth'=>$url['imgWidth'],'imgHeight'=>$url['imgHeight']);$/;"	v
+extraData	.\library\Db\Base.php	/^                $extraData = array('appId'=>$packageId,'packageName'=>$app['package_name'],'market_url'=>$this->url.$app['package_name'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'download_count'=>$app['install_count'],'templateId'=>$template['id'],'haveGift'=>$haveGift);$/;"	v
+extraData	.\library\Db\Base.php	/^                $extraData = array('giftId'=>$giftId,'appId'=>$gift['appId'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'download_count'=>$gift['install_count'],'acquireTime'=>$gift['get_count'],'isHot'=>$is_hot,'isNew'=>$is_new,'pkg_name'=>$gift['package_name']);$/;"	v
+extraData	.\library\Db\Base.php	/^                $extraData = array('spreadId'=>$spreadId,'imgWidth'=>$spread['imgWidth'],'imgHeight'=>$spread['imgHeight']);$/;"	v
+extraData	.\library\Db\Base.php	/^                $extraData = array('urlId'=>$urlId,'url'=>$url['url'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'imgWidth'=>$url['imgWidth'],'imgHeight'=>$url['imgHeight']);$/;"	v
 extral	.\application\models\Gifts.php	/^                $extral = $this->getLocalExtral($arr1, $template['templateName']);$/;"	v
+feedback	.\application\models\Other.php	/^        $feedback = isset($_REQUEST['feedback']) ? $_REQUEST['feedback'] : '';$/;"	v
+feedbackAction	.\application\controllers\Apps\Update.php	/^    public function feedbackAction()$/;"	f
+field	.\application\models\Apps.php	/^            $field = array();\/\/要查询的字段$/;"	v
 field	.\application\models\Gifts.php	/^                $field = $this->getField($template['id'], 'app');\/\/取出与其对应模板的内容$/;"	v
 field	.\application\models\Spread.php	/^                $field = $this->getField($template['id'],'banner');\/\/取出与其对应模板的内容$/;"	v
-field	.\library\Db\Base.php	/^        $field = $this->getField($template['id'],'app');\/\/取出与其对应模板的内容$/;"	v
-field	.\library\Db\Base.php	/^        $field = $this->getField($template['id'],'spread');\/\/取出与其对应模板的内容$/;"	v
-field	.\library\Db\Base.php	/^        $field = $this->getField($template['id'],'url');$/;"	v
-field	.\library\Db\Base.php	/^        $field = $this->getGiftField($template['id']);\/\/取出与其对应模板的内容$/;"	v
+field	.\library\Db\Base-copy.php	/^            $field = $this->getField($template['id'],'app');\/\/取出与其对应模板的内容$/;"	v
+field	.\library\Db\Base-copy.php	/^            $field = $this->getField($template['id'],'spread');\/\/取出与其对应模板的内容$/;"	v
+field	.\library\Db\Base-copy.php	/^            $field = $this->getField($template['id'],'url');$/;"	v
+field	.\library\Db\Base-copy.php	/^            $field = $this->getGiftField($template['id']);\/\/取出与其对应模板的内容$/;"	v
+field	.\library\Db\Base-copy.php	/^        $field = '';$/;"	v
+field	.\library\Db\Base-copy.php	/^        $field = trim($field,',');$/;"	v
+field	.\library\Db\Base.php	/^            $field = $this->getField($template['id'],'app');\/\/取出与其对应模板的内容$/;"	v
+field	.\library\Db\Base.php	/^            $field = $this->getField($template['id'],'spread');\/\/取出与其对应模板的内容$/;"	v
+field	.\library\Db\Base.php	/^            $field = $this->getField($template['id'],'url');$/;"	v
+field	.\library\Db\Base.php	/^            $field = $this->getGiftField($template['id']);\/\/取出与其对应模板的内容$/;"	v
 field	.\library\Db\Base.php	/^        $field = '';$/;"	v
 field	.\library\Db\Base.php	/^        $field = trim($field,',');$/;"	v
 fields	.\library\Db\Mysql.php	/^			$fields = "(`" . implode ( "`,`", $fields ) . "`)";$/;"	v
@@ -211,6 +276,7 @@ fields	.\library\Db\Mysql.php	/^			$fields = "(`" . implode ( "`,`", array_keys 
 fields	.\library\Db\Mysql.php	/^			$fields = array ();$/;"	v
 first	.\library\Db\Mysql.php	/^				$first = false;$/;"	v
 first	.\library\Db\Mysql.php	/^			$first = true;$/;"	v
+firstData	.\application\models\Spread.php	/^            $firstData = array();$/;"	v
 font	.\application\controllers\Captcha.php	/^		$font = $fonts_cfg[array_rand($fonts_cfg)];$/;"	v
 font_dir	.\application\controllers\Captcha.php	/^		$font_dir   = "\/font\/";	\/\/ 字体库$/;"	v
 font_path	.\application\controllers\Captcha.php	/^		$font_path = $font_dir . $font['font'];$/;"	v
@@ -219,25 +285,33 @@ fonts_cfg	.\application\controllers\Captcha.php	/^		$fonts_cfg = array($/;"	v
 free	.\library\Db\Mysql.php	/^	private function free() {$/;"	f
 getAffectedRows	.\library\Db\Mysql.php	/^	public function getAffectedRows() {$/;"	f
 getAll	.\library\Db\Mysql.php	/^	public function getAll($sql, $master = false) {$/;"	f
-getApp	.\library\Db\Base.php	/^    public function getApp($id,$field,$language)$/;"	f
-getAppData	.\library\Db\Base.php	/^    public function getAppData($releaseTime, $packageId,$templateType)$/;"	f
-getAppDetail	.\library\Db\Base.php	/^    public function getAppDetail($template,$appId,$language='en')$/;"	f
+getApp	.\library\Db\Base-copy.php	/^    public function getApp($packageId,$field,$language)$/;"	f
+getApp	.\library\Db\Base.php	/^    public function getApp($packageId,$field,$language)$/;"	f
+getAppDetail	.\library\Db\Base-copy.php	/^    public function getAppDetail($releaseTime, $packageId, $templateType)$/;"	f
+getAppDetail	.\library\Db\Base.php	/^    public function getAppDetail($releaseTime, $packageId, $templateType)$/;"	f
 getAppRedis	.\application\models\Redis.php	/^    public function getAppRedis($redis_datas)$/;"	f
-getAppsCategory	.\library\Db\Base.php	/^    public function getAppsCategory($cid,$arr = array(),$language='en')$/;"	f
+getAppsCategory	.\library\Db\Base-copy.php	/^    public function getAppsCategory($cid,$arr = array())$/;"	f
+getAppsCategory	.\library\Db\Base.php	/^    public function getAppsCategory($cid,$arr = array())$/;"	f
 getArray	.\library\Db\Mysql.php	/^	public function getArray($query_id, $mode = MYSQL_ASSOC) {$/;"	f
 getBanner	.\application\models\Spread.php	/^    public function getBanner($id,$field,$language)$/;"	f
+getBanners	.\library\Db\Base-copy.php	/^    public function getBanners($pos)$/;"	f
 getBanners	.\library\Db\Base.php	/^    public function getBanners($pos)$/;"	f
+getCircleGift	.\application\models\Gifts.php	/^    public function getCircleGift($p){$/;"	f
+getCircleGiftAction	.\application\controllers\Apps\Gifts.php	/^    public function getCircleGiftAction(){$/;"	f
 getCode	.\application\models\Gifts.php	/^    public function getCode($code = '', $id = '', $packageName = '', $chargePoint = '')$/;"	f
 getCodeAction	.\application\controllers\Apps\Gifts.php	/^    public function getCodeAction()$/;"	f
 getDayilyRedis	.\application\models\Redis.php	/^    public function getDayilyRedis($redis_datas)$/;"	f
-getDetailJson	.\application\models\Apps.php	/^    public function getDetailJson($packageName, $language)$/;"	f
-getDetailJson	.\application\models\Gifts.php	/^    public function getDetailJson($id)$/;"	f
+getDetailJson	.\application\models\Apps.php	/^    public function getDetailJson($packageName)$/;"	f
+getDetailJson	.\application\models\Gifts.php	/^    public function getDetailJson($id='',$packageName='',$chargePoint='')$/;"	f
 getDetailJson	.\application\models\Spread.php	/^    public function getDetailJson($id,$page='')$/;"	f
 getFavorite	.\application\models\Other.php	/^    public function getFavorite($uuid,$packageName,$cancel)$/;"	f
+getField	.\library\Db\Base-copy.php	/^    public function getField($id,$alias)$/;"	f
 getField	.\library\Db\Base.php	/^    public function getField($id,$alias)$/;"	f
+getGift	.\library\Db\Base-copy.php	/^    public function getGift($id,$field,$language)$/;"	f
 getGift	.\library\Db\Base.php	/^    public function getGift($id,$field,$language)$/;"	f
-getGiftData	.\library\Db\Base.php	/^    public function getGiftData($releaseTime, $giftId, $templateType)$/;"	f
-getGiftDetail	.\library\Db\Base.php	/^    public function getGiftDetail($template,$giftId,$language='en')$/;"	f
+getGiftDetail	.\library\Db\Base-copy.php	/^    public function getGiftDetail($releaseTime, $giftId)$/;"	f
+getGiftDetail	.\library\Db\Base.php	/^    public function getGiftDetail($releaseTime, $giftId)$/;"	f
+getGiftField	.\library\Db\Base-copy.php	/^    public function getGiftField($id)$/;"	f
 getGiftField	.\library\Db\Base.php	/^    public function getGiftField($id)$/;"	f
 getGiftRedis	.\application\models\Redis.php	/^    public function getGiftRedis($redis_datas)$/;"	f
 getInsertSql	.\library\Db\Mysql.php	/^	public function getInsertSql($tble_name, $data) {$/;"	f
@@ -255,50 +329,89 @@ getLocalData	.\application\models\Gifts.php	/^    public function getLocalData($
 getLocalDetail	.\application\models\Gifts.php	/^    public function getLocalDetail($packageName)$/;"	f
 getLocalExtral	.\application\models\Gifts.php	/^    public function getLocalExtral($arr, $templateName)$/;"	f
 getMultiInsertSql	.\library\Db\Mysql.php	/^	public function getMultiInsertSql($tble_name, $data) {$/;"	f
+getMytemplate	.\library\Db\Base-copy.php	/^    public function getMytemplate($id){$/;"	f
+getMytemplate	.\library\Db\Base.php	/^    public function getMytemplate($id){$/;"	f
 getNumFields	.\library\Db\Mysql.php	/^	public function getNumFields($query_id) {$/;"	f
 getNumRows	.\library\Db\Mysql.php	/^	public function getNumRows($query_id) {$/;"	f
 getOne	.\library\Db\Mysql.php	/^	public function getOne($sql, $master = false) {$/;"	f
+getPage	.\library\Db\Base-copy.php	/^    public function getPage($sql,$page,$num)$/;"	f
 getPage	.\library\Db\Base.php	/^    public function getPage($sql,$page,$num)$/;"	f
 getProcedureId	.\library\Db\Mysql.php	/^	public function getProcedureId($sql='', $q_name)$/;"	f
+getRandGift	.\application\models\Gifts.php	/^    public function getRandGift($packageName){$/;"	f
+getRandGiftAction	.\application\controllers\Apps\Gifts.php	/^    public function getRandGiftAction(){$/;"	f
 getReplaceSql	.\library\Db\Mysql.php	/^	public function getReplaceSql($tble_name, $data) {$/;"	f
 getRow	.\library\Db\Mysql.php	/^	public function getRow($sql, $master = false) {$/;"	f
 getSelectSql	.\library\Db\Mysql.php	/^	public function getSelectSql($fields, $tables, $where = '', $group_by = '', $having = '', $order_by = '', $limit = '') {$/;"	f
+getSelfTemplate	.\library\Db\Base-copy.php	/^    public function getSelfTemplate($releaseTime,$type)$/;"	f
 getSelfTemplate	.\library\Db\Base.php	/^    public function getSelfTemplate($releaseTime,$type)$/;"	f
+getSpread	.\library\Db\Base-copy.php	/^    public function getSpread($id,$field,$language)$/;"	f
 getSpread	.\library\Db\Base.php	/^    public function getSpread($id,$field,$language)$/;"	f
-getSpreadData	.\library\Db\Base.php	/^    public function getSpreadData($releaseTime, $spreadId, $templateType)$/;"	f
-getSpreadDetail	.\library\Db\Base.php	/^    public function getSpreadDetail($template,$spreadId,$language='en')$/;"	f
+getSpreadDetail	.\library\Db\Base-copy.php	/^    public function getSpreadDetail($releaseTime, $spreadId)$/;"	f
+getSpreadDetail	.\library\Db\Base.php	/^    public function getSpreadDetail($releaseTime, $spreadId)$/;"	f
+getSpreadDetailRedis	.\application\models\Redis.php	/^    public function getSpreadDetailRedis($redis_datas,$type='appbox_spread_url')$/;"	f
 getSpreadRedis	.\application\models\Redis.php	/^    public function getSpreadRedis($redis_datas)$/;"	f
+getTemplate	.\library\Db\Base-copy.php	/^    public function getTemplate($templateUpdateTime = '')$/;"	f
 getTemplate	.\library\Db\Base.php	/^    public function getTemplate($templateUpdateTime = '')$/;"	f
-getUpdate	.\application\models\Other.php	/^    public function getUpdate($giftUpdateTime,$spreadUpdateTime,$dayilyUpdateTime)$/;"	f
+getUpdate	.\application\models\Other.php	/^    public function getUpdate($giftUpdateTime,$spreadUpdateTime,$dayilyUpdateTime,$ver_code)$/;"	f
 getUpdateSql	.\library\Db\Mysql.php	/^	public function getUpdateSql($tble_name, $data, $condition = '') {$/;"	f
+getUrl	.\library\Db\Base-copy.php	/^    public function getUrl($id,$field,$type,$language)$/;"	f
 getUrl	.\library\Db\Base.php	/^    public function getUrl($id,$field,$type,$language)$/;"	f
-getUrlDetail	.\library\Db\Base.php	/^    public function getUrlDetail($template,$urlId,$type='appbox_spread_url',$language='en')$/;"	f
+getUrlDetail	.\library\Db\Base-copy.php	/^    public function getUrlDetail($releaseTime,$urlId,$type='appbox_spread_url')$/;"	f
+getUrlDetail	.\library\Db\Base.php	/^    public function getUrlDetail($releaseTime,$urlId,$type='appbox_spread_url')$/;"	f
+getView	.\library\Db\Base-copy.php	/^    public function getView($data,$item)$/;"	f
 getView	.\library\Db\Base.php	/^    public function getView($data,$item)$/;"	f
+gift	.\application\models\Apps.php	/^            $gift = $this->_db->getRow($sql);$/;"	v
+gift	.\application\models\Dayily.php	/^            $gift = $this->_db->getAll($sql);$/;"	v
 gift	.\application\models\Gifts.php	/^            $gift = $this->_db->getAll($sql);\/\/获取礼包列表$/;"	v
 gift	.\application\models\Gifts.php	/^            $gift = $this->_db->getRow($sql);$/;"	v
 gift	.\application\models\Gifts.php	/^        $gift = $this->_db->getRow($sql);$/;"	v
 gift	.\application\models\Other.php	/^        $gift = $this->_db->getAll($sql);$/;"	v
 gift	.\application\models\Other.php	/^        $gift = $this->_db->getAll($sql);\/\/礼包$/;"	v
 gift	.\application\models\Spread.php	/^                         $gift = $this->_db->getRow($sql);$/;"	v
-gift	.\library\Db\Base.php	/^        $gift = $this->getGift($giftId,$field['field'],$language);\/\/获取这条app的内容$/;"	v
+gift	.\library\Db\Base-copy.php	/^            $gift = $this->getGift($giftId,$field['field'],$this->language);\/\/获取这条app的内容$/;"	v
+gift	.\library\Db\Base.php	/^            $gift = $this->getGift($giftId,$field['field'],$this->language);\/\/获取这条app的内容$/;"	v
+giftCount	.\application\models\Dayily.php	/^        $this->giftCount = count($gift);$/;"	v
+giftCount	.\application\models\Dayily.php	/^    protected $giftCount;\/\/不在精选表礼包的总数$/;"	v
+giftHot	.\library\Db\Base-copy.php	/^    public function giftHot($id){$/;"	f
+giftHot	.\library\Db\Base.php	/^    public function giftHot($id){$/;"	f
+giftInterval	.\application\models\Dayily.php	/^            $this->giftInterval = $value['gift'];\/\/礼包间隔数$/;"	v
+giftInterval	.\application\models\Dayily.php	/^    protected $giftInterval;\/\/礼包插入的间隔$/;"	v
 giftUpdateTime	.\application\controllers\Apps\Update.php	/^        $giftUpdateTime = isset($_GET['giftUpdateTime']) ? (int)$_GET['giftUpdateTime'] : 0;$/;"	v
 gift_mod	.\application\controllers\Apps\Gifts.php	/^    	$gift_mod = new GiftsModel($language);$/;"	v
 gift_mod	.\application\controllers\Apps\Gifts.php	/^        $gift_mod = new GiftsModel($language);$/;"	v
 gift_mod	.\application\controllers\Apps\Gifts.php	/^        $gift_mod = new GiftsModel();$/;"	v
 gift_mod	.\application\controllers\Bundlegift.php	/^        $gift_mod = new GiftsModel();$/;"	v
+gifts	.\application\models\Apps.php	/^        $gifts = $this->_db->getAll($sql);$/;"	v
 gifts	.\application\models\Gifts.php	/^            $gifts = $this->getList($page);$/;"	v
+giftsCount	.\application\models\Apps.php	/^        $giftsCount = count($returnGifts);$/;"	v
 halt	.\library\Db\Mysql.php	/^	private function halt($message) {$/;"	f
 handleLike	.\application\models\Other.php	/^    public function handleLike($sql,$packageName)$/;"	f
+hasNextPage	.\application\models\Dayily.php	/^            $this->hasNextPage = false;$/;"	v
+hasNextPage	.\application\models\Dayily.php	/^            $this->hasNextPage = true;  $/;"	v
+hasNextPage	.\application\models\Dayily.php	/^            if($this->getList($this->pageNum)) $this->hasNextPage = true;$/;"	v
+hasNextPage	.\application\models\Dayily.php	/^    protected $hasNextPage = false;\/\/是否还有下一页$/;"	v
+hasNextPage	.\library\Db\Base-copy.php	/^            $hasNextPage = false;\/\/没有分页了        $/;"	v
+hasNextPage	.\library\Db\Base-copy.php	/^            $hasNextPage = true;\/\/还有分页$/;"	v
 hasNextPage	.\library\Db\Base.php	/^            $hasNextPage = false;\/\/没有分页了        $/;"	v
 hasNextPage	.\library\Db\Base.php	/^            $hasNextPage = true;\/\/还有分页$/;"	v
 hateAction	.\application\controllers\Apps\Like.php	/^    public function hateAction()$/;"	f
-id	.\application\controllers\Apps\Gifts.php	/^    	$id = isset($_GET['id']) ? (int)$_GET['id'] : exit;$/;"	v
+haveGift	.\library\Db\Base-copy.php	/^                $haveGift = $this->haveGift($app['package_name']);$/;"	v
+haveGift	.\library\Db\Base-copy.php	/^    public function haveGift($packageName)$/;"	f
+haveGift	.\library\Db\Base.php	/^                $haveGift = $this->haveGift($app['package_name']);$/;"	v
+haveGift	.\library\Db\Base.php	/^    public function haveGift($packageName)$/;"	f
+havePage	.\application\models\Dayily.php	/^    public function havePage(){$/;"	f
+have_gift	.\application\models\Apps.php	/^                $have_gift = $this->redis->delete($this->redis->keys('appboxL_g_'.$gift['id'].'_*'));$/;"	v
+have_gift	.\application\models\Apps.php	/^            $have_gift = true;$/;"	v
+i	.\application\models\Dayily.php	/^        $i=0;\/\/取第几个礼包$/;"	v
 id	.\application\controllers\Apps\Gifts.php	/^        $id = isset($_GET['id']) ? $_GET['id'] : '';\/\/ 礼包id$/;"	v
+id	.\application\controllers\Apps\Gifts.php	/^        $id = isset($_GET['id']) ? (int)$_GET['id'] : '';$/;"	v
 id	.\application\controllers\Apps\Spread.php	/^        $id = isset($_GET['id']) ? (int)($_GET['id']) : exit;$/;"	v
 id	.\application\models\Gifts.php	/^                $id = $data['gid'];$/;"	v
 id	.\application\models\Gifts.php	/^    public function getCode($code = '', $id = '', $packageName = '', $chargePoint = '')$/;"	v
 id	.\application\models\Redis.php	/^        $id = $split[2];$/;"	v
 ids	.\application\models\Apps.php	/^        $ids = $this->_db->getAll($sql);$/;"	v
+ids	.\library\Db\Base-copy.php	/^        $ids = $this->_db->getAll($sql);$/;"	v
+ids	.\library\Db\Base.php	/^        $ids = $this->_db->getAll($sql);$/;"	v
 imResampled	.\application\controllers\Captcha.php	/^		$imResampled = imagecreatetruecolor($img_w, $img_h);$/;"	v
 image	.\application\controllers\Captcha.php	/^		$image = $imResampled;$/;"	v
 image	.\application\controllers\Captcha.php	/^		$image = imagecreatetruecolor($img_w * $scale, $img_h * $scale);$/;"	v
@@ -313,17 +426,37 @@ indexAction	.\application\controllers\Apps\Spread.php	/^    public function inde
 indexAction	.\application\controllers\Apps\Update.php	/^    public function indexAction() $/;"	f
 indexAction	.\application\controllers\Error.php	/^    public function indexAction()$/;"	f
 indexAction	.\application\controllers\Index.php	/^    public function indexAction() $/;"	f
+info	.\application\models\Apps.php	/^        $info = $this->_db->getAll($sql);$/;"	v
+info	.\application\models\Dayily.php	/^		$info = $this->_db->getAll($sql);$/;"	v
+info	.\application\models\Gifts.php	/^        $info = $this->_db->getAll($sql);$/;"	v
+info	.\application\models\Spread.php	/^		$info = $this->_db->getAll($sql);$/;"	v
 init	.\application\controllers\Error.php	/^    public function init(){$/;"	f
 initConnect	.\library\Db\Mysql.php	/^	private function initConnect($master = true) {$/;"	f
 insert	.\library\Db\Mysql.php	/^	public function insert($tble_name, $data) {$/;"	f
 insertMulti	.\library\Db\Mysql.php	/^	public function insertMulti($tble_name, $data) {$/;"	f
+interval	.\application\models\Dayily.php	/^            $interval = $value['interval'];\/\/礼包或专题取得总数$/;"	v
+interval	.\application\models\Dayily.php	/^        $interval = $currentPage-$page;$/;"	v
+is_banner	.\application\models\Redis.php	/^        if($is_banner && $is_banner == 'banner') {$/;"	v
+is_delete_app	.\application\models\Apps.php	/^            $is_delete_app = $this->redis->delete($this->redis->keys('appboxL_'.$data['package_id'].'_*'));$/;"	v
 is_game	.\application\models\Apps.php	/^        $is_game = $this->is_game == 1 ? 'app' : 'game';$/;"	v
 is_game	.\application\models\Apps.php	/^        $this->is_game = isset($is_game) && $is_game ? $is_game : $this->is_game;$/;"	v
 is_game	.\application\models\Apps.php	/^    protected $is_game = 2;\/\/是游戏还是应用，1，应用 2,游戏，$/;"	v
 is_game	.\application\models\Apps.php	/^    public function __construct($category = '', $is_game = '', $pos = '', $order = '', $language = '', $cid = '', $where = '',$templateType='')$/;"	v
 is_game	.\application\models\Dayily.php	/^    protected $is_game = 2;\/\/是游戏还是应用，1,游戏，2，应用$/;"	v
+is_hot	.\library\Db\Base-copy.php	/^                $is_hot = $this->giftHot($giftId);$/;"	v
+is_hot	.\library\Db\Base.php	/^                $is_hot = $this->giftHot($giftId);$/;"	v
+is_new	.\library\Db\Base-copy.php	/^                    $is_new = true;$/;"	v
+is_new	.\library\Db\Base-copy.php	/^                $is_new = false;$/;"	v
+is_new	.\library\Db\Base.php	/^                    $is_new = true;$/;"	v
+is_new	.\library\Db\Base.php	/^                $is_new = false;$/;"	v
+is_true	.\application\models\Other.php	/^        $is_true = $this->_db->query($sql);$/;"	v
+is_true	.\library\Db\Base-copy.php	/^        $is_true = $this->_db->getRow($sql);$/;"	v
+is_true	.\library\Db\Base-copy.php	/^        $this->is_true = 0;$/;"	v
+is_true	.\library\Db\Base-copy.php	/^    protected $is_true = 0;$/;"	v
 is_true	.\library\Db\Base.php	/^        $this->is_true = 0;$/;"	v
 is_true	.\library\Db\Base.php	/^    protected $is_true = 0;$/;"	v
+j	.\application\models\Apps.php	/^            $j = 0;$/;"	v
+j	.\application\models\Dayily.php	/^                    $j = 0;$/;"	v
 json	.\application\controllers\Apps\Apps.php	/^        $json = $app_mod->getDetailJson($packageName,$language);$/;"	v
 json	.\application\controllers\Apps\Apps.php	/^        $json = $app_mod->getJson($page,$templateUpdateTime,'download');$/;"	v
 json	.\application\controllers\Apps\Apps.php	/^        $json = $app_mod->getJson($page,$templateUpdateTime,'new');$/;"	v
@@ -333,44 +466,68 @@ json	.\application\controllers\Apps\Dayily.php	/^        $json = $dayily_mod->ge
 json	.\application\controllers\Apps\Games.php	/^        $json = $app_mod->getJson($page,$templateUpdateTime,'download');$/;"	v
 json	.\application\controllers\Apps\Games.php	/^        $json = $app_mod->getJson($page,$templateUpdateTime,'new');$/;"	v
 json	.\application\controllers\Apps\Games.php	/^        $json = $app_mod->getJson($page,$templateUpdateTime,'score');$/;"	v
+json	.\application\controllers\Apps\Gifts.php	/^        $json = $gift_mod->getCircleGift($p);$/;"	v
 json	.\application\controllers\Apps\Gifts.php	/^        $json = $gift_mod->getCode($code,$id,$packageName,$chargePoint);$/;"	v
-json	.\application\controllers\Apps\Gifts.php	/^        $json = $gift_mod->getDetailJson($id);$/;"	v
+json	.\application\controllers\Apps\Gifts.php	/^        $json = $gift_mod->getDetailJson($id,$packageName,$chargePoint);$/;"	v
 json	.\application\controllers\Apps\Gifts.php	/^        $json = $gift_mod->getJson($page,$templateUpdateTime);$/;"	v
 json	.\application\controllers\Apps\Gifts.php	/^        $json = $gift_mod->getLocal($packageName,$templateUpdateTime);$/;"	v
 json	.\application\controllers\Apps\Gifts.php	/^        $json = $gift_mod->getLocalDetail($packageName);$/;"	v
+json	.\application\controllers\Apps\Gifts.php	/^        $json = $gift_mod->getRandGift($packageName);$/;"	v
 json	.\application\controllers\Apps\Like.php	/^        $json = $other_mod->handleLike($sql,$packageName);$/;"	v
 json	.\application\controllers\Apps\Spread.php	/^        $json = $banner_mod->bannerDetailJson($id,$p);$/;"	v
 json	.\application\controllers\Apps\Spread.php	/^        $json = $spread_mod->getDetailJson($id,$p);$/;"	v
 json	.\application\controllers\Apps\Spread.php	/^        $json = $spread_mod->getJson($page,$templateUpdateTime);$/;"	v
 json	.\application\controllers\Apps\Update.php	/^    	$json = $other_mod->getFavorite($uuid,$packageName,$cancel);$/;"	v
 json	.\application\controllers\Apps\Update.php	/^    	$json = $other_mod->getKeywords();$/;"	v
-json	.\application\controllers\Apps\Update.php	/^    	$json = $other_mod->getUpdate($giftUpdateTime,$spreadUpdateTime,$dayilyUpdateTime);$/;"	v
+json	.\application\controllers\Apps\Update.php	/^    	$json = $other_mod->getUpdate($giftUpdateTime,$spreadUpdateTime,$dayilyUpdateTime,$ver_code);$/;"	v
+json	.\application\controllers\Apps\Update.php	/^        $json = $other_mod->setFeedback();$/;"	v
 json	.\application\controllers\Bundlegift.php	/^        $json = $gift_mod->verifyCode($packageName,$code);$/;"	v
 json_description	.\application\models\Spread.php	/^                $json_description = json_decode(htmlspecialchars_decode($data['description']),true);$/;"	v
 json_title	.\application\models\Spread.php	/^                $json_title = json_decode(htmlspecialchars_decode($data['name']),true);$/;"	v
+k	.\application\models\Apps.php	/^                foreach($template as $k=>$v) {$/;"	v
 k	.\application\models\Gifts.php	/^        foreach ($arr as $k => $v) {$/;"	v
 k	.\application\models\Gifts.php	/^        foreach ($data as $k => $v)\/\/查询包名对应的包id$/;"	v
 k	.\application\models\Gifts.php	/^        foreach ($temp as $k => $v) {$/;"	v
+k	.\library\Db\Base-copy.php	/^                foreach($banner as $k=>$v)$/;"	v
+k	.\library\Db\Base-copy.php	/^        foreach($data as $k=>$v)$/;"	v
 k	.\library\Db\Base.php	/^                foreach($banner as $k=>$v)$/;"	v
 k	.\library\Db\Base.php	/^        foreach($data as $k=>$v)$/;"	v
 k	.\library\Db\Mysql.php	/^			foreach ( $data as $k => $v ) {$/;"	v
+key	.\application\models\Apps.php	/^                    foreach($spreads as $key=>$val) {$/;"	v
+key	.\application\models\Apps.php	/^                foreach($apps as $key=>$val) {$/;"	v
 key	.\application\models\Apps.php	/^                foreach($wheres as $key=>$val){$/;"	v
-key	.\application\models\Apps.php	/^        foreach ($apps as $key => $val)\/\/将app推入到数组$/;"	v
-key	.\application\models\Gifts.php	/^        foreach($siblings as $key=>$val)$/;"	v
+key	.\application\models\Apps.php	/^                if(count($temp) == 10 || $key == ($count-1)){$/;"	v
+key	.\application\models\Apps.php	/^            foreach($data as $key=>$val) {$/;"	v
+key	.\application\models\Apps.php	/^            foreach($datas as $key=>$val) {$/;"	v
+key	.\application\models\Apps.php	/^            foreach($gifts as $key=>$val) {$/;"	v
+key	.\application\models\Dayily.php	/^                        if(count($temp) == 10 || $key == ($count-1)){$/;"	v
+key	.\application\models\Dayily.php	/^                    foreach($datas as $key=>$val) {$/;"	v
+key	.\application\models\Dayily.php	/^            foreach($dayily as $key=>$val) {$/;"	v
+key	.\application\models\Dayily.php	/^            foreach($gift as $key=>$val){$/;"	v
+key	.\application\models\Dayily.php	/^            foreach($spread as $key=>$val){$/;"	v
+key	.\application\models\Dayily.php	/^        foreach($data as $key=>$val) {$/;"	v
+key	.\application\models\Gifts.php	/^            foreach($gift as $key=>$val) {$/;"	v
+key	.\application\models\Gifts.php	/^           foreach($arr as $key=>$val){$/;"	v
+key	.\application\models\Gifts.php	/^        foreach($siblings as $key=>$val) {$/;"	v
 key	.\application\models\Other.php	/^                foreach($gift as $key=>$val)$/;"	v
 key	.\application\models\Other.php	/^        foreach($data as $key=>$val)$/;"	v
 key	.\application\models\Redis.php	/^                $key = 'appboxL_'.$val['extraData']['appId'].'_'.$this->language.'_'.$val['extraData']['templateId'];\/\/应用列表详情$/;"	v
 key	.\application\models\Redis.php	/^                $key = 'appboxL_g_'.$val['extraData']['giftId'].'_'.$this->language;\/\/礼包列表详情$/;"	v
-key	.\application\models\Redis.php	/^                $key = 'spreadL_s_'.$val['extraData']['spreadId'].'_'.$this->language;\/\/专题列表详情$/;"	v
+key	.\application\models\Redis.php	/^                $key = 'appboxL_s_'.$val['extraData']['spreadId'].'_'.$this->language;\/\/专题列表详情$/;"	v
+key	.\application\models\Redis.php	/^                $key = 'appboxU_s_'.$val['extraData']['urlId'].'_'.$this->language;\/\/专题列表详情$/;"	v
 key	.\application\models\Redis.php	/^            $key = 'appboxL_'.$val['extraData']['appId'].'_'.$this->language.'_'.$val['extraData']['templateId'];$/;"	v
 key	.\application\models\Redis.php	/^            $key = 'appboxL_g_'.$val['extraData']['giftId'].'_'.$this->language;$/;"	v
 key	.\application\models\Redis.php	/^            $key = 'appboxL_s_'.$val['extraData']['spreadId'].'_'.$this->language;$/;"	v
 key	.\application\models\Redis.php	/^        foreach($arr as $key=>$val) {$/;"	v
 key	.\application\models\Redis.php	/^        foreach($arr as $key=>$val)$/;"	v
 key	.\application\models\Spread.php	/^                foreach($datas['view'] as $key=>$val)$/;"	v
+key	.\library\Db\Base-copy.php	/^            foreach($data as $key=>$val)$/;"	v
+key	.\library\Db\Base-copy.php	/^        foreach($data as $key=>$val)$/;"	v
 key	.\library\Db\Base.php	/^            foreach($data as $key=>$val)$/;"	v
 key	.\library\Db\Base.php	/^        foreach($data as $key=>$val)$/;"	v
 keywords	.\application\controllers\Apps\Apps.php	/^        $keywords = isset($_GET['keywords']) ? $_GET['keywords'] : exit; $/;"	v
+keywords	.\application\models\Other.php	/^        $keywords = $this->redis->get('appbox_keywords');$/;"	v
+keywords	.\application\models\Other.php	/^        $keywords = json_decode($keywords,true);$/;"	v
 language	.\application\controllers\Apps\Apps.php	/^        $language = isset($_GET['language']) ? $_GET['language'] : ''; $/;"	v
 language	.\application\controllers\Apps\Apps.php	/^        $language = isset($_GET['language']) ? $_GET['language'] : '';$/;"	v
 language	.\application\controllers\Apps\Apps.php	/^        $language = isset($_GET['language']) ? trim($_GET['language']) : 'en';$/;"	v
@@ -382,13 +539,24 @@ language	.\application\controllers\Apps\Like.php	/^        $language = isset($_G
 language	.\application\controllers\Apps\Spread.php	/^        $language = isset($_GET['language']) ? $_GET['language'] : '';$/;"	v
 language	.\application\controllers\Apps\Spread.php	/^        $language = isset($_GET['language']) ? $_GET['language'] : 'en';$/;"	v
 language	.\application\controllers\Apps\Update.php	/^        $language = isset($_GET['language']) ? $_GET['language'] : 'en';$/;"	v
-language	.\library\Db\Base.php	/^            $this->language=$language;$/;"	v
+language	.\application\models\Other.php	/^        $language = isset($_REQUEST['language']) ? $_REQUEST['language'] : '';$/;"	v
+language	.\library\Db\Base-copy.php	/^            $this->language = $language;$/;"	v
+language	.\library\Db\Base-copy.php	/^            $this->language='en';$/;"	v
+language	.\library\Db\Base-copy.php	/^        $language = isset($_GET['language']) && $_GET['language'] ? $_GET['language'] : 'en';$/;"	v
+language	.\library\Db\Base-copy.php	/^    protected $language;$/;"	v
+language	.\library\Db\Base.php	/^            $this->language = $language;$/;"	v
 language	.\library\Db\Base.php	/^            $this->language='en';$/;"	v
-language	.\library\Db\Base.php	/^        $language = isset($_GET['language']) ? $_GET['language'] : 'en';$/;"	v
+language	.\library\Db\Base.php	/^        $language = isset($_GET['language']) && $_GET['language'] ? $_GET['language'] : 'en';$/;"	v
 language	.\library\Db\Base.php	/^    protected $language;$/;"	v
 lastId	.\library\Db\Mysql.php	/^	public function lastId() {$/;"	f
 lastSql	.\library\Db\Mysql.php	/^	public function lastSql() {$/;"	f
+leaveTime	.\application\models\Apps.php	/^                $leaveTime = $this->redis->ttl('appbox_'.$keywords.'_0');$/;"	v
+leaveTime	.\application\models\Apps.php	/^            $leaveTime = $this->redis->ttl('appbox_g_'.$keywords);$/;"	v
 likeAction	.\application\controllers\Apps\Like.php	/^    public function likeAction() $/;"	f
+limit	.\application\models\Apps.php	/^                    $limit = ($page+1)*10-($giftsCount+$appsCount);$/;"	v
+limit	.\application\models\Apps.php	/^                    $limit = 100-($appsCount+$giftsCount);$/;"	v
+limit	.\application\models\Apps.php	/^                $limit = ($page+1)*10-$giftsCount;$/;"	v
+limit	.\application\models\Apps.php	/^                $limit = 100-$giftsCount;$/;"	v
 link_id	.\library\Db\Mysql.php	/^				$this->link_id = $this->m_link_id;$/;"	v
 link_id	.\library\Db\Mysql.php	/^				$this->link_id = $this->s_link_id;$/;"	v
 link_id	.\library\Db\Mysql.php	/^		$this->link_id = 0;$/;"	v
@@ -399,21 +567,33 @@ localGiftDetailAction	.\application\controllers\Apps\Gifts.php	/^    public func
 m_link_id	.\library\Db\Mysql.php	/^				$this->m_link_id = $this->link_id;$/;"	v
 m_link_id	.\library\Db\Mysql.php	/^			$this->m_link_id = $this->link_id;$/;"	v
 m_link_id	.\library\Db\Mysql.php	/^	private $m_link_id = null; \/\/ 主库连接$/;"	v
+makeData	.\application\models\Dayily.php	/^    public function makeData($dayily) {$/;"	f
+manufacture	.\application\models\Other.php	/^        $manufacture = isset($_REQUEST['manufacture']) ? $_REQUEST['manufacture'] : '';$/;"	v
 master	.\library\Db\Mysql.php	/^	public function getAll($sql, $master = false) {$/;"	v
 master	.\library\Db\Mysql.php	/^	public function getOne($sql, $master = false) {$/;"	v
 master	.\library\Db\Mysql.php	/^	public function getRow($sql, $master = false) {$/;"	v
 master	.\library\Db\Mysql.php	/^	public function query($sql = '', $master = false) {$/;"	v
 master	.\library\Db\Mysql.php	/^	public function uQuery($sql = '', $master = false) {$/;"	v
+matchTemplate	.\application\models\Apps.php	/^    public function matchTemplate($data) {$/;"	f
+maxVersionCode	.\application\models\Other.php	/^        $maxVersionCode = $this->_db->getRow($sql);$/;"	v
 memcache	.\application\Bootstrap.php	/^        $memcache = new Memcache();$/;"	v
 memhost	.\application\Bootstrap.php	/^        $memhost = $this->_config->get("memcache")->params->host;$/;"	v
 memport	.\application\Bootstrap.php	/^        $memport = $this->_config->get("memcache")->params->port;$/;"	v
 mempre	.\application\Bootstrap.php	/^        $mempre =  $this->_config->get("memcache")->params->pre;$/;"	v
 memtimeout	.\application\Bootstrap.php	/^        $memtimeout = $this->_config->get("memcache")->params->timeout;$/;"	v
+mergeAutoInsert	.\application\models\Dayily.php	/^    public function mergeAutoInsert($data,$dayily) {$/;"	f
+mergeGift	.\application\models\Dayily.php	/^    public function mergeGift($gift,$spread){$/;"	f
+mod	.\application\models\Dayily.php	/^            $mod = ($this->pageNum+count($data)) % 10;$/;"	v
 mode	.\library\Db\Mysql.php	/^	public function getArray($query_id, $mode = MYSQL_ASSOC) {$/;"	v
+model	.\application\models\Other.php	/^        $model = isset($_REQUEST['model']) ? $_REQUEST['model'] : '';$/;"	v
 multi_server	.\library\Db\Mysql.php	/^		$this->multi_server = empty ( $this->config ['slave'] ) ? false : true;$/;"	v
 multi_server	.\library\Db\Mysql.php	/^	private $multi_server = false;$/;"	v
 noise_font_size	.\application\controllers\Captcha.php	/^		$noise_font_size = $config['noise_font_size']; \/\/ 杂点字体大小$/;"	v
 num	.\application\models\Apps.php	/^                    $num = count($comments) > 5 ? 5 : count($comments);$/;"	v
+num	.\application\models\Dayily.php	/^            $num = $this->_db->getAll($sql);\/\/查到的精选表中置顶的条数$/;"	v
+nums	.\application\models\Dayily.php	/^            $this->nums = isset($num[0]['num']) ? $num[0]['num'] : 0;$/;"	v
+nums	.\application\models\Dayily.php	/^        $nums = $this->redis->get('appbox_Nums');$/;"	v
+nums	.\application\models\Dayily.php	/^    protected $nums;\/\/精选表置顶的总数$/;"	v
 one	.\library\Db\Mysql.php	/^			$one = @$this->result ( $rs, 0 );$/;"	v
 one	.\library\Db\Mysql.php	/^		$one = false;$/;"	v
 order	.\application\controllers\Apps\Apps.php	/^            $order = "app.install_count*app.score desc";$/;"	v
@@ -426,41 +606,54 @@ order	.\application\controllers\Apps\Games.php	/^        $order = 'app.download_
 order	.\application\controllers\Apps\Games.php	/^        $order = 'app.score_sort desc,app.score desc,app.id desc';$/;"	v
 order	.\application\models\Apps.php	/^        $this->order = isset($order) && $order ? $order : $this->order;$/;"	v
 order	.\application\models\Apps.php	/^    protected $order = 'app.is_top desc,app.sort desc,app.id desc';\/\/默认的排序$/;"	v
+otherPageData	.\application\models\Dayily.php	/^    public function otherPageData($currentPage){$/;"	f
 other_mod	.\application\controllers\Apps\Like.php	/^        $other_mod = new OtherModel($language);$/;"	v
 other_mod	.\application\controllers\Apps\Update.php	/^    	$other_mod = new OtherModel($language);$/;"	v
 other_mod	.\application\controllers\Apps\Update.php	/^    	$other_mod = new OtherModel();$/;"	v
+other_mod	.\application\controllers\Apps\Update.php	/^        $other_mod = new OtherModel();$/;"	v
 other_where	.\application\models\Apps.php	/^            $other_where = $this->_db->getRow($sql);$/;"	v
 out	.\library\Db\Mysql.php	/^		$out = "DB Error:";$/;"	v
+p	.\application\controllers\Apps\Gifts.php	/^        $p = isset($_GET['p']) ? $_GET['p'] : 0;$/;"	v
 p	.\application\controllers\Apps\Spread.php	/^        $p = isset($_GET['p']) ? (int)($_GET['p']) : '';$/;"	v
-p	.\application\models\Apps.php	/^        $p = $page * $this->pageNum;\/\/初始化页数$/;"	v
+packageId	.\application\models\Redis.php	/^        $packageId = $split[1];$/;"	v
 packageName	.\application\controllers\Apps\Apps.php	/^        $packageName = isset($_GET['packageName']) ? trim($_GET['packageName']) : exit;$/;"	v
+packageName	.\application\controllers\Apps\Gifts.php	/^        $packageName = isset($_GET['packageName']) ? $_GET['packageName'] : '';$/;"	v
 packageName	.\application\controllers\Apps\Gifts.php	/^        $packageName = isset($_GET['packageName']) ? $_GET['packageName'] : '';\/\/包名$/;"	v
 packageName	.\application\controllers\Apps\Gifts.php	/^        $packageName = isset($_GET['packageName']) ? trim($_GET['packageName']) : '';$/;"	v
 packageName	.\application\controllers\Apps\Gifts.php	/^        $packageName = isset($_GET['packageName']) ? trim($_GET['packageName']) : exit;$/;"	v
+packageName	.\application\controllers\Apps\Gifts.php	/^        $packageName = isset($_REQUEST['packageName']) ? $_REQUEST['packageName'] : '';$/;"	v
 packageName	.\application\controllers\Apps\Like.php	/^        $packageName = isset($_GET['packageName']) ? $_GET['packageName'] : exit;$/;"	v
 packageName	.\application\controllers\Apps\Update.php	/^    	$packageName = isset($_GET['packageName']) ? $_GET['packageName'] : exit;$/;"	v
 packageName	.\application\controllers\Bundlegift.php	/^        $packageName = isset($_REQUEST['packagename']) ? $_REQUEST['packagename'] : exit;\/\/包名$/;"	v
-packageName	.\application\models\Redis.php	/^        $packageName = $split[1];$/;"	v
+packageName	.\application\models\Gifts.php	/^                $packageName = $data['package_name'];$/;"	v
+packageName	.\application\models\Gifts.php	/^                $packageName = $temp[0]['pkg_name'];$/;"	v
 page	.\application\controllers\Apps\Apps.php	/^        $page = isset($_GET['p']) ? (int)$_GET['p'] : '';$/;"	v
 page	.\application\controllers\Apps\Dayily.php	/^        $page = isset($_GET['p']) ? $_GET['p'] : '';$/;"	v
 page	.\application\controllers\Apps\Games.php	/^        $page = isset($_GET['p']) ? (int)$_GET['p'] : '';$/;"	v
 page	.\application\controllers\Apps\Gifts.php	/^        $page = isset($_GET['p']) ? $_GET['p'] : '';$/;"	v
 page	.\application\controllers\Apps\Spread.php	/^        $page = isset($_GET['p']) ? $_GET['p'] : '';$/;"	v
 page	.\application\models\Apps.php	/^        $page = $this->page * $this->pageNum;\/\/初始化页数$/;"	v
-page	.\application\models\Apps.php	/^        $page = isset($page) ? (int)$page : 0;$/;"	v
 page	.\application\models\Apps.php	/^        $this->page = isset($page) ? (int)$page : 0;$/;"	v
+page	.\application\models\Apps.php	/^    public function searchList($keywords, $page=0)$/;"	v
+page	.\application\models\Dayily.php	/^                            $this->page = $j;$/;"	v
+page	.\application\models\Dayily.php	/^        $page = $arr[1];\/\/已经分了多少页$/;"	v
 page	.\application\models\Dayily.php	/^        $page = $this->page*$this->pageNum;\/\/初始化页数$/;"	v
 page	.\application\models\Dayily.php	/^        $this->page = isset($page) ? (int)$page : 0;$/;"	v
+page	.\application\models\Gifts.php	/^        $page = $p * 3;\/\/初始化页数$/;"	v
 page	.\application\models\Gifts.php	/^        $page = $this->page * $this->pageNum;\/\/初始化页数$/;"	v
 page	.\application\models\Gifts.php	/^        $this->page = isset($page) ? (int)$page : 0;$/;"	v
+page	.\application\models\Spread.php	/^        $page = $this->page*$this->pageNum;$/;"	v
 page	.\application\models\Spread.php	/^        $page = $this->page*$this->pageNum;\/\/初始化页数$/;"	v
 page	.\application\models\Spread.php	/^        $this->page = isset($page) && $page ? (int)$page : 0;$/;"	v
 page	.\application\models\Spread.php	/^        $this->page = isset($page) ? (int)$page : 0;$/;"	v
+page	.\library\Db\Base-copy.php	/^    protected $page = 0;\/\/传递过来的条件    $/;"	v
 page	.\library\Db\Base.php	/^    protected $page = 0;\/\/传递过来的条件    $/;"	v
 pageNum	.\application\models\Apps.php	/^    protected $pageNum = 10;\/\/每页的数量$/;"	v
+pageNum	.\application\models\Dayily.php	/^            $this->pageNum = $this->giftCount*$this->giftInterval+$this->spreadCount*$this->spreadInterval;\/\/最少从精选表中取得条数$/;"	v
 pageNum	.\application\models\Dayily.php	/^    protected $pageNum = 10;$/;"	v
 pageNum	.\application\models\Gifts.php	/^    protected $pageNum = 10;$/;"	v
 pageNum	.\application\models\Spread.php	/^    protected $pageNum = 10;$/;"	v
+pages	.\application\models\Dayily.php	/^                $pages = ceil($count\/10);\/\/当前缓存的页数$/;"	v
 pixel_color	.\application\controllers\Captcha.php	/^		$pixel_color= $config['pixel_color'];    \/\/ 杂点只有 $pixel_color 种颜色  总的杂点数为$pixel_num*$pixel_color$/;"	v
 pixel_num	.\application\controllers\Captcha.php	/^		$pixel_num  = 14;    \/\/ 杂点数目基数$/;"	v
 pos	.\application\models\Apps.php	/^        $this->pos = isset($pos) && $pos ? $pos : $this->pos;$/;"	v
@@ -474,26 +667,44 @@ quoteLike	.\library\Db\Mysql.php	/^	public function quoteLike($string) {$/;"	f
 rancolor	.\application\controllers\Captcha.php	/^	        $rancolor = imagecolorallocate($image, 189, 252, 201);$/;"	v
 rand	.\application\controllers\Captcha.php	/^	        $rand = mt_rand(-30,30);$/;"	v
 reConnect	.\library\Db\Mysql.php	/^	public function reConnect($master = true){$/;"	f
+redis	.\library\Db\Base-copy.php	/^        $this->redis = new Redis();$/;"	v
+redis	.\library\Db\Base-copy.php	/^    protected $redis;\/\/缓存标示$/;"	v
 redis	.\library\Db\Base.php	/^        $this->redis = new Redis();$/;"	v
 redis	.\library\Db\Base.php	/^    protected $redis;\/\/缓存标示$/;"	v
-redisData	.\application\models\Redis.php	/^                        $redisData = $this->setSingleAppRedis($val);$/;"	v
+redisData	.\application\models\Apps.php	/^                    $redisData = $data;$/;"	v
+redisData	.\application\models\Apps.php	/^        $redisData = $this->redis->get('appbox_'.$keywords.'_'.$page);\/\/如果存在第一步缓存的数据$/;"	v
+redisData	.\application\models\Redis.php	/^                        $redisData = $this->setSingleAppRedis($val,1);$/;"	v
 redisData	.\application\models\Redis.php	/^                        $redisData = $this->setSingleGiftRedis($val);$/;"	v
 redisData	.\application\models\Redis.php	/^                        $redisData = $this->setSingleSpreadRedis($val);$/;"	v
+redisData	.\application\models\Redis.php	/^                        $redisData = $this->setSingleUrlRedis($val,$type);$/;"	v
 redisData	.\application\models\Redis.php	/^                $redisData = $this->setSingleAppRedis($val);$/;"	v
 redisData	.\application\models\Redis.php	/^                $redisData = $this->setSingleGiftRedis($val);$/;"	v
 redisData	.\application\models\Redis.php	/^                $redisData = $this->setSingleSpreadRedis($val);$/;"	v
-redisData	.\application\models\Redis.php	/^        $redisData = $this->getAppData($data['releaseTime'], $data['package_id']);$/;"	v
-redisData	.\application\models\Redis.php	/^        $redisData = $this->getGiftData($data['start_time'], $data['id'], 5);$/;"	v
-redisData	.\application\models\Redis.php	/^        $redisData = $this->getSpreadData($data['releaseTime'], $data['id'],5);$/;"	v
+redisData	.\application\models\Redis.php	/^        $redisData = $this->getAppDetail($data['releaseTime'], $packageId,$templateType);$/;"	v
+redisData	.\application\models\Redis.php	/^        $redisData = $this->getGiftDetail($data['start_time'], $data['id']);$/;"	v
+redisData	.\application\models\Redis.php	/^        $redisData = $this->getSpreadDetail($data['releaseTime'], $data['id']);$/;"	v
+redisData	.\application\models\Redis.php	/^        $redisData = $this->getUrlDetail($data['releaseTime'],$id,$type);$/;"	v
+redisGoogle	.\application\models\Apps.php	/^        $redisGoogle = $this->redis->get('appbox_g_'.$keywords);\/\/已经从google中取来的数据$/;"	v
 redis_datas	.\application\models\Apps.php	/^            $redis_datas = $this->redis->get('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page);$/;"	v
 redis_datas	.\application\models\Apps.php	/^            $redis_datas = $this->redis->get('appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page);$/;"	v
 replace	.\library\Db\Mysql.php	/^	public function replace($tble_name, $data) {$/;"	f
 result	.\library\Db\Mysql.php	/^			$result = mysql_query ( 'COMMIT', $this->link_id ) || $this->halt ();$/;"	v
 result	.\library\Db\Mysql.php	/^	public function result($query_id, $row = 0) {$/;"	f
+return	.\application\models\Apps.php	/^            $return = array();\/\/要返回的数据$/;"	v
+return	.\application\models\Dayily.php	/^            $return = array_merge($return,$dayily);$/;"	v
+return	.\application\models\Dayily.php	/^        $return = array();$/;"	v
 return	.\application\models\Gifts.php	/^        $return = array('xmlType' => $templateName);$/;"	v
 return	.\application\models\Gifts.php	/^        $return = array();$/;"	v
 return	.\application\models\Redis.php	/^        $return = array();$/;"	v
+return	.\library\Db\Base-copy.php	/^                $return = true;$/;"	v
+return	.\library\Db\Base-copy.php	/^            $return = array();$/;"	v
+return	.\library\Db\Base-copy.php	/^        $return = false;$/;"	v
+return	.\library\Db\Base.php	/^                $return = true;$/;"	v
 return	.\library\Db\Base.php	/^            $return = array();$/;"	v
+return	.\library\Db\Base.php	/^        $return = false;$/;"	v
+returnApps	.\application\models\Apps.php	/^            $returnApps = array();$/;"	v
+returnGifts	.\application\models\Apps.php	/^        $returnGifts = array();$/;"	v
+returnSpreads	.\application\models\Apps.php	/^                $returnSpreads = array();$/;"	v
 rollback	.\library\Db\Mysql.php	/^	public function rollback() {$/;"	f
 row	.\library\Db\Mysql.php	/^		while ( $row = $this->getArray ( $rs ) ) {$/;"	v
 row	.\library\Db\Mysql.php	/^	public function result($query_id, $row = 0) {$/;"	v
@@ -508,7 +719,7 @@ scoreAction	.\application\controllers\Apps\Apps.php	/^    public function scoreA
 scoreAction	.\application\controllers\Apps\Games.php	/^    public function scoreAction()$/;"	f
 screen_shots	.\application\models\Apps.php	/^                $screen_shots = json_decode($data['screen_shots'], true);$/;"	v
 searchAppAction	.\application\controllers\Apps\Apps.php	/^    public function searchAppAction()$/;"	f
-searchList	.\application\models\Apps.php	/^    public function searchList($keywords, $page)$/;"	f
+searchList	.\application\models\Apps.php	/^    public function searchList($keywords, $page=0)$/;"	f
 select	.\library\Db\Mysql.php	/^	public function select($fields, $tables, $where = '', $group_by = '', $having = '', $order_by = '', $limit = '', $master = false) {$/;"	f
 sendKeywordsAction	.\application\controllers\Apps\Update.php	/^    public function sendKeywordsAction()$/;"	f
 session_key	.\application\controllers\Captcha.php	/^		$session_key= "admin_captcha";	\/\/自定义session键名$/;"	v
@@ -516,69 +727,100 @@ set	.\library\Db\Mysql.php	/^			$set = '';$/;"	v
 set	.\library\Db\Mysql.php	/^			$set = implode ( ', ', $set );$/;"	v
 setAppRedis	.\application\models\Redis.php	/^    public function setAppRedis($is_game,$type='',$arr)$/;"	f
 setDayilyRedis	.\application\models\Redis.php	/^    public function setDayilyRedis($arr)$/;"	f
+setFeedback	.\application\models\Other.php	/^    public function setFeedback()$/;"	f
 setGiftRedis	.\application\models\Redis.php	/^    public function setGiftRedis($arr)$/;"	f
-setSingleAppRedis	.\application\models\Redis.php	/^    public function setSingleAppRedis($key)$/;"	f
+setSingleAppRedis	.\application\models\Redis.php	/^    public function setSingleAppRedis($key,$templateType = '')$/;"	f
 setSingleGiftRedis	.\application\models\Redis.php	/^    public function setSingleGiftRedis($key)$/;"	f
 setSingleSpreadRedis	.\application\models\Redis.php	/^    public function setSingleSpreadRedis($key)$/;"	f
+setSingleUrlRedis	.\application\models\Redis.php	/^    public function setSingleUrlRedis($key,$type)$/;"	f
+setSpreadDetailRedis	.\application\models\Redis.php	/^    public function setSpreadDetailRedis($arr,$id,$is_banner='')$/;"	f
 setSpreadRedis	.\application\models\Redis.php	/^    public function setSpreadRedis($arr)$/;"	f
 showErrors	.\application\controllers\Error.php	/^        $showErrors = $this->_config->application->showErrors;$/;"	v
 siblings	.\application\models\Gifts.php	/^        $siblings = $this->_db->getAll($sql);$/;"	v
+site_root	.\library\Db\Base-copy.php	/^        $this->site_root="http:\/\/".$_SERVER['SERVER_NAME'].($_SERVER['SERVER_PORT'] == 80 ? '' : ':'.$_SERVER['SERVER_PORT']);$/;"	v
+site_root	.\library\Db\Base-copy.php	/^    protected $site_root = '';\/\/跳转URL路径$/;"	v
 site_root	.\library\Db\Base.php	/^        $this->site_root="http:\/\/".$_SERVER['SERVER_NAME'].($_SERVER['SERVER_PORT'] == 80 ? '' : ':'.$_SERVER['SERVER_PORT']);$/;"	v
 site_root	.\library\Db\Base.php	/^    protected $site_root = '';\/\/跳转URL路径$/;"	v
 slq	.\library\Db\Mysql.php	/^$slq = "SELECT * FROM table WHERE field=?";$/;"	v
 split	.\application\models\Redis.php	/^        $split = explode('_',$key);$/;"	v
+spread	.\application\models\Dayily.php	/^            $spread = $this->_db->getAll($sql);$/;"	v
 spread	.\application\models\Other.php	/^        $spread = $this->_db->getAll($sql);$/;"	v
 spread	.\application\models\Other.php	/^        $spread = $this->_db->getRow($sql);\/\/专题$/;"	v
 spread	.\application\models\Spread.php	/^            $spread = $this->getList($page);$/;"	v
-spread	.\library\Db\Base.php	/^        $spread = $this->getSpread($spreadId,$field['field'],$language);\/\/获取这条专题的内容$/;"	v
+spread	.\library\Db\Base-copy.php	/^            $spread = $this->getSpread($spreadId,$field['field'],$this->language);\/\/获取这条专题的内容$/;"	v
+spread	.\library\Db\Base.php	/^            $spread = $this->getSpread($spreadId,$field['field'],$this->language);\/\/获取这条专题的内容$/;"	v
+spreadCount	.\application\models\Dayily.php	/^        $this->spreadCount = count($spread);$/;"	v
+spreadCount	.\application\models\Dayily.php	/^    protected $spreadCount;\/\/不在精选表专题的总数$/;"	v
 spreadDetailAction	.\application\controllers\Apps\Spread.php	/^    public function spreadDetailAction()$/;"	f
+spreadInterval	.\application\models\Dayily.php	/^            $this->spreadInterval = $value['spread'];\/\/专题间隔数$/;"	v
+spreadInterval	.\application\models\Dayily.php	/^    protected $spreadInterval;\/\/专题插入的间隔$/;"	v
 spreadList	.\application\models\Spread.php	/^            $spreadList = $this->_db->getAll($sql);$/;"	v
 spreadUpdateTime	.\application\controllers\Apps\Update.php	/^        $spreadUpdateTime = isset($_GET['spreadUpdateTime']) ? (int)$_GET['spreadUpdateTime'] : 0;$/;"	v
 spread_mod	.\application\controllers\Apps\Spread.php	/^        $spread_mod = new SpreadModel($language);$/;"	v
+spreads	.\application\models\Apps.php	/^                $spreads = $this->_db->getAll($sql);$/;"	v
 sql	.\application\controllers\Apps\Like.php	/^            $sql = "update appbox_app set hateCount=hateCount+1 where package_name='$packageName' and language='$language'";$/;"	v
 sql	.\application\controllers\Apps\Like.php	/^            $sql = "update appbox_app set hateCount=hateCount-1 where package_name='$packageName' and language='$language'";$/;"	v
 sql	.\application\controllers\Apps\Like.php	/^            $sql = "update appbox_app set likeCount=likeCount+1 where package_name='$packageName' and language='$language'";$/;"	v
 sql	.\application\controllers\Apps\Like.php	/^            $sql = "update appbox_app set likeCount=likeCount-1 where package_name='$packageName' and language='$language'";$/;"	v
+sql	.\application\models\Apps.php	/^		$sql = "UPDATE appbox_app as app SET app.sort = app.sort - 300,app.is_top = ABS(app.is_top - 1),app.score = ABS(app.score - 0.1) $where$/;"	v
+sql	.\application\models\Apps.php	/^                $sql = "select spread.id,spread.releaseTime from appbox_spread as spread ";$/;"	v
 sql	.\application\models\Apps.php	/^            $sql = "$/;"	v
 sql	.\application\models\Apps.php	/^            $sql = "select `where` from appbox_google_category where category_id=".$this->cid;$/;"	v
+sql	.\application\models\Apps.php	/^            $sql = "select app.package_id as id,app.releaseTime from appbox_app as app ";$/;"	v
+sql	.\application\models\Apps.php	/^            $sql = "select id from appbox_gift where package_id=".$data['package_id'];$/;"	v
 sql	.\application\models\Apps.php	/^        $sql = "select app.package_id as id,app.releaseTime$/;"	v
-sql	.\application\models\Apps.php	/^        $sql = "select count(*) as num from appbox_app where status=1 and app_name like '%$keywords%'";$/;"	v
 sql	.\application\models\Apps.php	/^        $sql = "select count(*) as num from appbox_app where status=1 and is_game=" . $this->is_game . " and language='" . $this->language . "'";$/;"	v
+sql	.\application\models\Apps.php	/^        $sql = "select distinct gift.id,gift.start_time from appbox_gift as gift ";$/;"	v
 sql	.\application\models\Apps.php	/^        $sql = "select id,category_id from appbox_google_category where parent_id=$cid and language='" . $this->language . "' order by sort asc,id asc";$/;"	v
+sql	.\application\models\Apps.php	/^        $sql = "select t.id,t.templateName,attr.* from appbox_template as t ";$/;"	v
+sql	.\application\models\Dayily.php	/^		$sql = "UPDATE appbox_dayily SET sort = ABS(sort - 1) where status=1 and releaseTime<=".time()."$/;"	v
+sql	.\application\models\Dayily.php	/^            $sql = "select count(*) as num from appbox_dayily where is_top!=0 and status=1 and releaseTime<=".time()."";$/;"	v
+sql	.\application\models\Dayily.php	/^            $sql = "select gift.start_time as releaseTime,gift.id as typeId from appbox_gift as gift where gift.id not in ";$/;"	v
+sql	.\application\models\Dayily.php	/^            $sql = "select spread.id as typeId,spread.releaseTime from appbox_spread as spread where spread.id not in ";$/;"	v
+sql	.\application\models\Dayily.php	/^        $sql = "select * from appbox_auto_insert where status=1";$/;"	v
 sql	.\application\models\Dayily.php	/^        $sql = "select count(*) as num from appbox_dayily where status=1 and releaseTime<=".time();$/;"	v
 sql	.\application\models\Dayily.php	/^        $sql = "select dayily.releaseTime,dayily.type,dayily.typeId$/;"	v
-sql	.\application\models\Gifts.php	/^                $sql = "insert into appbox_gift_code_verify values('$packageName','$code','1')";$/;"	v
-sql	.\application\models\Gifts.php	/^                $sql = "select code.code,code.fee_node as chargePoint,code.package_name as packageName,code.gid as giftId ,code.interval as nextTime from appbox_gift_code as code where code.gid=$id and code.code='$code'";$/;"	v
-sql	.\application\models\Gifts.php	/^                $sql = "select code.code,code.fee_node as chargePoint,code.package_name as packageName,code.gid as giftId ,code.interval as nextTime from appbox_gift_code as code where code.gid=$id and code_index=1";$/;"	v
+sql	.\application\models\Gifts.php	/^		$sql = "UPDATE appbox_gift as gift SET gift.sort = ABS(gift.sort - 1) $/;"	v
+sql	.\application\models\Gifts.php	/^                $sql = "insert into appbox_gift_code_verify values('$packageName','$code','1','".time()."')";$/;"	v
+sql	.\application\models\Gifts.php	/^                $sql = "select code from appbox_gift_code where gid={$val['giftId']}";$/;"	v
+sql	.\application\models\Gifts.php	/^                $sql = "select code.code,code.fee_node as chargePoint,code.package_name as packageName,";$/;"	v
 sql	.\application\models\Gifts.php	/^                $sql = "select code.code,code.fee_node as chargePoint,code.package_name as packageName,code.gid as giftId,code.interval as nextTime from appbox_gift_code as code where code.package_name='$packageName' and code.code_index=$index and gid=$id";$/;"	v
+sql	.\application\models\Gifts.php	/^                $sql = "select code_index,gid,package_name from appbox_gift_code where gid=$id and code='$code'";$/;"	v
+sql	.\application\models\Gifts.php	/^                $sql = "select code_index,gid,package_name from appbox_gift_code where package_name='$packageName' and code='$code' and fee_node='$chargePoint'";$/;"	v
 sql	.\application\models\Gifts.php	/^                $sql = "select name from appbox_gift_desc where gid=".$val['gid']." and language='en'";$/;"	v
-sql	.\application\models\Gifts.php	/^                $sql = "update appbox_gift_code_verify set `count`='".$verify['count']."'+1";$/;"	v
+sql	.\application\models\Gifts.php	/^                $sql = "update appbox_gift_code_verify set `count`='".$verify['count']."'+1 where package_name='$packageName' and code='$code'";$/;"	v
 sql	.\application\models\Gifts.php	/^            $sql = "select * from appbox_gift_code_verify where package_name='$packageName' and code='$code'";$/;"	v
 sql	.\application\models\Gifts.php	/^            $sql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid$/;"	v
-sql	.\application\models\Gifts.php	/^            $sql = "select code_index,gid from appbox_gift_code where package_name='$packageName' and code='$code' and fee_node='$chargePoint'";$/;"	v
 sql	.\application\models\Gifts.php	/^            $sql = "select descs.name as giftName,gift.id as giftId,gift.fee_node as chargePoint,gift.start_time as updateTime,descs.description as giftDesc$/;"	v
 sql	.\application\models\Gifts.php	/^            $sql = "select descs.name as giftName,gift.id as giftId,gift.package_name$/;"	v
 sql	.\application\models\Gifts.php	/^            $sql = "select package_id,icon,app_name,id$/;"	v
 sql	.\application\models\Gifts.php	/^        $sql = "select $field$/;"	v
 sql	.\application\models\Gifts.php	/^        $sql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid $/;"	v
-sql	.\application\models\Gifts.php	/^        $sql = "select count(*) as num from appbox_gift where status=1 and start_time<=" . time();$/;"	v
+sql	.\application\models\Gifts.php	/^        $sql = "select count(*) as num from appbox_gift where status=1 and start_time<=".time()." ";$/;"	v
 sql	.\application\models\Gifts.php	/^        $sql = "select descs.gid,descs.name from appbox_gift as gift left join appbox_gift_desc as descs on descs.gid=gift.id$/;"	v
 sql	.\application\models\Gifts.php	/^        $sql = "select fee_node from appbox_gift_code where package_name='$packageName' and code='$code'";$/;"	v
+sql	.\application\models\Gifts.php	/^        $sql = "select gift.package_id,gift.id as giftId,gift.package_name as pkg_name,gift.get_count ";$/;"	v
+sql	.\application\models\Gifts.php	/^        $sql = "select gift.package_id,gift.package_name as packageName,gift.get_count as downloadCount,app.score as rate,";$/;"	v
 sql	.\application\models\Gifts.php	/^        $sql = "select gift.start_time,gift.id$/;"	v
 sql	.\application\models\Gifts.php	/^        $sql = "select icon as app_icon,app_name as app_name,package_name as packageName,screen_shots from appbox_app where package_name='$packageName' and language='" . $this->language . "'";$/;"	v
 sql	.\application\models\Other.php	/^                $sql = "select likeCount,hateCount from appbox_app where package_name='$packageName' and$/;"	v
 sql	.\application\models\Other.php	/^            $sql = "delete from appbox_user_favorite where uuid=$uuid and packageName='$packageName'";$/;"	v
+sql	.\application\models\Other.php	/^            $sql = "select * from appbox_update_version where versionCode=".$maxVersionCode['id'];$/;"	v
+sql	.\application\models\Other.php	/^        $sql = "insert into appbox_feedback values('','$uuid','$email','$language','$country','$android_version','$ver_code','$manufacture','$model','".time()."','$feedback')";$/;"	v
 sql	.\application\models\Other.php	/^        $sql = "insert into appbox_user_favorite values('$uuid','$packageName')";$/;"	v
 sql	.\application\models\Other.php	/^        $sql = "select app.package_name as id,typeName as title from appbox_announce as an left join appbox_app as app on app.package_id=an.typeId where an.addTime>$dayilyUpdateTime and an.type='app' and an.status=1 and app.language='".$this->language."' order by an.status desc,an.sort desc,an.id asc";$/;"	v
 sql	.\application\models\Other.php	/^        $sql = "select count(*) as num from appbox_dayily where addTime>$dayilyUpdateTime and status=1 and releaseTime<".time();$/;"	v
 sql	.\application\models\Other.php	/^        $sql = "select count(*) as num from appbox_gift where add_time>$giftUpdateTime and status=1 and start_time<".time();$/;"	v
 sql	.\application\models\Other.php	/^        $sql = "select count(*) as num from appbox_spread where addTime>$spreadUpdateTime and status=1 and releaseTime<".time();$/;"	v
 sql	.\application\models\Other.php	/^        $sql = "select keywords from appbox_keywords where status=1 order by sort desc";$/;"	v
+sql	.\application\models\Other.php	/^        $sql = "select max(versionCode) as id from appbox_update_version where status=1";$/;"	v
 sql	.\application\models\Other.php	/^        $sql = "select typeId as id,typeName as title from appbox_announce where addTime>$giftUpdateTime and type='gift' and status=1 order by status desc,sort desc,id asc";$/;"	v
 sql	.\application\models\Other.php	/^        $sql = "select typeId as id,typeName as title from appbox_announce where addTime>$spreadUpdateTime and type='spread' and status=1 order by status desc,sort desc,id asc";$/;"	v
 sql	.\application\models\Redis.php	/^        $sql = "select id,releaseTime from appbox_spread where id=$id";$/;"	v
-sql	.\application\models\Redis.php	/^        $sql = "select package_id,releaseTime from appbox_app where package_name='$packageName' and language='".$this->language."'";$/;"	v
+sql	.\application\models\Redis.php	/^        $sql = "select releaseTime from $type where id=$id";$/;"	v
+sql	.\application\models\Redis.php	/^        $sql = "select releaseTime from appbox_app where package_id='$packageId' and language='".$this->language."'";$/;"	v
 sql	.\application\models\Redis.php	/^        $sql = "select start_time,id from appbox_gift where id='$id'";$/;"	v
+sql	.\application\models\Spread.php	/^		$sql = "UPDATE appbox_spread as spread SET spread.sort = ABS(spread.sort - 1) where spread.status=1 and releaseTime<=".time()."$/;"	v
 sql	.\application\models\Spread.php	/^                         $sql = "select gift.start_time,gift.id from appbox_gift as gift left join appbox_app as app on app.package_id=gift.package_id where gift.id={$val['typeId']}";$/;"	v
 sql	.\application\models\Spread.php	/^                         $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='".$this->language."'";$/;"	v
 sql	.\application\models\Spread.php	/^                        $sql = "select releaseTime,id from appbox_banner_url where id={$val['typeId']}";$/;"	v
@@ -592,20 +834,45 @@ sql	.\application\models\Spread.php	/^        $sql = "select count(*) as num fro
 sql	.\application\models\Spread.php	/^        $sql = "select releaseTime,id,name,description from appbox_spread where id=$id";$/;"	v
 sql	.\application\models\Spread.php	/^        $sql = "select releaseTime,id,name,description,imgHeight,imgWidth from appbox_banner where id=$id";$/;"	v
 sql	.\application\models\Spread.php	/^        $sql = "select spread.id,spread.releaseTime$/;"	v
+sql	.\library\Db\Base-copy.php	/^                            $sql = "select package_name as packageName from appbox_app where package_id={$v['typeId']}";$/;"	v
+sql	.\library\Db\Base-copy.php	/^            $sql = "select $field,app.id as appId,gift.logo,gift.get_count,gift.start_time,gift.package_name$/;"	v
+sql	.\library\Db\Base-copy.php	/^            $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where category_id=$cid and status=1 and language='en'";$/;"	v
+sql	.\library\Db\Base-copy.php	/^            $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where parent_id=$cid and status=1 and language='en' order by sort asc";$/;"	v
+sql	.\library\Db\Base-copy.php	/^            $sql = "select id,templateName,releaseTime,templateUpdateTime,content from appbox_template order by releaseTime desc";$/;"	v
+sql	.\library\Db\Base-copy.php	/^            $sql = "select type,typeId from appbox_banner_list where bannerId={$val['id']}";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select $field,app.id as appId,gift.logo,gift.get_count,gift.start_time,gift.package_name$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select $field,app.package_name$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select $field,spread.imgHeight,spread.imgWidth$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select $field,url.imgHeight,url.imgWidth$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where category_id=$cid and status=1 and language='".$this->language."'";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where parent_id=$cid and status=1 and language='".$this->language."' order by sort asc";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select count(*) as count from appbox_gift where package_name='$packageName'";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select id from appbox_gift order by get_count limit 3";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select id,templateName,downIcon as downIconUrl,openIcon as openIconUrl from appbox_template where $releaseTime < releaseTime and type=$type order by releaseTime asc";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select img as iconUrl,id,imgWidth,imgHeight from appbox_banner where position=$pos and status=1 and releaseTime<=".time()." order by sort desc,id desc limit 0,4";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select name,attrValue,jump from appbox_template_attr where templateId=$id";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select status from appbox_app_language where flag='".$language."' and status=1";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select templateName,type from appbox_template where id=$id";$/;"	v
+sql	.\library\Db\Base-copy.php	/^        $sql = "select templateUpdateTime from appbox_template";$/;"	v
 sql	.\library\Db\Base.php	/^                            $sql = "select package_name as packageName from appbox_app where package_id={$v['typeId']}";$/;"	v
-sql	.\library\Db\Base.php	/^            $sql = "select $field,app.id as appId$/;"	v
+sql	.\library\Db\Base.php	/^            $sql = "select $field,app.id as appId,gift.logo,gift.get_count,gift.start_time,gift.package_name$/;"	v
+sql	.\library\Db\Base.php	/^            $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where category_id=$cid and status=1 and language='en'";$/;"	v
+sql	.\library\Db\Base.php	/^            $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where parent_id=$cid and status=1 and language='en' order by sort asc";$/;"	v
 sql	.\library\Db\Base.php	/^            $sql = "select id,templateName,releaseTime,templateUpdateTime,content from appbox_template order by releaseTime desc";$/;"	v
 sql	.\library\Db\Base.php	/^            $sql = "select type,typeId from appbox_banner_list where bannerId={$val['id']}";$/;"	v
-sql	.\library\Db\Base.php	/^        $sql = "select $field,app.id as appId$/;"	v
+sql	.\library\Db\Base.php	/^        $sql = "select $field,app.id as appId,gift.logo,gift.get_count,gift.start_time,gift.package_name$/;"	v
 sql	.\library\Db\Base.php	/^        $sql = "select $field,app.package_name$/;"	v
 sql	.\library\Db\Base.php	/^        $sql = "select $field,spread.imgHeight,spread.imgWidth$/;"	v
 sql	.\library\Db\Base.php	/^        $sql = "select $field,url.imgHeight,url.imgWidth$/;"	v
-sql	.\library\Db\Base.php	/^        $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where category_id=$cid and status=1 and language='".$language."'";$/;"	v
-sql	.\library\Db\Base.php	/^        $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where parent_id=$cid and status=1 and language='".$language."' order by sort asc";$/;"	v
-sql	.\library\Db\Base.php	/^        $sql = "select count(*) from appbox_app_language where flag='".$language."' and status=1";$/;"	v
+sql	.\library\Db\Base.php	/^        $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where category_id=$cid and status=1 and language='".$this->language."'";$/;"	v
+sql	.\library\Db\Base.php	/^        $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where parent_id=$cid and status=1 and language='".$this->language."' order by sort asc";$/;"	v
+sql	.\library\Db\Base.php	/^        $sql = "select id from appbox_gift order by get_count limit 3";$/;"	v
+sql	.\library\Db\Base.php	/^        $sql = "select id from appbox_gift where package_name='$packageName'";$/;"	v
 sql	.\library\Db\Base.php	/^        $sql = "select id,templateName,downIcon as downIconUrl,openIcon as openIconUrl from appbox_template where $releaseTime < releaseTime and type=$type order by releaseTime asc";$/;"	v
 sql	.\library\Db\Base.php	/^        $sql = "select img as iconUrl,id,imgWidth,imgHeight from appbox_banner where position=$pos and status=1 and releaseTime<=".time()." order by sort desc,id desc limit 0,4";$/;"	v
 sql	.\library\Db\Base.php	/^        $sql = "select name,attrValue,jump from appbox_template_attr where templateId=$id";$/;"	v
+sql	.\library\Db\Base.php	/^        $sql = "select status from appbox_app_language where flag='".$language."' and status=1";$/;"	v
+sql	.\library\Db\Base.php	/^        $sql = "select templateName,type from appbox_template where id=$id";$/;"	v
 sql	.\library\Db\Base.php	/^        $sql = "select templateUpdateTime from appbox_template";$/;"	v
 sql	.\library\Db\Mysql.php	/^			$sql = "INSERT INTO$/;"	v
 sql	.\library\Db\Mysql.php	/^			$sql = "REPLACE INTO$/;"	v
@@ -620,33 +887,57 @@ sql	.\library\Db\Mysql.php	/^		$sql = '';$/;"	v
 sql	.\library\Db\Mysql.php	/^		$this->sql = $sql;$/;"	v
 sql	.\library\Db\Mysql.php	/^	private $sql = '';$/;"	v
 sql	.\library\Db\Mysql.php	/^$sql = "DELETE FROM table WHERE field=?";$/;"	v
+sqls	.\application\models\Gifts.php	/^                $sqls = $sql.$where;$/;"	v
+start	.\application\models\Dayily.php	/^        $start = $arr[0];\/\/从第几条开始取$/;"	v
 start	.\library\Db\Mysql.php	/^	public function start(){$/;"	f
 startTrans	.\library\Db\Mysql.php	/^	public function startTrans() {$/;"	f
+status	.\library\Db\Base-copy.php	/^        $status = $this->_db->getRow($sql);$/;"	v
+status	.\library\Db\Base.php	/^        $status = $this->_db->getRow($sql);$/;"	v
 string	.\library\Db\Mysql.php	/^			$string = addslashes ( $string );$/;"	v
 string	.\library\Db\Mysql.php	/^			$string = mysql_escape_string ( $string );$/;"	v
 string	.\library\Db\Mysql.php	/^			$string = mysql_real_escape_string ( $string, $this->link_id );$/;"	v
 string	.\library\Db\Mysql.php	/^		$string = mysql_real_escape_string ( $string, $this->link_id );$/;"	v
+temp	.\application\models\Apps.php	/^            $temp = array();$/;"	v
+temp	.\application\models\Dayily.php	/^                    $temp = array();$/;"	v
 temp	.\application\models\Gifts.php	/^        $temp = array();$/;"	v
 temp	.\application\models\Other.php	/^        $temp = array();$/;"	v
 tempArr	.\application\models\Redis.php	/^            $tempArr = explode('_',$val);$/;"	v
 tempArr	.\application\models\Redis.php	/^        $tempArr = array();$/;"	v
+tempArr	.\application\models\Spread.php	/^                         $tempArr = $this->getAppDetail($app['releaseTime'],$val['typeId'],1);$/;"	v
+tempArr	.\application\models\Spread.php	/^                         $tempArr = $this->getGiftDetail($gift['start_time'],$val['typeId']);$/;"	v
+tempArr	.\application\models\Spread.php	/^                        $tempArr = $this->getUrlDetail($url['releaseTime'],$url['id'],'appbox_banner_url');$/;"	v
+tempArr	.\application\models\Spread.php	/^                        $tempArr = $this->getUrlDetail($url['releaseTime'],$url['id'],'appbox_spread_url');$/;"	v
+tempArr	.\library\Db\Base-copy.php	/^            $tempArr = array();$/;"	v
+tempArr	.\library\Db\Base-copy.php	/^        $tempArr = array();\/\/用户可能设置多个重复的字段，排除重复的字段$/;"	v
 tempArr	.\library\Db\Base.php	/^            $tempArr = array();$/;"	v
 tempArr	.\library\Db\Base.php	/^        $tempArr = array();\/\/用户可能设置多个重复的字段，排除重复的字段$/;"	v
-tempData	.\application\models\Apps.php	/^                $tempData = $this->getAppData($val['releaseTime'], $val['id'],$this->templateType);$/;"	v
-tempData	.\application\models\Gifts.php	/^               $tempData = $this->getGiftData($val['start_time'],$val['id'],5);$/;"	v
-tempData	.\application\models\Spread.php	/^                $tempData = $this->getSpreadData($val['releaseTime'],$val['id'],4);$/;"	v
-template	.\application\models\Apps.php	/^            $template = $this->getSelfTemplate($val['releaseTime'], 1);\/\/获取与其时间对应的模板$/;"	v
-template	.\application\models\Dayily.php	/^                        $template = $this->getSelfTemplate($val['releaseTime'],1);\/\/获取与其时间对应的模板$/;"	v
-template	.\application\models\Dayily.php	/^                        $template = $this->getSelfTemplate($val['releaseTime'],4);\/\/获取与其时间对应的模板$/;"	v
-template	.\application\models\Dayily.php	/^                        $template = $this->getSelfTemplate($val['releaseTime'],5);\/\/获取与其时间对应的模板$/;"	v
+tempData	.\application\models\Apps.php	/^                        $tempData = $this->getSpreadDetail($val['releaseTime'],$val['id']);$/;"	v
+tempData	.\application\models\Apps.php	/^                    $tempData = $this->getAppDetail($val['releaseTime'], $val['id'],'1');$/;"	v
+tempData	.\application\models\Apps.php	/^                $tempData = $this->getAppDetail($val['releaseTime'], $val['id'],$this->templateType);$/;"	v
+tempData	.\application\models\Apps.php	/^                $tempData = $this->getGiftDetail($val['start_time'],$val['id']);$/;"	v
+tempData	.\application\models\Dayily.php	/^                    $tempData = $this->getAppDetail($val['releaseTime'], $val['typeId'],'1');$/;"	v
+tempData	.\application\models\Dayily.php	/^                    $tempData = $this->getGiftDetail($val['releaseTime'],$val['typeId']);$/;"	v
+tempData	.\application\models\Dayily.php	/^                    $tempData = $this->getSpreadDetail($val['releaseTime'],$val['typeId']);$/;"	v
+tempData	.\application\models\Gifts.php	/^               $tempData = $this->getGiftDetail($val['start_time'],$val['id']);$/;"	v
+tempData	.\application\models\Spread.php	/^                $tempData = $this->getSpreadDetail($val['releaseTime'],$val['id']);$/;"	v
+tempData	.\library\Db\Base-copy.php	/^            $tempData = $this->_db->getRow($sql);\/\/获取本身$/;"	v
+tempData	.\library\Db\Base-copy.php	/^        $tempData = $this->_db->getRow($sql);\/\/获取本身$/;"	v
+tempData	.\library\Db\Base.php	/^            $tempData = $this->_db->getRow($sql);\/\/获取本身$/;"	v
+tempData	.\library\Db\Base.php	/^        $tempData = $this->_db->getRow($sql);\/\/获取本身$/;"	v
+template	.\application\models\Apps.php	/^        $template = $this->_db->getAll($sql);$/;"	v
 template	.\application\models\Gifts.php	/^                $template = $this->getSelfTemplate($releaseTime, 7);\/\/获取与其时间对应的模板$/;"	v
-template	.\application\models\Spread.php	/^                         $template = $this->getSelfTemplate($app['releaseTime'],1);\/\/获取与其时间对应的模板$/;"	v
-template	.\application\models\Spread.php	/^                         $template = $this->getSelfTemplate($gift['start_time'],5);\/\/获取与其时间对应的模板$/;"	v
-template	.\application\models\Spread.php	/^                        $template = $this->getSelfTemplate($url['releaseTime'],6);\/\/获取与其时间对应的模板$/;"	v
 template	.\application\models\Spread.php	/^        $template = $this->getSelfTemplate($data['releaseTime'],4);\/\/获取与其时间对应的模板$/;"	v
+template	.\library\Db\Base-copy.php	/^        $template = $this->getSelfTemplate($releaseTime, $templateType);\/\/获取与其时间对应的模板$/;"	v
+template	.\library\Db\Base-copy.php	/^        $template = $this->getSelfTemplate($releaseTime, 5);\/\/获取与其时间对应的模板$/;"	v
+template	.\library\Db\Base-copy.php	/^        $template = $this->getSelfTemplate($releaseTime,4);\/\/获取与其时间对应的模板$/;"	v
+template	.\library\Db\Base-copy.php	/^        $template = $this->getSelfTemplate($releaseTime,6);\/\/获取与其时间对应的模板  $/;"	v
 template	.\library\Db\Base.php	/^        $template = $this->getSelfTemplate($releaseTime, $templateType);\/\/获取与其时间对应的模板$/;"	v
+template	.\library\Db\Base.php	/^        $template = $this->getSelfTemplate($releaseTime, 5);\/\/获取与其时间对应的模板$/;"	v
+template	.\library\Db\Base.php	/^        $template = $this->getSelfTemplate($releaseTime,4);\/\/获取与其时间对应的模板$/;"	v
+template	.\library\Db\Base.php	/^        $template = $this->getSelfTemplate($releaseTime,6);\/\/获取与其时间对应的模板  $/;"	v
 templateType	.\application\models\Apps.php	/^        $this->templateType = isset($templateType) && $templateType ? $templateType : $this->templateType;$/;"	v
 templateType	.\application\models\Apps.php	/^    protected $templateType = 1;\/\/模板类型。1：应用\/游戏模板，2下载排行模板，3评分排行模板，4专题模板，5礼包模板,6URL模板$/;"	v
+templateType	.\application\models\Redis.php	/^        $templateType = isset($templateType) && $templateType ? $templateType : $this->templateType;$/;"	v
 templateUpdateTime	.\application\controllers\Apps\Apps.php	/^        $templateUpdateTime = isset($_GET['templateUpdateTime']) ? (int)$_GET['templateUpdateTime'] : '';$/;"	v
 templateUpdateTime	.\application\controllers\Apps\Dayily.php	/^        $templateUpdateTime = isset($_GET['templateUpdateTime']) ? $_GET['templateUpdateTime'] : '1419057214a';$/;"	v
 templateUpdateTime	.\application\controllers\Apps\Games.php	/^        $templateUpdateTime = isset($_GET['templateUpdateTime']) ? (int)$_GET['templateUpdateTime'] : '';$/;"	v
@@ -656,6 +947,7 @@ templateUpdateTime	.\application\controllers\Apps\Spread.php	/^        $template
 templateUpdateTime	.\application\models\Apps.php	/^    public function getJson($page = 0, $templateUpdateTime = 0, $type)$/;"	v
 templateUpdateTime	.\application\models\Gifts.php	/^    public function getJson($page = '', $templateUpdateTime = '')$/;"	v
 test1Action	.\application\controllers\Index.php	/^    public function test1Action()$/;"	f
+time	.\library\Db\Base-copy.php	/^        $time = $this->_db->getRow($sql);\/\/如果时间和原来的时间不一致，则把所有模板再次进行发放$/;"	v
 time	.\library\Db\Base.php	/^        $time = $this->_db->getRow($sql);\/\/如果时间和原来的时间不一致，则把所有模板再次进行发放$/;"	v
 trans_times	.\library\Db\Mysql.php	/^			$this->trans_times = 0;$/;"	v
 trans_times	.\library\Db\Mysql.php	/^		$this->trans_times == 0 && mysql_query ( 'START TRANSACTION', $this->link_id );$/;"	v
@@ -663,23 +955,37 @@ trans_times	.\library\Db\Mysql.php	/^	private $trans_times = 0;$/;"	v
 uDoExecute	.\library\Db\Mysql.php	/^	private function uDoExecute($sql) {$/;"	f
 uQuery	.\library\Db\Mysql.php	/^	public function uQuery($sql = '', $master = false) {$/;"	f
 update	.\library\Db\Mysql.php	/^	public function update($tble_name, $data, $condition = '') {$/;"	f
+updateRedis	.\application\models\Apps.php	/^    public function updateRedis($redisData,$data)$/;"	f
+url	.\application\models\Apps.php	/^            $url = 'http:\/\/play.mobappbox.com\/index.php?m=Admin&c=Api&a=searchApp&keywords='.$keywords.'&language='.$this->language;$/;"	v
 url	.\application\models\Spread.php	/^                        $url = $this->_db->getRow($sql);$/;"	v
 url	.\application\models\Spread.php	/^    \/\/protected $url = 'market:\/\/details?id=';\/\/跳转URL路径$/;"	v
-url	.\library\Db\Base.php	/^        $url = $this->getUrl($urlId,$field['field'],$type,$language);$/;"	v
+url	.\library\Db\Base-copy.php	/^            $url = $this->getUrl($urlId,$field['field'],$type,$this->language);$/;"	v
+url	.\library\Db\Base-copy.php	/^    protected $url = 'https:\/\/play.google.com\/store\/apps\/details?id=';\/\/跳转URL路径$/;"	v
+url	.\library\Db\Base.php	/^            $url = $this->getUrl($urlId,$field['field'],$type,$this->language);$/;"	v
 url	.\library\Db\Base.php	/^    protected $url = 'https:\/\/play.google.com\/store\/apps\/details?id=';\/\/跳转URL路径$/;"	v
 uuid	.\application\controllers\Apps\Update.php	/^    	$uuid = isset($_GET['uuid']) ? $_GET['uuid'] : exit;$/;"	v
+uuid	.\application\models\Other.php	/^        $uuid = isset($_REQUEST['uuid']) ? $_REQUEST['uuid'] : '';$/;"	v
 v	.\library\Db\Mysql.php	/^				$v = $this->quote ( $v );$/;"	v
+value	.\application\models\Dayily.php	/^        $value = $this->_db->getRow($sql);$/;"	v
+value	.\application\models\Other.php	/^        $value = array_rand($currentKeywords,5);$/;"	v
 values	.\library\Db\Mysql.php	/^			$values = "('" . implode ( "','", $data ) . "')";$/;"	v
 values	.\library\Db\Mysql.php	/^			$values = array ();$/;"	v
 values	.\library\Db\Mysql.php	/^			$values = implode ( ",", $values );$/;"	v
+ver_code	.\application\controllers\Apps\Update.php	/^        $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';$/;"	v
+ver_code	.\application\models\Other.php	/^        $ver_code = isset($_REQUEST['ver_code']) ? $_REQUEST['ver_code'] : '';$/;"	v
 verfilyCodeAction	.\application\controllers\Bundlegift.php	/^    public function verfilyCodeAction() $/;"	f
 verify	.\application\models\Gifts.php	/^            $verify = $this->_db->getRow($sql);$/;"	v
 verifyCode	.\application\models\Gifts.php	/^    public function verifyCode($packageName,$code)$/;"	f
 view	.\application\models\Spread.php	/^                $view = $this->getView($field['data'],$banner);$/;"	v
-view	.\library\Db\Base.php	/^        $view = $this->getView($field['data'],$app);$/;"	v
-view	.\library\Db\Base.php	/^        $view = $this->getView($field['data'],$gift);$/;"	v
-view	.\library\Db\Base.php	/^        $view = $this->getView($field['data'],$spread);$/;"	v
-view	.\library\Db\Base.php	/^        $view = $this->getView($field['data'],$url);$/;"	v
+view	.\library\Db\Base-copy.php	/^                $view = $this->getView($field['data'],$app);$/;"	v
+view	.\library\Db\Base-copy.php	/^                $view = $this->getView($field['data'],$gift);$/;"	v
+view	.\library\Db\Base-copy.php	/^                $view = $this->getView($field['data'],$spread);$/;"	v
+view	.\library\Db\Base-copy.php	/^                $view = $this->getView($field['data'],$url);$/;"	v
+view	.\library\Db\Base-copy.php	/^        $view = array();$/;"	v
+view	.\library\Db\Base.php	/^                $view = $this->getView($field['data'],$app);$/;"	v
+view	.\library\Db\Base.php	/^                $view = $this->getView($field['data'],$gift);$/;"	v
+view	.\library\Db\Base.php	/^                $view = $this->getView($field['data'],$spread);$/;"	v
+view	.\library\Db\Base.php	/^                $view = $this->getView($field['data'],$url);$/;"	v
 view	.\library\Db\Base.php	/^        $view = array();$/;"	v
 where	.\application\controllers\Apps\Apps.php	/^        $where = 'where app.install_count>=100000 and';$/;"	v
 where	.\application\controllers\Apps\Games.php	/^        $where = 'where app.install_count>=100000 and';$/;"	v
@@ -688,9 +994,13 @@ where	.\application\models\Apps.php	/^                $where = $this->where . " 
 where	.\application\models\Apps.php	/^            $where = $this->where . " app.status=1 and app.is_game=" . $this->is_game . " and app.language='" . $this->language . "'";$/;"	v
 where	.\application\models\Apps.php	/^        $this->where = isset($where) && $where ? $where : $this->where;$/;"	v
 where	.\application\models\Apps.php	/^    protected $where = 'where';\/\/传递过来的条件$/;"	v
+where	.\application\models\Gifts.php	/^                $where = "and gift.package_name='$val'";$/;"	v
+where	.\application\models\Gifts.php	/^            $where = "where gift.id=$id";$/;"	v
+where	.\application\models\Gifts.php	/^            $where = "where gift.package_name='$packageName' and gift.fee_node=$chargePoint";$/;"	v
 where	.\library\Db\Mysql.php	/^	public function getSelectSql($fields, $tables, $where = '', $group_by = '', $having = '', $order_by = '', $limit = '') {$/;"	v
 where	.\library\Db\Mysql.php	/^	public function select($fields, $tables, $where = '', $group_by = '', $having = '', $order_by = '', $limit = '', $master = false) {$/;"	v
 where	.\library\Db\Mysql.php	/^$db->select($fields, $tables, $where = '', $group_by = '', $having = '', $order_by = '', $limit = '', $master = false);$/;"	v
 wheres	.\application\models\Apps.php	/^                $wheres = json_decode($other_where['where'],true);$/;"	v
 word	.\application\controllers\Captcha.php	/^		$word = "";$/;"	v
 word_len	.\application\controllers\Captcha.php	/^		$word_len   = 4;    \/\/ 验证码位数$/;"	v
+xmlType	.\application\models\Apps.php	/^                $xmlType = $template[0]['templateName'];$/;"	v

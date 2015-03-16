@@ -28,7 +28,7 @@ class GiftsModel extends RedisModel
 
         //获取礼包
         $this->redis->select(4);
-        if (false && $redis_datas = $this->redis->get('appboxgL_' . $this->language . '_' . $this->page)) {
+        if ($redis_datas = $this->redis->get('appboxgL_' . $this->language . '_' . $this->page)) {
             $arr['data'] = $this->getGiftRedis($redis_datas);
             $arr['dataRedis'] = 'from redis';
         } else {
@@ -48,18 +48,18 @@ class GiftsModel extends RedisModel
         if ($this->page == 0)//第一页的时候发放所有的广告
         {
             $this->redis->select(6);
-            if (false && $banners = $this->redis->get('appboxbL_'.$this->language.'_4'))//从缓存中取数据
+            if ($banners = $this->redis->get('appboxbL_'.$this->language.'_4'))//从缓存中取数据
             {
-                $banners = json_decode($banners, true);
+                $arr['banners'] = json_decode($banners, true);
                 $arr['bannersRedis'] = 'from redis';
             } else {
-                $banners = $this->getBanners(4);//推广所在位置，1：精选，2：游戏，3：应用，4礼包
+                $arr['banners'] = $this->getBanners(4);//推广所在位置，1：精选，2：游戏，3：应用，4礼包
                 $arr['bannersRedis'] = 'from mysql';
             }
-            //将广告推到data中
+            /*//将广告推到data中
             if(isset($banners) && $banners){
                 $arr['data'] = array_merge($banners,$arr['data']);
-            }
+            }*/
         }        
         return json_encode($arr);
     }
@@ -77,7 +77,15 @@ class GiftsModel extends RedisModel
                     gift.end_time>=" . time() . " and gift.package_id>0
                     order by gift.sort desc,gift.id desc
                     limit $p," . $this->pageNum;
-        return $this->_db->getAll($sql);
+        $info = $this->_db->getAll($sql);
+		
+		$sql = "UPDATE appbox_gift as gift SET gift.sort = ABS(gift.sort - 1) 
+                    order by gift.sort desc,gift.id desc
+                    limit 5";
+					
+		$this->_db->execute($sql);
+		
+		return $info;
     }
 
     //获取礼包详情
@@ -325,7 +333,6 @@ class GiftsModel extends RedisModel
         $sql .= "gift.start_time<=" . time() . " and gift.end_time>=" . time() . " and gift.package_id>0 ";
         
         $temp = array();
-        //如果客服端发送包名,则找到对应的礼包
         if($packageName){
             $arr = explode(',',$packageName);
             shuffle($arr);//打乱数组

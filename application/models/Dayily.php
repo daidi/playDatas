@@ -8,7 +8,7 @@ class DayilyModel extends RedisModel
     //如果开启了自动插入
     protected $spreadCount;//不在精选表专题的总数
     protected $giftCount;//不在精选表礼包的总数
-    protected $nums = 0 ;//精选表置顶的总数
+    protected $nums;//精选表置顶的总数
     protected $spreadInterval;//专题插入的间隔
     protected $giftInterval;//礼包插入的间隔
     protected $hasNextPage = false;//是否还有下一页
@@ -34,6 +34,18 @@ class DayilyModel extends RedisModel
         $sql = "select count(*) as num from appbox_dayily where status=1 and releaseTime<=".time();
         $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
         $page = $this->page*$this->pageNum;//初始化页数
+
+        //获取推广图
+        if($this->page == 0) {//第一页的时候发放所有的广告
+            $this->redis->select(6);
+            if($banners = $this->redis->get('appboxbL_'.$this->language.'_1')) {//从缓存中取数据
+                $arr['banners'] = json_decode($banners,true);
+                $arr['bannerRedis'] = 'from redis';            
+            } else {
+                $arr['banners'] = $this->getBanners(1);//推广所在位置，1：精选，2：游戏，3：应用，4礼包
+                $arr['bannerRedis'] = 'from mysql';                        
+            }
+        }
 
         //查找是否开启了自动推入功能
         $sql = "select * from appbox_auto_insert where status=1";
@@ -74,6 +86,7 @@ class DayilyModel extends RedisModel
                     }
                 }      
             }
+            return json_encode($arr);           
         } else {
             //获取缓存精选中的数据
             if($redis_datas = $this->redis->get('appboxdL_'.$this->language.'_'.$this->page)) {
@@ -87,23 +100,8 @@ class DayilyModel extends RedisModel
             if($arr['data'] && !empty($arr['data'])) {
                 $this->setDayilyRedis($arr['data']);
             }   
+            return json_encode($arr);
         }
-        //获取推广图
-        if($this->page == 0) {//第一页的时候发放所有的广告
-            $this->redis->select(6);
-            if($banners = $this->redis->get('appboxbL_'.$this->language.'_1')) {//从缓存中取数据
-                $arr['banners'] = json_decode($banners,true);
-                $arr['bannerRedis'] = 'from redis';            
-            } else {
-                $arr['banners'] = $this->getBanners(1);//推广所在位置，1：精选，2：游戏，3：应用，4礼包
-                $arr['bannerRedis'] = 'from mysql';                        
-            }
-/*            //将广告推到data中
-            if(isset($banners) && $banners){
-                $arr['data'] = array_merge($banners,$arr['data']);
-            }*/
-        } 
-        return json_encode($arr);       
     }
 
     //从模板中生成数据,并且生成缓存
@@ -141,7 +139,14 @@ class DayilyModel extends RedisModel
                     where dayily.status=1 and releaseTime<=".time()."
                     order by dayily.is_top desc,dayily.sort desc,dayily.id desc
                     limit $p,".$this->pageNum;
-        return $this->_db->getAll($sql);
+		$info = $this->_db->getAll($sql);
+		
+		$sql = "UPDATE appbox_dayily SET sort = ABS(sort - 1) where status=1 and releaseTime<=".time()."
+                    order by sort desc,id desc
+                    limit 5";
+		$this->_db->execute($sql);
+		
+        return $info;
     }
 
     //如果开启自动插入，则拼接所有的礼包和专题到精选中

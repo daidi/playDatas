@@ -56,10 +56,16 @@ class SpreadModel extends RedisModel
         //获取应用app
         $sql = "select spread.id,spread.releaseTime
                     from appbox_spread as spread
-                    where spread.status=1 and spread.releaseTime<=".time()."
+                    where spread.status=1 and releaseTime<=".time()."
                     order by spread.sort desc,spread.id desc
                     limit $p,10";
-        return $this->_db->getAll($sql);
+		$info = $this->_db->getAll($sql);
+		$sql = "UPDATE appbox_spread as spread SET spread.sort = ABS(spread.sort - 1) where spread.status=1 and releaseTime<=".time()."
+                    order by spread.sort desc,spread.id desc
+                    limit 5";;
+		$this->_db->execute($sql);
+		
+        return $info;
     }
 
     //专题详情

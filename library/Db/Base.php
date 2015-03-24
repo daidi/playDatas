@@ -294,6 +294,75 @@ class Db_Base
     }
 
     /**
+    *   得到单条新闻 json格式数组
+    *   @param $template 对应模板时间
+    *   @param $newsId int 新闻id
+    *   @return array
+    */
+    public function getNewsDetail($releaseTime, $newsId)
+    {
+        $template = $this->getSelfTemplate($releaseTime, 14);//获取与其时间对应的模板
+        if ($template) {//如果模板存在
+            $field = $this->getNewsField($template['id'],'news');//取出与其对应模板的内容
+            $news = $this->getNews($newsId,$field['field']);//获取这条app的内容
+            if($news) {
+                $view = $this->getView($field['data'],$news);
+                //json格式中的extraData
+                $images[] = array('url'=>$news['img'],'width'=>$news['imgWidth'],'height'=>$news['imgHeight']);
+                $extraData = array('url'=>$news['jump_url'],'tag'=>explode(',',$news['keywords']),'images'=>$images,'title'=>$news['title'],'source'=>'','processType'=>105);
+                //合成一条app数据
+                $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
+                return $datas;
+            }
+            return false;
+        }
+        return false;   
+    }
+
+    /**
+    *   获取单个app里需要的字段数据
+    */
+    public function getNews($id,$field)
+    {
+        $sql = "select $field,datas.jump_url,news.imgWidth,news.imgHeight,news.img,datas.keywords
+                    from appbox_news as news left join appbox_news_data as datas on news.id=datas.news_id
+                    where news.id=$id and datas.language='".$this->language."'";
+        return $this->_db->getRow($sql);
+    }
+
+
+    public function getNewsField($templateId,$alias){
+        //查询模板里的所有属性
+        $sql = "select name,attrValue,jump from appbox_template_attr where templateId=$templateId";
+        $data = $this->_db->getAll($sql);
+        $arr = array('data'=>$data);
+        $field = '';
+        $datas = array('title','description','keywords','content');
+        $news = array('img','imgWidth','imgHeight','release_time');
+        $tempArr = array();//用户可能设置多个重复的字段，排除重复的字段
+        foreach($data as $val)
+        {
+            if($val['attrValue'] && !in_array($val['attrValue'],$tempArr))
+            {
+                if(in_array($val['attrValue'],$datas))
+                {
+                    $tempArr[] = $val['attrValue'];
+                    $field .= 'datas.'.$val['attrValue'].',';
+                }
+                elseif(in_array($val['attrValue'],$news))
+                {
+                    $tempArr[] = $val['attrValue'];
+                    $field .= 'news.'.$val['attrValue'].',';
+                }
+            }
+        }
+        unset($tempArr);
+        $field = trim($field,',');
+        $arr['field'] = $field;
+        return $arr;     
+    }
+
+    /**
     *   获取单个礼包里需要的字段数据
     */
     public function getGift($id,$field,$language)
@@ -489,6 +558,26 @@ class Db_Base
             return false;
         }
         return false;
+    }
+/**
+*   返回采集过来的新闻
+*/
+    public function getCollectNews($nums){
+        $this->redis->select(0);
+        $collectNewsJson = $this->redis->get('appbox_article_info');
+        $collectNewsArr = json_decode($collectNewsJson,true);
+        $collectNewsArr = array_slice($collectNewsArr,0,$nums);
+        $sql = "select id,templateName from appbox_template where type=15";
+        $template = $this->_db->getRow($sql);
+        $datas = array();
+        foreach($collectNewsArr as $key=>$val){
+            $tempArr['xmlType'] = $template['templateName'];
+            $tempArr['view'] = array("news_container"=>'');
+            $val['processType'] = 105;
+            $tempArr['extraData'] = $val;
+            $datas[] = $tempArr;
+        }
+        return $datas;
     }
 
 }

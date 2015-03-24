@@ -94,6 +94,9 @@ class OtherModel extends Db_Base
             {
                 foreach($gift as $key=>$val)
                 {
+                    $sql = "select package_name from appbox_gift where id={$val['id']}";
+                    $packageName = $this->_db->getRow($sql);
+                    $gifts['pkg_name'] = $packageName['package_name'];
                     $gifts['id'] = $val['id'];
                     $gifts['title'] = $val['title'];
                     $gifts['content'] = '礼包'.$val['title'].'有了更新！';

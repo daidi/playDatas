@@ -104,14 +104,14 @@ class GiftsModel extends RedisModel
             return $data;
         }
 
-        $sql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid 
+        $sql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid,gift.logo_width as imgWidth,gift.logo_height as imgHeight,gift.logo as image
                 from appbox_gift as gift 
                 left join appbox_app as app on app.package_id=gift.package_id left join appbox_gift_desc as descs on descs.gid=gift.id
                 $where and descs.language='" . $this->language . "'";
         $gift = $this->_db->getRow($sql);
         if (!$gift['giftDesc'] && $this->language != 'en')//如果对应语言没有取到,则取默认语言英语
         {
-            $sql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid
+            $sql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid,gift.logo_width as imgWidth,gift.logo_height as imgheight,gift.logo as image
                     from appbox_gift as gift 
                     left join appbox_app as app on app.package_id=gift.package_id left join appbox_gift_desc as descs on descs.gid=gift.id
                     $where and descs.language='en'";

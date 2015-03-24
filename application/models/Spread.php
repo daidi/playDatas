@@ -51,12 +51,12 @@ class SpreadModel extends RedisModel
     /*
      * 获取应用
      */
-    public function getList($p)
+    public function getList($p,$position="is_zt")
     {
         //获取应用app
         $sql = "select spread.id,spread.releaseTime
                     from appbox_spread as spread
-                    where spread.status=1 and releaseTime<=".time()."
+                    where spread.status=1 and releaseTime<=".time()." and $position=1 
                     order by spread.sort desc,spread.id desc
                     limit $p,10";
 		$info = $this->_db->getAll($sql);
@@ -71,9 +71,17 @@ class SpreadModel extends RedisModel
     //专题详情
     public function getDetailJson($id,$page='')
     {
-        $this->page = isset($page) && $page ? (int)$page : 0;
         $arr = array();
         $arr['status'] = 1;
+        $is_news = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;
+        if($is_news){//判断是否采集过来的新闻
+            $this->redis->select('5');
+            $arr['hasNextPage'] = false;
+            $arr['data'] = $this->getCollectNews(100);
+            return json_encode($arr);
+        }
+
+        $this->page = isset($page) && $page ? (int)$page : 0;
         //初始化页数
         $sql = "select count(*) as num from appbox_spread_list where spreadId=$id";
         $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
@@ -115,30 +123,7 @@ class SpreadModel extends RedisModel
             if(!$spreadList) return json_encode(array('status'=>$this->is_true));
             foreach($spreadList as $val)
             {
-                switch($val['type'])
-                {
-                    case 'url':
-                        $sql = "select releaseTime,id from appbox_spread_url where id={$val['typeId']}";
-                        $url = $this->_db->getRow($sql);
-                        $tempArr = $this->getUrlDetail($url['releaseTime'],$url['id'],'appbox_spread_url');
-                        if($tempArr)                            
-                           $arr['data'][] = $tempArr;
-                        break;
-                    case 'gift':
-                         $sql = "select gift.start_time,gift.id from appbox_gift as gift left join appbox_app as app on app.package_id=gift.package_id where gift.id={$val['typeId']}";
-                         $gift = $this->_db->getRow($sql);
-                         $tempArr = $this->getGiftDetail($gift['start_time'],$val['typeId']);
-                         if($tempArr)
-                            $arr['data'][] = $tempArr;
-                        break;
-                    case 'app':
-                         $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='".$this->language."'";
-                         $app = $this->_db->getRow($sql);
-                         $tempArr = $this->getAppDetail($app['releaseTime'],$val['typeId'],1);
-                         if($tempArr)
-                            $arr['data'][] = $tempArr;
-                        break;
-                }
+                $arr['data'][] = $this->parseType($val);
             }
             if($arr['data'] && !empty($arr['data'])) {//设置缓存
                 $this->setSpreadDetailRedis($arr['data'],$id);                
@@ -148,7 +133,7 @@ class SpreadModel extends RedisModel
             return json_encode(array('status'=>$this->is_true));
         }
     }
-    
+
     //推广图详情
     public function bannerDetailJson($id,$page='')
     {  
@@ -201,32 +186,8 @@ class SpreadModel extends RedisModel
             $arr['data'] = $firstData;
             $sql = "select * from appbox_banner_list where bannerId=$id order by sort desc,id asc limit $page,".$this->pageNum;
             $bannerList = $this->_db->getAll($sql);
-            foreach($bannerList as $val)
-            {
-                switch($val['type'])
-                {
-                    case 'url':
-                        $sql = "select releaseTime,id from appbox_banner_url where id={$val['typeId']}";
-                        $url = $this->_db->getRow($sql);
-                        $tempArr = $this->getUrlDetail($url['releaseTime'],$url['id'],'appbox_banner_url');
-                        if($tempArr)                            
-                           $arr['data'][] = $tempArr;
-                        break;
-                    case 'gift':
-                         $sql = "select gift.start_time,gift.id from appbox_gift as gift left join appbox_app as app on app.package_id=gift.package_id where gift.id={$val['typeId']}";
-                         $gift = $this->_db->getRow($sql);
-                         $tempArr = $this->getGiftDetail($gift['start_time'],$val['typeId']);
-                         if($tempArr)
-                            $arr['data'][] = $tempArr;
-                        break;
-                    case 'app':
-                         $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='".$this->language."'";
-                         $app = $this->_db->getRow($sql);
-                         $tempArr = $this->getAppDetail($app['releaseTime'],$val['typeId'],1);
-                         if($tempArr)
-                            $arr['data'][] = $tempArr;
-                        break;
-                }
+            foreach($bannerList as $val){
+                $arr['data'][] = $this->parseType($val,'appbox_banner_url');
             }
             if($arr['data'] && !empty($arr['data'])) {
                 $this->setSpreadDetailRedis($arr['data'],$id,'banner');                
@@ -237,6 +198,41 @@ class SpreadModel extends RedisModel
         }
     }
 
+    public function parseType($val,$table='appbox_spread_url'){
+        $arr = array();
+        switch($val['type'])
+        {
+            case 'url':
+                $sql = "select releaseTime,id from $table where id={$val['typeId']}";
+                $url = $this->_db->getRow($sql);
+                $tempArr = $this->getUrlDetail($url['releaseTime'],$url['id'],$table);
+                if($tempArr)                            
+                   $arr = $tempArr;
+                break;
+            case 'gift':
+                 $sql = "select gift.start_time,gift.id from appbox_gift as gift left join appbox_app as app on app.package_id=gift.package_id where gift.id={$val['typeId']}";
+                 $gift = $this->_db->getRow($sql);
+                 $tempArr = $this->getGiftDetail($gift['start_time'],$val['typeId']);
+                 if($tempArr)
+                    $arr = $tempArr;
+                break;
+            case 'app':
+                 $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='".$this->language."'";
+                 $app = $this->_db->getRow($sql);
+                 $tempArr = $this->getAppDetail($app['releaseTime'],$val['typeId'],1);
+                 if($tempArr)
+                    $arr = $tempArr;
+                break;
+            case 'news':
+                 $sql = "select release_time,id from appbox_news where id={$val['typeId']}";
+                 $news = $this->_db->getRow($sql);
+                 $tempArr = $this->getNewsDetail($news['release_time'],$val['typeId']);
+                 if($tempArr)
+                    $arr = $tempArr;
+                break;
+        } 
+        return $arr;       
+    }
     /**
     *   获取单个banner里需要的字段数据
     */

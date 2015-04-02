@@ -1,6 +1,7 @@
 <?php
 class SpreadDayilyModel extends RedisModel
 {
+    public static $asb;
     public function __construct($language='') 
     {
         parent::__construct();
@@ -20,7 +21,8 @@ class SpreadDayilyModel extends RedisModel
         $arr['status'] = 1;//状态
         $this->redis->select(5);
         //获取推广列表
-        if($redis_data = $this->redis->get('appbox_dayily_info')) {
+        $key = 'appbox_dayily_info_'.$this->language;
+        if($redis_data = $this->redis->get($key)) {
             $arr['data'] = json_decode($redis_data);
             $arr['dataRedis'] = 'from redis';
         } else {
@@ -32,28 +34,10 @@ class SpreadDayilyModel extends RedisModel
             }
             if($arr['data']){//推入缓存中
                 $this->redis->select(5);
-                $this->redis->set('appbox_dayily_info',json_encode($arr['data']),'1800');
+                $this->redis->set($key,json_encode($arr['data']),'1800');
             }
         }
         return json_encode($arr);
-        /*
-        $this->page = isset($page) ? (int)$page : 0;
-        $sql = "select count(*) as num from appbox_spread spread.status=1 and releaseTime<=".time()." and is_jx=1";
-        $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
-        $page = $this->page*$this->pageNum;//初始化页数
-        //获取推广图
-        if($this->page == 0) {//第一页的时候发放所有的广告
-            $this->redis->select(6);
-            if($banners = $this->redis->get('appboxbL_'.$this->language.'_1')) {//从缓存中取数据
-                $arr['banners'] = json_decode($banners,true);
-                $arr['bannerRedis'] = 'from redis';            
-            } else {
-                $arr['banners'] = $this->getBanners(1);//推广所在位置，1：精选，2：游戏，3：应用，4礼包
-                $arr['bannerRedis'] = 'from mysql';                        
-            }
-        }
-        */
-
     }
 
     public function getList($p,$position="is_jx")
@@ -62,7 +46,7 @@ class SpreadDayilyModel extends RedisModel
         $sql = "select spread.id,spread.releaseTime,spread.expand,spread.spread_type,spread.name
                     from appbox_spread as spread
                     where spread.status=1 and releaseTime<=".time()." and $position=1 
-                    order by spread.sort desc,spread.id desc
+                    order by spread.dayily_sort desc,spread.id desc
                     limit $p,10";
         $info = $this->_db->getAll($sql);
         return $info;
@@ -95,7 +79,9 @@ class SpreadDayilyModel extends RedisModel
         $data = $this->_db->getAll($sql);
         $spread_mod = new SpreadModel($this->language);
         foreach($data as $key=>$val){
-            $arr[] = $spread_mod->parseType($val);
+            $tempData = $spread_mod->parseType($val);
+            if($tempData)
+                $arr[] = $tempData;
         }
         return $arr;
     }

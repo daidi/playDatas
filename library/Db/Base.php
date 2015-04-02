@@ -309,7 +309,7 @@ class Db_Base
                 $view = $this->getView($field['data'],$news);
                 //json格式中的extraData
                 $images[] = array('url'=>$news['img'],'width'=>$news['imgWidth'],'height'=>$news['imgHeight']);
-                $extraData = array('url'=>$news['jump_url'],'tag'=>explode(',',$news['keywords']),'images'=>$images,'title'=>$news['title'],'source'=>'','processType'=>105);
+                $extraData = array('url'=>$news['jump_url'],'tag'=>explode(',',$news['keywords']),'images'=>$images,'title'=>$news['title'],'source'=>'','processType'=>110);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
                 return $datas;
@@ -573,7 +573,7 @@ class Db_Base
         foreach($collectNewsArr as $key=>$val){
             $tempArr['xmlType'] = $template['templateName'];
             $tempArr['view'] = array("news_container"=>'');
-            $val['processType'] = 105;
+            $val['processType'] = 110;
             $tempArr['extraData'] = $val;
             $datas[] = $tempArr;
         }

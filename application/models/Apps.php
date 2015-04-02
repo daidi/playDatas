@@ -238,6 +238,7 @@ class AppsModel extends RedisModel
                 unset($data['screen_shots']);
                 //获取同分类下的四个产品
                 $data['recommendation'] = isset($data['extend_info']) && $data['extend_info'] ? json_decode($data['extend_info'], true) : '';
+                unset($data['extend_info']);
                 unset($data['google_category']);
                 $arr['data'] = $data;
                 if ($arr && !empty($arr)) {//缓存到redis

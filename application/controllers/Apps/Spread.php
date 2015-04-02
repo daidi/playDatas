@@ -27,8 +27,7 @@ class Apps_SpreadController extends Yaf_Controller_Abstract
     }
 
 //获取推广图详情
-    public function bannerDetailAction()
-    {
+    public function bannerDetailAction(){
         $id = isset($_GET['id']) ? (int)($_GET['id']) : exit;
         $language = isset($_GET['language']) ? $_GET['language'] : 'en';
         $p = isset($_GET['p']) ? (int)($_GET['p']) : '';

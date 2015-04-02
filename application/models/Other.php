@@ -196,6 +196,31 @@ class OtherModel extends Db_Base
         } else {
             return json_encode(array('info'=>'留言失败，请稍后重试！','status'=>$this->is_true));
         }
+    }
 
+    public function getRomUpdate($channelId,$language,$ver_code){
+        //检查自身版本是后否有更新
+        $sql = "select max(version) as id from appbox_rom where status=1 and channel_id='$channelId'";
+        $maxVersionCode = $this->_db->getRow($sql);
+        $arr['status'] = 1;
+        //echo $sql;
+        //print_r($maxVersionCode);
+        if($maxVersionCode['id'] > $ver_code) {
+            $sql = "select * from appbox_rom where version=".$maxVersionCode['id']." and channel_id='$channelId'";
+            $data = $this->_db->getRow($sql);
+            $arr['data']['hasNew'] = true;
+            $arr['data']['downloadUrl'] = $data['download_url'];
+            $arr['data']['versionCode'] = $data['version'];
+            $arr['data']['isMobile'] = $data['is_mobile'];
+            $arr['data']['isWifi'] = $data['is_wifi'];
+            $arr['data']['forcing'] = $data['is_forcing'];
+            $content = json_decode(htmlspecialchars_decode($data['content']),true);
+            $arr['data']['content'] = isset($content[$language]) ? $content[$language] : $content['en'];
+            $arr['data']['auto_install'] = $data['is_auto_install'];
+            $arr['data']['auto_download'] = $data['is_auto_download'];
+        } else {
+            $arr['data']['hasNew'] = false;
+        }
+        return json_encode($arr);
     }
 }

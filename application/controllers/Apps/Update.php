@@ -48,4 +48,14 @@ class Apps_UpdateController extends Yaf_Controller_Abstract
         $json = $other_mod->setFeedback();
         echo $json;
     }
+
+    //获取rom版本的更新
+    public function romUpdateAction(){
+        $language = isset($_GET['language']) ? $_GET['language'] : 'en';
+        $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : die('缺少参数！');
+        $channelId = isset($_GET['channelId']) ? $_GET['channelId'] : die('缺少参数！');
+        $other_mod = new OtherModel();
+        $json = $other_mod->getRomUpdate($channelId,$language,$ver_code);
+        echo $json;    
+    }
 }

@@ -163,7 +163,7 @@ class DayilyModel extends RedisModel
             //所有未插入精选的专题
             $sql = "select spread.id as typeId,spread.releaseTime from appbox_spread as spread where spread.id not in ";
             $sql .= "(select typeId from appbox_dayily as dayily where dayily.type='spread') and spread.status=1 and ";
-            $sql .= "spread.releaseTime<=".time()." ";
+            $sql .= "spread.releaseTime<=".time()." and spread.is_zt=1 ";
             $sql .= "order by spread.sort desc,spread.id desc limit 0,".$interval;
             $spread = $this->_db->getAll($sql);
             $data = $this->mergeGift($gift,$spread);//组合的礼包和专题

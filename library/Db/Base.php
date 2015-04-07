@@ -257,7 +257,7 @@ class Db_Base
     //查询一个包名是否存在礼包
     public function haveGift($packageName)
     {
-        $sql = "select id from appbox_gift where package_name='$packageName'";
+        $sql = "select id from appbox_gift where package_name='$packageName' and status=1";
         $data = $this->_db->getRow($sql);
         if($data['id']) {
             return $data['id'];
@@ -579,5 +579,55 @@ class Db_Base
         }
         return $datas;
     }
+
+/**
+*   返回采集的图片资源
+*/
+    public function getCollectImages(){
+        $this->redis->select(10);
+        $collectImagesJson = $this->redis->sMembers('appbox_collect_article');
+        if($collectImagesJson){
+            $collectImagesTempArr = array_rand($collectImagesJson,5);
+            $max = 0;
+            $index = null;
+            //取出宽度最宽的元素
+            foreach($collectImagesTempArr as $key=>$val){
+                $img = $collectImagesJson[$val];
+                $imgArr = json_decode($img,true);
+                if($max < $imgArr['imgWidth']){
+                    $max = $imgArr['imgWidth'];
+                    $index = $key;
+                }
+                $collectImagesMaxArr[$key] = $imgArr;
+            }
+            //判断返回四个元素还是五个元素
+            if($max > 600){
+                $collectImagesArr[] = $collectImagesMaxArr[$index];
+                unset($collectImagesMaxArr[$index]);
+                foreach($collectImagesMaxArr as $key=>$val){
+                    if($val && count($collectImagesArr) < 4){
+                        $collectImagesArr[] = $val;
+                    }
+                }
+            } else {
+                $collectImagesArr = $collectImagesMaxArr;
+            }
+            $sql = "select id,templateName from appbox_template where type=16";
+            $template = $this->_db->getRow($sql);
+            foreach($collectImagesArr as $key=>$val){
+                $extraData[] = $val['url'];
+            }
+            $tempArr['xmlType'] = $template['templateName'];
+            $tempArr['view'] = array("item_images"=>array('text'=>'','processType'=>114));
+            $tempArr['extraData']['processType'] = 114;
+            $tempArr['extraData']['images'] = $extraData;
+            $return[] = $tempArr;
+            return $return;        
+        } else {
+            return false;
+        }
+
+    }
+
 
 }

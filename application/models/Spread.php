@@ -73,12 +73,38 @@ class SpreadModel extends RedisModel
     {
         $arr = array();
         $arr['status'] = 1;
-        $is_news = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;
+        $is_news = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;//是否显示新闻
+        $is_images = isset($_REQUEST['is_images']) ? $_REQUEST['is_images'] : 0;//是否显示采集过来的图片
         if($is_news){//判断是否采集过来的新闻
             $this->redis->select('5');
             $arr['hasNextPage'] = false;
             $arr['data'] = $this->getCollectNews(100);
             return json_encode($arr);
+        } elseif($is_images){
+            //从缓存中是否查到先前访问过的数据
+            $this->redis->select('5');
+            $redis_data = $this->redis->get('appbox_collect_article');
+            if($redis_data){
+                return $redis_data;
+            }
+            $this->redis->select('10');
+            $arr['status'] = 1;
+            $articleDatas = $this->redis->sMembers('appbox_collect_article');
+            //打乱数组，随机返回100条
+            shuffle($articleDatas);
+            foreach($articleDatas as $key=>$val){
+                if($key < 100){
+                    $arr['data'][] = json_decode($val,true);
+                } else {
+                    break;
+                }
+            }
+            $arr = json_encode($arr);
+            if($arr){//设置缓存
+                $this->redis->select('5');
+                $this->redis->set('appbox_collect_article',$arr,86400);
+            }
+           return $arr;
         }
 
         $this->page = isset($page) && $page ? (int)$page : 0;

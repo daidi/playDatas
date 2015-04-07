@@ -1,7 +1,8 @@
 <?php
-class SpreadDayilyModel extends RedisModel
+class SpreaddayilyModel extends RedisModel
 {
     public static $asb;
+    public $ver_code;
     public function __construct($language='') 
     {
         parent::__construct();
@@ -16,13 +17,14 @@ class SpreadDayilyModel extends RedisModel
      */
     public function getJson($page='',$templateUpdateTime=0)
     {
-     //获取模板内容，如果模板未更新，则什么都不返回
+        $this->ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : 8;//获取版本号
+        //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
         $this->redis->select(5);
         //获取推广列表
-        $key = 'appbox_dayily_info_'.$this->language;
-        if($redis_data = $this->redis->get($key)) {
+        $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code;
+        if($redis_data = $this->redis->get($keys)) {
             $arr['data'] = json_decode($redis_data);
             $arr['dataRedis'] = 'from redis';
         } else {
@@ -34,7 +36,7 @@ class SpreadDayilyModel extends RedisModel
             }
             if($arr['data']){//推入缓存中
                 $this->redis->select(5);
-                $this->redis->set($key,json_encode($arr['data']),'1800');
+                $this->redis->set($keys,json_encode($arr['data']),'1800');
             }
         }
         return json_encode($arr);
@@ -54,21 +56,31 @@ class SpreadDayilyModel extends RedisModel
 
     public function getDayilySpreadDetail($val){
         $datas['subject_id'] = $val['id'];
-        if($val['expand'] != false){//代表是展开的形式
-            $name = json_decode(htmlspecialchars_decode($val['name']),true);
+        $name = json_decode(htmlspecialchars_decode($val['name']),true);
+        if($val['expand'] != false && $val['spread_type'] != 2){//代表是展开的形式
             $datas['subject_title'] = $name[$this->language];
             $datas['status'] = 'expand';
             $datas['data'] = $this->getDetailJson($val['id'],$val['expand']);
-        } else {//非展开的形式就是发放一张图片,即原来的专题
+        } elseif($val['spread_type'] != 2) {//非展开的形式就是发放一张图片,即原来的专题
             $datas['status'] = 'collapse';
             $datas['data'][] = $this->getSpreadDetail($val['releaseTime'],$val['id']);
         }
 
-        //文章类型自动插入采集过来的信息
-        if($val['spread_type'] == 1 && $val['expand'] != false){
+        if($val['spread_type'] == 1 && $val['expand'] != false){//文章类型自动插入采集过来的信息
             $datas['is_news'] = true;
             $tempData = $this->getCollectNews($val['expand']);
             $datas['data'] = array_merge($datas['data'],$tempData);
+        } elseif($val['spread_type'] == 2 && $this->ver_code > 8) {//图片类型自动采集填充
+            $tempData = $this->getCollectImages();
+            if($tempData){
+                $datas['is_images'] = true;
+                $datas['subject_title'] = $name[$this->language];
+                $datas['data']= $tempData;
+                $datas['status'] = 'expand';
+            }
+        }
+        if(!$datas['data']){
+            return false;
         }
         return $datas;
     }

@@ -214,7 +214,7 @@ class OtherModel extends Db_Base
             $arr['data']['isMobile'] = $data['is_mobile'];
             $arr['data']['isWifi'] = $data['is_wifi'];
             $arr['data']['forcing'] = $data['is_forcing'];
-            $content = json_decode(htmlspecialchars_decode($data['content']),true);
+            $content = json_decode(htmlspecialchars_decode($data['dialog_content']),true);
             $arr['data']['content'] = isset($content[$language]) ? $content[$language] : $content['en'];
             $arr['data']['auto_install'] = $data['is_auto_install'];
             $arr['data']['auto_download'] = $data['is_auto_download'];

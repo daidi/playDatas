@@ -28,6 +28,7 @@ class SpreaddayilyModel extends RedisModel
             $arr['data'] = json_decode($redis_data);
             $arr['dataRedis'] = 'from redis';
         } else {
+            $arr['banner'] = $this->getNav();//获取导航顺序列表
            $spread = $this->getList($page,'is_jx');
             if(!$spread) return json_encode(array('status'=>$this->is_true));
             foreach($spread as $key=>$val) {//将精选推入到数组
@@ -96,5 +97,15 @@ class SpreaddayilyModel extends RedisModel
                 $arr[] = $tempData;
         }
         return $arr;
+    }
+
+    public function getNav(){
+        $sql = "select title,process_type as processType,icon_url as iconUrl,bg_color as bgColor,img as imageUrl spread_id as spreadId from appbox_nav where status=1 order by sort desc";
+        $data = $this->_db->getAll($sql);
+        foreach($data as $key=>$val){
+            $title = json_decode(htmlspecialchars_decode($val['title']),true);
+            $data[$key]['title'] = $title[$this->language];
+        }
+        return $data;
     }
 }

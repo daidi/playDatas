@@ -583,9 +583,9 @@ class Db_Base
 /**
 *   返回采集的图片资源
 */
-    public function getCollectImages(){
+    public function getCollectImages($keys){
         $this->redis->select(10);
-        $collectImagesJson = $this->redis->sMembers('appbox_collect_article');
+        $collectImagesJson = $this->redis->lRange($keys,0,100);
         if($collectImagesJson){
             $collectImagesTempArr = array_rand($collectImagesJson,5);
             $max = 0;

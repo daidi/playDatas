@@ -79,11 +79,11 @@ class GiftsModel extends RedisModel
                     limit $p," . $this->pageNum;
         $info = $this->_db->getAll($sql);
 		
-		$sql = "UPDATE appbox_gift as gift SET gift.sort = ABS(gift.sort - 1) 
+/*		$sql = "UPDATE appbox_gift as gift SET gift.sort = ABS(gift.sort - 1) 
                     order by gift.sort desc,gift.id desc
                     limit 5";
 					
-		$this->_db->execute($sql);
+		$this->_db->execute($sql);*/
 		
 		return $info;
     }

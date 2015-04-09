@@ -141,10 +141,10 @@ class DayilyModel extends RedisModel
                     limit $p,".$this->pageNum;
 		$info = $this->_db->getAll($sql);
 		
-		$sql = "UPDATE appbox_dayily SET sort = ABS(sort - 1) where status=1 and releaseTime<=".time()."
+/*		$sql = "UPDATE appbox_dayily SET sort = ABS(sort - 1) where status=1 and releaseTime<=".time()."
                     order by sort desc,id desc
                     limit 5";
-		$this->_db->execute($sql);
+		$this->_db->execute($sql);*/
 		
         return $info;
     }

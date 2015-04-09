@@ -158,11 +158,11 @@ class AppsModel extends RedisModel
                     limit $p," . $this->pageNum;
         $info = $this->_db->getAll($sql);
 		
-		$sql = "UPDATE appbox_app as app SET app.sort = app.sort - 300,app.is_top = ABS(app.is_top - 1),app.score = ABS(app.score - 0.1) $where
+/*		$sql = "UPDATE appbox_app as app SET app.sort = app.sort - 300,app.is_top = ABS(app.is_top - 1),app.score = ABS(app.score - 0.1) $where
                     order by $order
                     limit 10";
 					
-		$this->_db->execute($sql);
+		$this->_db->execute($sql);*/
 		return $info;
     }
 

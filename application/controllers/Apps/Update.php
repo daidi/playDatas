@@ -9,9 +9,9 @@ class Apps_UpdateController extends Yaf_Controller_Abstract
 	//更新接口
     public function indexAction() 
     {
-        $giftUpdateTime = isset($_GET['giftUpdateTime']) ? (int)$_GET['giftUpdateTime'] : 0;
-        $spreadUpdateTime = isset($_GET['spreadUpdateTime']) ? (int)$_GET['spreadUpdateTime'] : 0;
-        $dayilyUpdateTime = isset($_GET['dayilyUpdateTime']) ? (int)$_GET['dayilyUpdateTime'] : 0;
+        $giftUpdateTime = isset($_GET['giftUpdateTime']) ? (int)$_GET['giftUpdateTime']/1000 : 0;
+        $spreadUpdateTime = isset($_GET['spreadUpdateTime']) ? (int)$_GET['spreadUpdateTime']/1000 : 0;
+        $dayilyUpdateTime = isset($_GET['dayilyUpdateTime']) ? (int)$_GET['dayilyUpdateTime']/1000 : 0;
         $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';
         $language = isset($_GET['language']) ? $_GET['language'] : 'en';
     	$other_mod = new OtherModel($language);

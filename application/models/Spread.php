@@ -60,10 +60,10 @@ class SpreadModel extends RedisModel
                     order by spread.sort desc,spread.id desc
                     limit $p,10";
 		$info = $this->_db->getAll($sql);
-		$sql = "UPDATE appbox_spread as spread SET spread.sort = ABS(spread.sort - 1) where spread.status=1 and releaseTime<=".time()."
+/*		$sql = "UPDATE appbox_spread as spread SET spread.sort = ABS(spread.sort - 1) where spread.status=1 and releaseTime<=".time()."
                     order by spread.sort desc,spread.id desc
                     limit 5";;
-		$this->_db->execute($sql);
+		$this->_db->execute($sql);*/
 		
         return $info;
     }
@@ -71,43 +71,27 @@ class SpreadModel extends RedisModel
     //专题详情
     public function getDetailJson($id,$page='')
     {
+        $this->page = isset($page) && $page ? (int)$page : 0;
         $arr = array();
         $arr['status'] = 1;
         $is_news = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;//是否显示新闻
         $is_images = isset($_REQUEST['is_images']) ? $_REQUEST['is_images'] : 0;//是否显示采集过来的图片
-        if($is_news){//判断是否采集过来的新闻
+        $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';//是否显示采集过来的图片
+        if($is_news || $type == 'is_news'){//判断是否采集过来的新闻
             $this->redis->select('5');
             $arr['hasNextPage'] = false;
             $arr['data'] = $this->getCollectNews(100);
             return json_encode($arr);
-        } elseif($is_images){
-            //从缓存中是否查到先前访问过的数据
-            $this->redis->select('5');
-            $redis_data = $this->redis->get('appbox_collect_article');
-            if($redis_data){
-                return $redis_data;
-            }
-            $this->redis->select('10');
-            $arr['status'] = 1;
-            $articleDatas = $this->redis->sMembers('appbox_collect_article');
-            //打乱数组，随机返回100条
-            shuffle($articleDatas);
-            foreach($articleDatas as $key=>$val){
-                if($key < 100){
-                    $arr['data'][] = json_decode($val,true);
-                } else {
-                    break;
-                }
-            }
-            $arr = json_encode($arr);
-            if($arr){//设置缓存
-                $this->redis->select('5');
-                $this->redis->set('appbox_collect_article',$arr,86400);
-            }
-           return $arr;
+        } elseif($is_images || $type == 'is_images'){
+            return $this->getCollectData('appbox_collect_colsplay',$page);
         }
 
-        $this->page = isset($page) && $page ? (int)$page : 0;
+        switch($type){
+            case 'gifs':
+                return $this->getCollectData('appbox_collect_gifs',$page);
+            break;
+        }
+
         //初始化页数
         $sql = "select count(*) as num from appbox_spread_list where spreadId=$id";
         $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
@@ -160,6 +144,29 @@ class SpreadModel extends RedisModel
         } else {
             return json_encode(array('status'=>$this->is_true));
         }
+    }
+/**
+*   返回采集的colsplay或者是gif
+*   @param $key string gif的key或者colsplay的key
+*   @param $page int 页数
+*   @return array
+*/
+    private function getCollectData($key,$page){
+        $this->redis->select('10');
+        $start = $page*50;
+        $end = $start+50-1;
+        $articleDatas = $this->redis->lRange($key,$start,$end);
+
+        //判断是否还有下一页
+        $nextStart = ($page+1)*50;
+        $nextEnd = $nextStart+50-1;
+        $arr['hasNextPage'] = $this->redis->lRange($key,$nextStart,$nextEnd) ? true : false;
+
+        foreach($articleDatas as $key=>$val){
+            $arr['data'][] = json_decode($val,true);
+        }
+        $arr = json_encode($arr);
+        return $arr;
     }
 
     //推广图详情

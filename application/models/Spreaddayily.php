@@ -24,8 +24,11 @@ class SpreaddayilyModel extends RedisModel
         $this->redis->select(5);
         //获取推广列表
         $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code;
+        $bannerKeys = 'banner_'.$this->language.'_'.$this->ver_code;
         if($redis_data = $this->redis->get($keys)) {
             $arr['data'] = json_decode($redis_data);
+            $banner = $this->redis->get($bannerKeys);
+            $arr['banner'] = $banner ? json_decode($banner) : $this->getNav();
             $arr['dataRedis'] = 'from redis';
         } else {
             $arr['banner'] = $this->getNav();//获取导航顺序列表
@@ -38,6 +41,7 @@ class SpreaddayilyModel extends RedisModel
             if($arr['data']){//推入缓存中
                 $this->redis->select(5);
                 $this->redis->set($keys,json_encode($arr['data']),'1800');
+                $this->redis->set($bannerKeys,json_encode($arr['banner']),'1800');
             }
         }
         return json_encode($arr);
@@ -58,7 +62,7 @@ class SpreaddayilyModel extends RedisModel
     public function getDayilySpreadDetail($val){
         $datas['subject_id'] = $val['id'];
         $name = json_decode(htmlspecialchars_decode($val['name']),true);
-        if($val['expand'] != false && $val['spread_type'] != 2){//代表是展开的形式
+        if($val['expand'] != false && ($val['spread_type'] != 2 && $val['spread_type'] != 3)){//代表是展开的形式
             $datas['subject_title'] = $name[$this->language];
             $datas['status'] = 'expand';
             $datas['data'] = $this->getDetailJson($val['id'],$val['expand']);
@@ -70,11 +74,15 @@ class SpreaddayilyModel extends RedisModel
         if($val['spread_type'] == 1 && $val['expand'] != false){//文章类型自动插入采集过来的信息
             $datas['is_news'] = true;
             $tempData = $this->getCollectNews($val['expand']);
-            $datas['data'] = array_merge($datas['data'],$tempData);
-        } elseif($val['spread_type'] == 2 && $this->ver_code > 8) {//图片类型自动采集填充
-            $tempData = $this->getCollectImages();
+            if($datas['data']) $datas['data'] = array_merge($datas['data'],$tempData);
+            else $datas['data'] = $tempData;
+        //图片 gif类型自动采集填充
+        } elseif(($val['spread_type'] == 2 || $val['spread_type'] == 3) && $this->ver_code > 8) {
+            $keys = $val['spread_type'] == 2 ? 'appbox_collect_colsplay' : 'appbox_collect_gifs';
+            $type = $val['spread_type'] == 2 ? 'is_images' : 'is_gifs';
+            $tempData = $this->getCollectImages($keys);
             if($tempData){
-                $datas['is_images'] = true;
+                $datas[$type] = true;
                 $datas['subject_title'] = $name[$this->language];
                 $datas['data']= $tempData;
                 $datas['status'] = 'expand';
@@ -100,7 +108,7 @@ class SpreaddayilyModel extends RedisModel
     }
 
     public function getNav(){
-        $sql = "select title,process_type as processType,icon_url as iconUrl,bg_color as bgColor,img as imageUrl spread_id as spreadId from appbox_nav where status=1 order by sort desc";
+        $sql = "select title,process_type as processType,icon_url as iconUrl,bg_color as bgColor,img as imageUrl,spread_id as spreadId from appbox_nav where status=1 order by sort desc";
         $data = $this->_db->getAll($sql);
         foreach($data as $key=>$val){
             $title = json_decode(htmlspecialchars_decode($val['title']),true);

@@ -152,6 +152,7 @@ class SpreadModel extends RedisModel
 *   @return array
 */
     private function getCollectData($key,$page){
+        $arr['status'] = 1;
         $this->redis->select('10');
         $start = $page*50;
         $end = $start+50-1;

@@ -36,7 +36,7 @@ class OtherModel extends Db_Base
     }
 
     /**
-    *   是否更新
+    *   是否更新 9版本之前的更新通知
     */
     public function getUpdate($giftUpdateTime,$spreadUpdateTime,$dayilyUpdateTime,$ver_code)
     {
@@ -106,22 +106,117 @@ class OtherModel extends Db_Base
         }
 
         //检查自身版本是后否有更新
+        $arr['appUpdate'] = $this->getVersion();
+     
+        return json_encode($arr);
+    }    
+
+    /**
+    *   是否更新 9版本之后的更新通知接口
+    */
+    public function getAnnounce($timeArr,$currentTime,$ver_code){
+        if(!$ver_code) die('参数错误！');
+        $arr = array('status'=>1,'updateTime'=>'60 6:00;12:00;18:00');//返回的json
+
+        $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
+        foreach($timeArr as $key=>$val){
+            $sql = $cSql."$val and ";
+            switch($key){
+                case 'giftUpdateTime':
+                    $sql .= "type='gift'";
+                    $data = $this->_db->getAll($sql);
+                    if($data){
+                        foreach($data as $v){
+                            $sql = "select g.logo as imageUrl,g.package_name as pkg_name,g.id,descs.name as title,descs.description as content from appbox_gift as g left join appbox_gift_desc as descs on g.id=descs.gid where g.id={$v['typeId']} and g.status=1 and descs.language='".$this->language."'";
+                            $gift = $this->_db->getRow($sql);
+                            if($gift) $arr['notice']['gift'][] = $gift;
+                        }
+                    }
+                    break;
+                case 'spreadUpdateTime':
+                    $sql .= "type='spread'";
+                    $data = $this->_db->getAll($sql);
+                    if($data){
+                        foreach($data as $v){
+                            $sql = "select name,img as imageUrl,description,id,spread_type as type from appbox_spread where id={$v['typeId']} and status=1";
+                            $spread = $this->_db->getRow($sql);
+                            if($spread) {
+                                $title = json_decode(htmlspecialchars_decode($spread['name']),true);
+                                $spread['title'] = $title[$this->language];
+                                $content = json_decode(htmlspecialchars_decode($spread['description']),true);
+                                $spread['content'] = $content[$this->language];
+                                $arr['notice']['subject'][] = $spread;
+                            }
+                        }
+                    }                    
+                    break;
+                case 'appUpdateTime':
+                    $sql .= "type='app'";
+                    $app = $this->_parseApp($sql);
+                    if($app) $arr['notice']['app'] =  $app;
+                    break;
+                case 'gameUpdateTime':
+                    $sql .= "type='game'";
+                    $game = $this->_parseApp($sql);
+                    if($game) $arr['notice']['game'] =  $game;
+                    break;
+                case 'articleUpdateTime':
+                    $sql .= "type='article'";
+                    $data = $this->_db->getAll($sql);
+                    if($data){
+                        foreach($data as $v){
+                            $sql = "select n.img as imageUrl,n.id,descs.title,descs.description as content from appbox_news as n left join appbox_news_data as descs on n.id=descs.news_id where n.id={$v['typeId']} and descs.language='".$this->language."'";
+                            $news = $this->_db->getRow($sql);
+                            if($news) $arr['notice']['news'][] = $news;
+                        }
+                    }                    
+                    break;
+            }
+            unset($sql);
+            unset($data);
+        }
+        //检查自身版本是后否有更新
+        $arr['appUpdate'] = $this->getVersion();
+        $arr['update']['spread'] = isset($arr['notice']['subject']) ? count($arr['notice']['subject']) : 0;
+        $arr['update']['gift'] = isset($arr['notice']['gift']) ? count($arr['notice']['gift']) : 0;
+        $arr['update']['news'] = isset($arr['notice']['news']) ? count($arr['notice']['news']) : 0;
+        $arr['update']['app'] = isset($arr['notice']['app']) ? count($arr['notice']['app']) : 0;
+        $arr['update']['game'] = isset($arr['notice']['game']) ? count($arr['notice']['game']) : 0;
+        return json_encode($arr);
+    }
+/**
+*   版本自身的更新情况
+*/
+    public function getVersion(){
+        $arr = array();
         $sql = "select max(versionCode) as id from appbox_update_version where status=1";
         $maxVersionCode = $this->_db->getRow($sql);
         if($maxVersionCode['id'] > $ver_code) {
             $sql = "select * from appbox_update_version where versionCode=".$maxVersionCode['id'];
             $data = $this->_db->getRow($sql);
-            $arr['appUpdate']['hasNew'] = true;
-            $arr['appUpdate']['versionCode'] = $data['versionCode'];
-            $arr['appUpdate']['dialogContent'] = $data['dialogContent'];
-            $arr['appUpdate']['downloadUrl'] = $data['downloadUrl'];
-            $arr['appUpdate']['title'] = $data['title'];
-            $arr['appUpdate']['content'] = $data['content'];
-            $arr['appUpdate']['forcing'] = $data['force'];
-        }            
-        return json_encode($arr);
+            $arr['hasNew'] = true;
+            $arr['versionCode'] = $data['versionCode'];
+            $arr['dialogContent'] = $data['dialogContent'];
+            $arr['downloadUrl'] = $data['downloadUrl'];
+            $arr['title'] = $data['title'];
+            $arr['content'] = $data['content'];
+            $arr['forcing'] = $data['force'];
+        }
+        return $arr;          
     }
 
+    private function _parseApp($sql){
+        $arr = array();
+        $data = $this->_db->getAll($sql);
+        if($data){
+            foreach($data as $v){
+                $sql = "select id,package_name as pkg_name,app_name as title,icon as imageUrl from appbox_app where id={$v['typeId']} and language='".$this->language."' and status=1";
+                $app = $this->_db->getRow($sql);
+                if($app) $arr[] = $app;
+            }
+        } 
+        return $arr;
+    }
 /**
 *   添加取消收藏
 */

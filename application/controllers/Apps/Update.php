@@ -6,12 +6,12 @@
 */
 class Apps_UpdateController extends Yaf_Controller_Abstract 
 {
-	//更新接口
+	//更新接口 9版本之前的更新通知
     public function indexAction() 
     {
-        $giftUpdateTime = isset($_GET['giftUpdateTime']) ? (int)$_GET['giftUpdateTime']/1000 : 0;
-        $spreadUpdateTime = isset($_GET['spreadUpdateTime']) ? (int)$_GET['spreadUpdateTime']/1000 : 0;
-        $dayilyUpdateTime = isset($_GET['dayilyUpdateTime']) ? (int)$_GET['dayilyUpdateTime']/1000 : 0;
+        $giftUpdateTime = isset($_GET['giftUpdateTime']) ? $_GET['giftUpdateTime']/1000 : 0;
+        $spreadUpdateTime = isset($_GET['spreadUpdateTime']) ? $_GET['spreadUpdateTime']/1000 : 0;
+        $dayilyUpdateTime = isset($_GET['dayilyUpdateTime']) ? $_GET['dayilyUpdateTime']/1000 : 0;
         $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';
         $language = isset($_GET['language']) ? $_GET['language'] : 'en';
     	$other_mod = new OtherModel($language);
@@ -19,6 +19,21 @@ class Apps_UpdateController extends Yaf_Controller_Abstract
         file_put_contents('../json.json',$json);//推入文件，方便查看
     	echo $json;
     }
+
+    //9版本之后的更新通知接口
+     public function announceAction(){
+        $timeArr['giftUpdateTime'] = isset($_GET['giftUpdateTime']) ? $_GET['giftUpdateTime']/1000 : 0;
+        $timeArr['spreadUpdateTime'] = isset($_GET['spreadUpdateTime']) ? $_GET['spreadUpdateTime']/1000 : 0;
+        $timeArr['appUpdateTime'] = isset($_GET['appUpdateTime']) ? $_GET['appUpdateTime']/1000 : 0;
+        $timeArr['gameUpdateTime'] = isset($_GET['gameUpdateTime']) ? $_GET['gameUpdateTime']/1000 : 0;
+        $timeArr['articleUpdateTime'] = isset($_GET['articleUpdateTime']) ? $_GET['articleUpdateTime']/1000 : 0;
+        $currentTime = isset($_GET['currentTime']) ? $_GET['currentTime']/1000 : 0;
+        $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';
+        $other_mod = new OtherModel();
+        $json = $other_mod->getAnnounce($timeArr,$currentTime,$ver_code);
+        file_put_contents('../json.json',$json);//推入文件，方便查看
+        echo $json;
+     }
 
     //用户添加到收藏接口
     public function addFavoriteAction()

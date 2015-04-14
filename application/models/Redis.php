@@ -133,6 +133,21 @@ class RedisModel extends Db_Base
         return false;
     }
 
+    public function setSingleArticelRedis($key){
+        $this->redis->select(5);
+        $split = explode('_',$key);
+        $id = $split[2];
+        $sql = "select id,release_time from appbox_news where id=$id";
+        $data = $this->_db->getRow($sql);
+        $redisData = $this->getNewsDetail($data['release_time'], $data['id']);
+        if($redisData) {
+            $this->redis->set($key,json_encode($redisData));
+            $this->redis->expire($key,$this->expire);   
+            return $redisData;      
+        }
+        return false;
+    }
+
     //设置单个专题列表详情中的url缓存
     public function setSingleUrlRedis($key,$type)
     {
@@ -185,7 +200,15 @@ class RedisModel extends Db_Base
                     $this->redis->set($key,json_encode($val));
                     $this->redis->expire($key,$this->expire);
                 }                
-            }
+            } elseif (isset($val['extraData']['newsId'])) {
+                $this->redis->select(5);
+                $key = 'appboxL_a_'.$val['extraData']['newsId'].'_'.$this->language;//文章类型
+                $tempArr[] = $key;
+                if(!$this->redis->exists($key)) {
+                    $this->redis->set($key,json_encode($val));
+                    $this->redis->expire($key,$this->expire);
+                }                
+            } 
         }
         if($is_banner && $is_banner == 'banner') {
             $this->redis->select(6);
@@ -213,6 +236,20 @@ class RedisModel extends Db_Base
                         $return[] = json_decode($data,true);
                     } else { //如果在缓存中查不到，则重新生成缓存
                         $redisData = $this->setSingleUrlRedis($val,$type);
+                        if ($redisData) { //如果模板存在
+                            $return[] = $redisData;
+                        } else { //否则跳过这条信息
+                            continue;
+                        }
+                    }                    
+                    break;
+                case 'a':
+                    $this->redis->select(5);
+                    $data = $this->redis->get($val);
+                    if($data) {
+                        $return[] = json_decode($data,true);
+                    } else { //如果在缓存中查不到，则重新生成缓存
+                        $redisData = $this->setSingleArticelRedis($val);
                         if ($redisData) { //如果模板存在
                             $return[] = $redisData;
                         } else { //否则跳过这条信息

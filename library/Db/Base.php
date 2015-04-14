@@ -309,7 +309,7 @@ class Db_Base
                 $view = $this->getView($field['data'],$news);
                 //json格式中的extraData
                 $images[] = array('url'=>$news['img'],'width'=>$news['imgWidth'],'height'=>$news['imgHeight']);
-                $extraData = array('url'=>$news['jump_url'],'tag'=>explode(',',$news['keywords']),'images'=>$images,'title'=>$news['title'],'source'=>'','processType'=>110);
+                $extraData = array('newsId'=>$newsId,'url'=>$news['jump_url'],'tag'=>explode(',',$news['keywords']),'images'=>$images,'title'=>$news['title'],'source'=>'','processType'=>110);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
                 return $datas;
@@ -494,7 +494,7 @@ class Db_Base
                 //json格式中的view
                 $view = $this->getView($field['data'],$url);
                 //json格式中的extraData
-                $extraData = array('urlId'=>$urlId,'url'=>$url['url'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'imgWidth'=>$url['imgWidth'],'imgHeight'=>$url['imgHeight']);
+                $extraData = array('urlId'=>$urlId,'url'=>$url['url'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'imgWidth'=>$url['imgWidth'],'imgHeight'=>$url['imgHeight'],'imageUrl'=>$url['banner']);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
                 return $datas; 
@@ -550,7 +550,7 @@ class Db_Base
                 //json格式中的view
                 $view = $this->getView($field['data'],$spread);
                 //json格式中的extraData
-                $extraData = array('spreadId'=>$spreadId,'imgWidth'=>$spread['imgWidth'],'imgHeight'=>$spread['imgHeight']);
+                $extraData = array('spreadId'=>$spreadId,'imgWidth'=>$spread['imgWidth'],'imgHeight'=>$spread['imgHeight'],'added_time'=>$releaseTime);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
                 return $datas;           

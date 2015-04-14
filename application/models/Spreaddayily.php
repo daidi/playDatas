@@ -21,6 +21,7 @@ class SpreaddayilyModel extends RedisModel
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
+        $arr['defaultSearchWord'] = 'game';
         $this->redis->select(5);
         //获取推广列表
         $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code;

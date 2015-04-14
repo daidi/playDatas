@@ -115,7 +115,6 @@ class OtherModel extends Db_Base
     *   是否更新 9版本之后的更新通知接口
     */
     public function getAnnounce($timeArr,$currentTime,$ver_code){
-        if(!$ver_code) die('参数错误！');
         $arr = array('status'=>1,'updateTime'=>'60 6:00;12:00;18:00');//返回的json
 
         $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
@@ -143,8 +142,10 @@ class OtherModel extends Db_Base
                             if($spread) {
                                 $title = json_decode(htmlspecialchars_decode($spread['name']),true);
                                 $spread['title'] = $title[$this->language];
+                                unset($spread['name']);
                                 $content = json_decode(htmlspecialchars_decode($spread['description']),true);
                                 $spread['content'] = $content[$this->language];
+                                unset($spread['description']);
                                 $arr['notice']['subject'][] = $spread;
                             }
                         }
@@ -165,7 +166,7 @@ class OtherModel extends Db_Base
                     $data = $this->_db->getAll($sql);
                     if($data){
                         foreach($data as $v){
-                            $sql = "select n.img as imageUrl,n.id,descs.title,descs.description as content from appbox_news as n left join appbox_news_data as descs on n.id=descs.news_id where n.id={$v['typeId']} and descs.language='".$this->language."'";
+                            $sql = "select n.img as imageUrl,n.id,descs.title,descs.description as content,descs.jump_url as newsUrl from appbox_news as n left join appbox_news_data as descs on n.id=descs.news_id where n.id={$v['typeId']} and descs.language='".$this->language."'";
                             $news = $this->_db->getRow($sql);
                             if($news) $arr['notice']['news'][] = $news;
                         }
@@ -176,7 +177,7 @@ class OtherModel extends Db_Base
             unset($data);
         }
         //检查自身版本是后否有更新
-        $arr['appUpdate'] = $this->getVersion();
+        $arr['appUpdate'] = $this->getVersion($ver_code);
         $arr['update']['spread'] = isset($arr['notice']['subject']) ? count($arr['notice']['subject']) : 0;
         $arr['update']['gift'] = isset($arr['notice']['gift']) ? count($arr['notice']['gift']) : 0;
         $arr['update']['news'] = isset($arr['notice']['news']) ? count($arr['notice']['news']) : 0;
@@ -187,7 +188,7 @@ class OtherModel extends Db_Base
 /**
 *   版本自身的更新情况
 */
-    public function getVersion(){
+    public function getVersion($ver_code){
         $arr = array();
         $sql = "select max(versionCode) as id from appbox_update_version where status=1";
         $maxVersionCode = $this->_db->getRow($sql);

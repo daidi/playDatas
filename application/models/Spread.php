@@ -83,13 +83,16 @@ class SpreadModel extends RedisModel
             $arr['data'] = $this->getCollectNews(100);
             return json_encode($arr);
         } elseif($is_images || $type == 'is_images'){
-            return $this->getCollectData('appbox_collect_colsplay',$page);
+            return $this->getCollectData('appbox_collect_colsplay',$page,$id);
         }
 
         switch($type){
             case 'gifs':
-                return $this->getCollectData('appbox_collect_gifs',$page);
+                return $this->getCollectData('appbox_collect_gifs',$page,$id);
             break;
+            case 'colsplay':   
+                return $this->getAutoPicture($page,$id);
+                break;
         }
 
         //初始化页数
@@ -151,13 +154,18 @@ class SpreadModel extends RedisModel
 *   @param $page int 页数
 *   @return array
 */
-    private function getCollectData($key,$page){
+    private function getCollectData($key,$page,$id){
         $arr['status'] = 1;
         $this->redis->select('10');
         $start = $page*50;
         $end = $start+50-1;
         $articleDatas = $this->redis->lRange($key,$start,$end);
 
+        //title
+        $sql = "select name from appbox_spread where id=$id";
+        $title = $this->_db->getRow($sql);        
+        $title = json_decode(htmlspecialchars_decode($title['name']),true); 
+        $arr['title'] = $title[$this->language] ? $title[$this->language] : ' ';
         //判断是否还有下一页
         $nextStart = ($page+1)*50;
         $nextEnd = $nextStart+50-1;
@@ -169,6 +177,36 @@ class SpreadModel extends RedisModel
         $arr = json_encode($arr);
         return $arr;
     }
+/**
+*   返回手动添加的瀑布流图片
+*
+*/
+    public function getAutoPicture($page,$id){
+        $key = 'appbox_autoPicture_'.$page.'_'.$this->language;
+        $this->redis->select(5);
+        $data = $this->redis->get($key);
+        if($data){
+            return $data;
+        } else {
+            $sql = "select u.banner,u.imgHeight,u.imgWidth from appbox_spread_list as l left join appbox_spread_url as u on u.id=l.typeId where l.spreadId=$id";
+            $data = $this->_db->getAll($sql);
+            $arr['status'] = 1;
+            $arr['hasNextPage'] = false;
+            //title
+            $sql = "select name from appbox_spread where id=$id";
+            $title = $this->_db->getRow($sql);        
+            $title = json_decode(htmlspecialchars_decode($title['name']),true); 
+            $arr['title'] = $title[$this->language] ? $title[$this->language] : ' ';        
+            $arr['data'] = $data;
+            $json = json_encode($arr);
+            if($arr['data']){
+                $this->redis->set($key,$json);
+            }
+            return $json;            
+        }
+
+    }
+
 
     //推广图详情
     public function bannerDetailJson($id,$page='')

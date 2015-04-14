@@ -146,15 +146,18 @@ page	application\controllers\Apps\Spreaddayily.php	/^        $page = isset($_GET
 templateUpdateTime	application\controllers\Apps\Spreaddayily.php	/^        $templateUpdateTime = isset($_GET['templateUpdateTime']) ? $_GET['templateUpdateTime'] : '1419057214a';$/;"	v
 Apps_UpdateController	application\controllers\Apps\Update.php	/^class Apps_UpdateController extends Yaf_Controller_Abstract $/;"	c
 addFavoriteAction	application\controllers\Apps\Update.php	/^    public function addFavoriteAction()$/;"	f
+announceAction	application\controllers\Apps\Update.php	/^     public function announceAction(){$/;"	f
 cancel	application\controllers\Apps\Update.php	/^    	$cancel = isset($_GET['cancel']) ? $_GET['cancel'] : '';$/;"	v
 channelId	application\controllers\Apps\Update.php	/^        $channelId = isset($_GET['channelId']) ? $_GET['channelId'] : die('缺少参数！');$/;"	v
-dayilyUpdateTime	application\controllers\Apps\Update.php	/^        $dayilyUpdateTime = isset($_GET['dayilyUpdateTime']) ? (int)$_GET['dayilyUpdateTime']\/1000 : 0;$/;"	v
+currentTime	application\controllers\Apps\Update.php	/^        $currentTime = isset($_GET['currentTime']) ? $_GET['currentTime']\/1000 : 0;$/;"	v
+dayilyUpdateTime	application\controllers\Apps\Update.php	/^        $dayilyUpdateTime = isset($_GET['dayilyUpdateTime']) ? $_GET['dayilyUpdateTime']\/1000 : 0;$/;"	v
 feedbackAction	application\controllers\Apps\Update.php	/^    public function feedbackAction()$/;"	f
-giftUpdateTime	application\controllers\Apps\Update.php	/^        $giftUpdateTime = isset($_GET['giftUpdateTime']) ? (int)$_GET['giftUpdateTime']\/1000 : 0;$/;"	v
+giftUpdateTime	application\controllers\Apps\Update.php	/^        $giftUpdateTime = isset($_GET['giftUpdateTime']) ? $_GET['giftUpdateTime']\/1000 : 0;$/;"	v
 indexAction	application\controllers\Apps\Update.php	/^    public function indexAction() $/;"	f
 json	application\controllers\Apps\Update.php	/^    	$json = $other_mod->getFavorite($uuid,$packageName,$cancel);$/;"	v
 json	application\controllers\Apps\Update.php	/^    	$json = $other_mod->getKeywords();$/;"	v
 json	application\controllers\Apps\Update.php	/^    	$json = $other_mod->getUpdate($giftUpdateTime,$spreadUpdateTime,$dayilyUpdateTime,$ver_code);$/;"	v
+json	application\controllers\Apps\Update.php	/^        $json = $other_mod->getAnnounce($timeArr,$currentTime,$ver_code);$/;"	v
 json	application\controllers\Apps\Update.php	/^        $json = $other_mod->getRomUpdate($channelId,$language,$ver_code);$/;"	v
 json	application\controllers\Apps\Update.php	/^        $json = $other_mod->setFeedback();$/;"	v
 language	application\controllers\Apps\Update.php	/^        $language = isset($_GET['language']) ? $_GET['language'] : 'en';$/;"	v
@@ -164,7 +167,7 @@ other_mod	application\controllers\Apps\Update.php	/^        $other_mod = new Oth
 packageName	application\controllers\Apps\Update.php	/^    	$packageName = isset($_GET['packageName']) ? $_GET['packageName'] : exit;$/;"	v
 romUpdateAction	application\controllers\Apps\Update.php	/^    public function romUpdateAction(){$/;"	f
 sendKeywordsAction	application\controllers\Apps\Update.php	/^    public function sendKeywordsAction()$/;"	f
-spreadUpdateTime	application\controllers\Apps\Update.php	/^        $spreadUpdateTime = isset($_GET['spreadUpdateTime']) ? (int)$_GET['spreadUpdateTime']\/1000 : 0;$/;"	v
+spreadUpdateTime	application\controllers\Apps\Update.php	/^        $spreadUpdateTime = isset($_GET['spreadUpdateTime']) ? $_GET['spreadUpdateTime']\/1000 : 0;$/;"	v
 uuid	application\controllers\Apps\Update.php	/^    	$uuid = isset($_GET['uuid']) ? $_GET['uuid'] : exit;$/;"	v
 ver_code	application\controllers\Apps\Update.php	/^        $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';$/;"	v
 ver_code	application\controllers\Apps\Update.php	/^        $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : die('缺少参数！');$/;"	v
@@ -496,46 +499,66 @@ where	application\models\Gifts.php	/^            $where = "where gift.id=$id";$/
 where	application\models\Gifts.php	/^            $where = "where gift.package_name='$packageName' and gift.fee_node=$chargePoint";$/;"	v
 OtherModel	application\models\Other.php	/^class OtherModel extends Db_Base$/;"	c
 __construct	application\models\Other.php	/^    public function __construct($language='')$/;"	f
+_parseApp	application\models\Other.php	/^    private function _parseApp($sql){$/;"	f
 android_version	application\models\Other.php	/^        $android_version = isset($_REQUEST['android_version']) ? $_REQUEST['android_version'] : '';$/;"	v
+app	application\models\Other.php	/^                    $app = $this->_parseApp($sql);$/;"	v
+app	application\models\Other.php	/^                $app = $this->_db->getRow($sql);$/;"	v
 app	application\models\Other.php	/^        $app = $this->_db->getRow($sql);\/\/应用游戏$/;"	v
 arr	application\models\Other.php	/^        $arr = array('status'=>1);$/;"	v
 arr	application\models\Other.php	/^        $arr = array('status'=>1);\/\/返回的json$/;"	v
+arr	application\models\Other.php	/^        $arr = array('status'=>1,'updateTime'=>'60 6:00;12:00;18:00');\/\/返回的json$/;"	v
+arr	application\models\Other.php	/^        $arr = array();$/;"	v
+cSql	application\models\Other.php	/^        $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";$/;"	v
+content	application\models\Other.php	/^                                $content = json_decode(htmlspecialchars_decode($spread['description']),true);$/;"	v
 content	application\models\Other.php	/^            $content = json_decode(htmlspecialchars_decode($data['dialog_content']),true);$/;"	v
 count	application\models\Other.php	/^                $count = $this->_db->getRow($sql);$/;"	v
 count	application\models\Other.php	/^            $count = count($gift);$/;"	v
 country	application\models\Other.php	/^        $country = isset($_REQUEST['country']) ? $_REQUEST['country'] : '';$/;"	v
 currentKeywords	application\models\Other.php	/^        $currentKeywords = isset($keywords[strtoupper($this->language)]) ? $keywords[strtoupper($this->language)] : $keywords['en'];$/;"	v
+data	application\models\Other.php	/^                    $data = $this->_db->getAll($sql);$/;"	v
 data	application\models\Other.php	/^            $data = $this->_db->getRow($sql);$/;"	v
 data	application\models\Other.php	/^        $data = $this->_db->getAll($sql);$/;"	v
 dataArr	application\models\Other.php	/^                $dataArr = json_decode($jsonData,true);$/;"	v
 dayily	application\models\Other.php	/^        $dayily = $this->_db->getAll($sql);$/;"	v
 email	application\models\Other.php	/^        $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';$/;"	v
 feedback	application\models\Other.php	/^        $feedback = isset($_REQUEST['feedback']) ? $_REQUEST['feedback'] : '';$/;"	v
+game	application\models\Other.php	/^                    $game = $this->_parseApp($sql);$/;"	v
+getAnnounce	application\models\Other.php	/^    public function getAnnounce($timeArr,$currentTime,$ver_code){$/;"	f
 getFavorite	application\models\Other.php	/^    public function getFavorite($uuid,$packageName,$cancel)$/;"	f
 getKeywords	application\models\Other.php	/^    public function getKeywords()$/;"	f
 getRomUpdate	application\models\Other.php	/^    public function getRomUpdate($channelId,$language,$ver_code){$/;"	f
 getUpdate	application\models\Other.php	/^    public function getUpdate($giftUpdateTime,$spreadUpdateTime,$dayilyUpdateTime,$ver_code)$/;"	f
+getVersion	application\models\Other.php	/^    public function getVersion($ver_code){$/;"	f
+gift	application\models\Other.php	/^                            $gift = $this->_db->getRow($sql);$/;"	v
 gift	application\models\Other.php	/^        $gift = $this->_db->getAll($sql);$/;"	v
 gift	application\models\Other.php	/^        $gift = $this->_db->getAll($sql);\/\/礼包$/;"	v
 handleLike	application\models\Other.php	/^    public function handleLike($sql,$packageName)$/;"	f
 is_true	application\models\Other.php	/^        $is_true = $this->_db->query($sql);$/;"	v
 key	application\models\Other.php	/^                foreach($gift as $key=>$val)$/;"	v
 key	application\models\Other.php	/^        foreach($data as $key=>$val)$/;"	v
+key	application\models\Other.php	/^        foreach($timeArr as $key=>$val){$/;"	v
 keywords	application\models\Other.php	/^        $keywords = $this->redis->get('appbox_keywords');$/;"	v
 keywords	application\models\Other.php	/^        $keywords = json_decode($keywords,true);$/;"	v
 language	application\models\Other.php	/^        $language = isset($_REQUEST['language']) ? $_REQUEST['language'] : '';$/;"	v
 manufacture	application\models\Other.php	/^        $manufacture = isset($_REQUEST['manufacture']) ? $_REQUEST['manufacture'] : '';$/;"	v
 maxVersionCode	application\models\Other.php	/^        $maxVersionCode = $this->_db->getRow($sql);$/;"	v
 model	application\models\Other.php	/^        $model = isset($_REQUEST['model']) ? $_REQUEST['model'] : '';$/;"	v
+news	application\models\Other.php	/^                            $news = $this->_db->getRow($sql);$/;"	v
 packageName	application\models\Other.php	/^                    $packageName = $this->_db->getRow($sql);$/;"	v
 setFeedback	application\models\Other.php	/^    public function setFeedback()$/;"	f
+spread	application\models\Other.php	/^                            $spread = $this->_db->getRow($sql);$/;"	v
 spread	application\models\Other.php	/^        $spread = $this->_db->getAll($sql);$/;"	v
 spread	application\models\Other.php	/^        $spread = $this->_db->getRow($sql);\/\/专题$/;"	v
+sql	application\models\Other.php	/^                            $sql = "select g.logo as imageUrl,g.package_name as pkg_name,g.id,descs.name as title,descs.description as content from appbox_gift as g left join appbox_gift_desc as descs on g.id=descs.gid where g.id={$v['typeId']} and g.status=1 and descs.language='".$this->language."'";$/;"	v
+sql	application\models\Other.php	/^                            $sql = "select n.img as imageUrl,n.id,descs.title,descs.description as content from appbox_news as n left join appbox_news_data as descs on n.id=descs.news_id where n.id={$v['typeId']} and descs.language='".$this->language."'";$/;"	v
+sql	application\models\Other.php	/^                            $sql = "select name,img as imageUrl,description,id,spread_type as type from appbox_spread where id={$v['typeId']} and status=1";$/;"	v
 sql	application\models\Other.php	/^                    $sql = "select package_name from appbox_gift where id={$val['id']}";$/;"	v
+sql	application\models\Other.php	/^                $sql = "select id,package_name as pkg_name,app_name as title,icon as imageUrl from appbox_app where id={$v['typeId']} and language='".$this->language."' and status=1";$/;"	v
 sql	application\models\Other.php	/^                $sql = "select likeCount,hateCount from appbox_app where package_name='$packageName' and$/;"	v
 sql	application\models\Other.php	/^            $sql = "delete from appbox_user_favorite where uuid=$uuid and packageName='$packageName'";$/;"	v
 sql	application\models\Other.php	/^            $sql = "select * from appbox_rom where version=".$maxVersionCode['id']." and channel_id='$channelId'";$/;"	v
 sql	application\models\Other.php	/^            $sql = "select * from appbox_update_version where versionCode=".$maxVersionCode['id'];$/;"	v
+sql	application\models\Other.php	/^            $sql = $cSql."$val and ";$/;"	v
 sql	application\models\Other.php	/^        $sql = "insert into appbox_feedback values('','$uuid','$email','$language','$country','$android_version','$ver_code','$manufacture','$model','".time()."','$feedback')";$/;"	v
 sql	application\models\Other.php	/^        $sql = "insert into appbox_user_favorite values('$uuid','$packageName')";$/;"	v
 sql	application\models\Other.php	/^        $sql = "select app.package_name as id,typeName as title from appbox_announce as an left join appbox_app as app on app.package_id=an.typeId where an.addTime>$dayilyUpdateTime and an.type='app' and an.status=1 and app.language='".$this->language."' order by an.status desc,an.sort desc,an.id asc";$/;"	v
@@ -548,6 +571,7 @@ sql	application\models\Other.php	/^        $sql = "select max(versionCode) as id
 sql	application\models\Other.php	/^        $sql = "select typeId as id,typeName as title from appbox_announce where addTime>$giftUpdateTime and type='gift' and status=1 order by status desc,sort desc,id asc";$/;"	v
 sql	application\models\Other.php	/^        $sql = "select typeId as id,typeName as title from appbox_announce where addTime>$spreadUpdateTime and type='spread' and status=1 order by status desc,sort desc,id asc";$/;"	v
 temp	application\models\Other.php	/^        $temp = array();$/;"	v
+title	application\models\Other.php	/^                                $title = json_decode(htmlspecialchars_decode($spread['name']),true);$/;"	v
 uuid	application\models\Other.php	/^        $uuid = isset($_REQUEST['uuid']) ? $_REQUEST['uuid'] : '';$/;"	v
 value	application\models\Other.php	/^        $value = array_rand($currentKeywords,5);$/;"	v
 ver_code	application\models\Other.php	/^        $ver_code = isset($_REQUEST['ver_code']) ? $_REQUEST['ver_code'] : '';$/;"	v
@@ -610,10 +634,10 @@ arr	application\models\Spread.php	/^                    $arr = $tempArr;$/;"	v
 arr	application\models\Spread.php	/^                   $arr = $tempArr;$/;"	v
 arr	application\models\Spread.php	/^            $arr = json_decode(htmlspecialchars_decode($data['description']),true);$/;"	v
 arr	application\models\Spread.php	/^            $arr = json_decode(htmlspecialchars_decode($data['name']),true);$/;"	v
-arr	application\models\Spread.php	/^            $arr = json_encode($arr);$/;"	v
 arr	application\models\Spread.php	/^        $arr = $this->getTemplate($templateUpdateTime);$/;"	v
 arr	application\models\Spread.php	/^        $arr = array();$/;"	v
-articleDatas	application\models\Spread.php	/^            $articleDatas = $this->redis->sMembers('appbox_collect_article');$/;"	v
+arr	application\models\Spread.php	/^        $arr = json_encode($arr);$/;"	v
+articleDatas	application\models\Spread.php	/^        $articleDatas = $this->redis->lRange($key,$start,$end);$/;"	v
 banner	application\models\Spread.php	/^                $banner = $this->getBanner($data['id'],$field['field'],$this->language);\/\/获取这条专题的内容  $/;"	v
 bannerDetailJson	application\models\Spread.php	/^    public function bannerDetailJson($id,$page='')$/;"	f
 bannerList	application\models\Spread.php	/^            $bannerList = $this->_db->getAll($sql);$/;"	v
@@ -623,10 +647,12 @@ data	application\models\Spread.php	/^        $data = $this->_db->getRow($sql);  
 data	application\models\Spread.php	/^        $data = $this->_db->getRow($sql);$/;"	v
 datas	application\models\Spread.php	/^                $datas = $this->getSpreadDetail($data['releaseTime'],$data['id']);$/;"	v
 datas	application\models\Spread.php	/^                $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);$/;"	v
+end	application\models\Spread.php	/^        $end = $start+50-1;$/;"	v
 extraData	application\models\Spread.php	/^                $extraData = array('bannerId'=>$data['id'],'imgWidth'=>$data['imgWidth'],'imgHeight'=>$data['imgHeight']);$/;"	v
 field	application\models\Spread.php	/^                $field = $this->getField($template['id'],'banner');\/\/取出与其对应模板的内容$/;"	v
 firstData	application\models\Spread.php	/^            $firstData = array();$/;"	v
 getBanner	application\models\Spread.php	/^    public function getBanner($id,$field,$language)$/;"	f
+getCollectData	application\models\Spread.php	/^    private function getCollectData($key,$page){$/;"	f
 getDetailJson	application\models\Spread.php	/^    public function getDetailJson($id,$page='')$/;"	f
 getJson	application\models\Spread.php	/^    public function getJson($page='',$templateUpdateTime=0)$/;"	f
 getList	application\models\Spread.php	/^    public function getList($p,$position="is_zt")$/;"	f
@@ -637,8 +663,10 @@ is_news	application\models\Spread.php	/^        $is_news = isset($_REQUEST['is_n
 json_description	application\models\Spread.php	/^                $json_description = json_decode(htmlspecialchars_decode($data['description']),true);$/;"	v
 json_title	application\models\Spread.php	/^                $json_title = json_decode(htmlspecialchars_decode($data['name']),true);$/;"	v
 key	application\models\Spread.php	/^                foreach($datas['view'] as $key=>$val)$/;"	v
-key	application\models\Spread.php	/^            foreach($articleDatas as $key=>$val){$/;"	v
+key	application\models\Spread.php	/^        foreach($articleDatas as $key=>$val){$/;"	v
 news	application\models\Spread.php	/^                 $news = $this->_db->getRow($sql);$/;"	v
+nextEnd	application\models\Spread.php	/^        $nextEnd = $nextStart+50-1;$/;"	v
+nextStart	application\models\Spread.php	/^        $nextStart = ($page+1)*50;$/;"	v
 page	application\models\Spread.php	/^        $page = $this->page*$this->pageNum;$/;"	v
 page	application\models\Spread.php	/^        $page = $this->page*$this->pageNum;\/\/初始化页数$/;"	v
 page	application\models\Spread.php	/^        $this->page = isset($page) && $page ? (int)$page : 0;$/;"	v
@@ -646,7 +674,6 @@ page	application\models\Spread.php	/^        $this->page = isset($page) ? (int)$
 pageNum	application\models\Spread.php	/^    protected $pageNum = 10;$/;"	v
 parseType	application\models\Spread.php	/^    public function parseType($val,$table='appbox_spread_url'){$/;"	f
 position	application\models\Spread.php	/^                    where spread.status=1 and releaseTime<=".time()." and $position=1 $/;"	v
-redis_data	application\models\Spread.php	/^            $redis_data = $this->redis->get('appbox_collect_article');$/;"	v
 spread	application\models\Spread.php	/^            $spread = $this->getList($page);$/;"	v
 spreadList	application\models\Spread.php	/^            $spreadList = $this->_db->getAll($sql);$/;"	v
 sql	application\models\Spread.php	/^                 $sql = "select gift.start_time,gift.id from appbox_gift as gift left join appbox_app as app on app.package_id=gift.package_id where gift.id={$val['typeId']}";$/;"	v
@@ -663,6 +690,7 @@ sql	application\models\Spread.php	/^        $sql = "select releaseTime,id,name,d
 sql	application\models\Spread.php	/^        $sql = "select releaseTime,id,name,description,imgHeight,imgWidth from appbox_banner where id=$id";$/;"	v
 sql	application\models\Spread.php	/^        $sql = "select spread.id,spread.releaseTime$/;"	v
 sql	application\models\Spread.php	/^\/*		$sql = "UPDATE appbox_spread as spread SET spread.sort = ABS(spread.sort - 1) where spread.status=1 and releaseTime<=".time()."$/;"	v
+start	application\models\Spread.php	/^        $start = $page*50;$/;"	v
 temp	application\models\Spread.php	/^                $temp = $this->parseType($val);$/;"	v
 tempArr	application\models\Spread.php	/^                 $tempArr = $this->getAppDetail($app['releaseTime'],$val['typeId'],1);$/;"	v
 tempArr	application\models\Spread.php	/^                 $tempArr = $this->getGiftDetail($gift['start_time'],$val['typeId']);$/;"	v
@@ -670,6 +698,9 @@ tempArr	application\models\Spread.php	/^                 $tempArr = $this->getNe
 tempArr	application\models\Spread.php	/^                $tempArr = $this->getUrlDetail($url['releaseTime'],$url['id'],$table);$/;"	v
 tempData	application\models\Spread.php	/^                $tempData = $this->getSpreadDetail($val['releaseTime'],$val['id']);$/;"	v
 template	application\models\Spread.php	/^        $template = $this->getSelfTemplate($data['releaseTime'],4);\/\/获取与其时间对应的模板$/;"	v
+type	application\models\Spread.php	/^        $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';\/\/是否显示采集过来的图片$/;"	v
+type	application\models\Spread.php	/^        if($is_news || $type == 'is_news'){\/\/判断是否采集过来的新闻$/;"	v
+type	application\models\Spread.php	/^        } elseif($is_images || $type == 'is_images'){$/;"	v
 url	application\models\Spread.php	/^                $url = $this->_db->getRow($sql);$/;"	v
 url	application\models\Spread.php	/^    \/\/protected $url = 'market:\/\/details?id=';\/\/跳转URL路径$/;"	v
 view	application\models\Spread.php	/^                $view = $this->getView($field['data'],$banner);$/;"	v
@@ -688,6 +719,7 @@ getNav	application\models\Spreaddayily.php	/^    public function getNav(){$/;"	f
 info	application\models\Spreaddayily.php	/^        $info = $this->_db->getAll($sql);$/;"	v
 key	application\models\Spreaddayily.php	/^            foreach($spread as $key=>$val) {\/\/将精选推入到数组$/;"	v
 key	application\models\Spreaddayily.php	/^        foreach($data as $key=>$val){$/;"	v
+keys	application\models\Spreaddayily.php	/^            $keys = $val['spread_type'] == 2 ? 'appbox_collect_colsplay' : 'appbox_collect_gifs';$/;"	v
 keys	application\models\Spreaddayily.php	/^        $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code;$/;"	v
 name	application\models\Spreaddayily.php	/^        $name = json_decode(htmlspecialchars_decode($val['name']),true);$/;"	v
 position	application\models\Spreaddayily.php	/^                    where spread.status=1 and releaseTime<=".time()." and $position=1 $/;"	v
@@ -698,9 +730,10 @@ sql	application\models\Spreaddayily.php	/^        $sql = "select spread.id,sprea
 sql	application\models\Spreaddayily.php	/^        $sql = "select title,process_type as processType,icon_url as iconUrl,bg_color as bgColor,img as imageUrl,spread_id as spreadId from appbox_nav where status=1 order by sort desc";$/;"	v
 tempData	application\models\Spreaddayily.php	/^                $tempData = $this->getDayilySpreadDetail($val);$/;"	v
 tempData	application\models\Spreaddayily.php	/^            $tempData = $spread_mod->parseType($val);$/;"	v
-tempData	application\models\Spreaddayily.php	/^            $tempData = $this->getCollectImages();$/;"	v
+tempData	application\models\Spreaddayily.php	/^            $tempData = $this->getCollectImages($keys);$/;"	v
 tempData	application\models\Spreaddayily.php	/^            $tempData = $this->getCollectNews($val['expand']);$/;"	v
 title	application\models\Spreaddayily.php	/^            $title = json_decode(htmlspecialchars_decode($val['title']),true);$/;"	v
+type	application\models\Spreaddayily.php	/^            $type = $val['spread_type'] == 2 ? 'is_images' : 'is_gifs';$/;"	v
 ver_code	application\models\Spreaddayily.php	/^        $this->ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : 8;\/\/获取版本号$/;"	v
 ver_code	application\models\Spreaddayily.php	/^    public $ver_code;$/;"	v
 APP_PATH	index.php	/^define("APP_PATH",  dirname(__FILE__).DS.'application'.DS);$/;"	d
@@ -719,7 +752,7 @@ arr	library\Db\Base.php	/^            $arr = json_decode(htmlspecialchars_decode
 arr	library\Db\Base.php	/^        $arr = array('data'=>$data);$/;"	v
 banner	library\Db\Base.php	/^            $banner = $this->_db->getAll($sql);$/;"	v
 collectImagesArr	library\Db\Base.php	/^                $collectImagesArr = $collectImagesMaxArr;$/;"	v
-collectImagesJson	library\Db\Base.php	/^        $collectImagesJson = $this->redis->sMembers('appbox_collect_article');$/;"	v
+collectImagesJson	library\Db\Base.php	/^        $collectImagesJson = $this->redis->lRange($keys,0,100);$/;"	v
 collectImagesTempArr	library\Db\Base.php	/^            $collectImagesTempArr = array_rand($collectImagesJson,5);$/;"	v
 collectNewsArr	library\Db\Base.php	/^        $collectNewsArr = array_slice($collectNewsArr,0,$nums);$/;"	v
 collectNewsArr	library\Db\Base.php	/^        $collectNewsArr = json_decode($collectNewsJson,true);$/;"	v
@@ -754,7 +787,7 @@ getApp	library\Db\Base.php	/^    public function getApp($packageId,$field,$langu
 getAppDetail	library\Db\Base.php	/^    public function getAppDetail($releaseTime, $packageId, $templateType)$/;"	f
 getAppsCategory	library\Db\Base.php	/^    public function getAppsCategory($cid,$arr = array())$/;"	f
 getBanners	library\Db\Base.php	/^    public function getBanners($pos)$/;"	f
-getCollectImages	library\Db\Base.php	/^    public function getCollectImages(){$/;"	f
+getCollectImages	library\Db\Base.php	/^    public function getCollectImages($keys){$/;"	f
 getCollectNews	library\Db\Base.php	/^    public function getCollectNews($nums){$/;"	f
 getField	library\Db\Base.php	/^    public function getField($id,$alias)$/;"	f
 getGift	library\Db\Base.php	/^    public function getGift($id,$field,$language)$/;"	f

@@ -20,6 +20,7 @@ class GiftsModel extends RedisModel
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
+        $arr['currentTime'] = time();
         $this->page = isset($page) ? (int)$page : 0;
         $sql = "select count(*) as num from appbox_gift where status=1 and start_time<=".time()." ";
         $sql .= "and end_time>=" . time() . " and package_id>0 ";

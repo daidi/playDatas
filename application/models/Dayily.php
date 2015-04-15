@@ -30,6 +30,7 @@ class DayilyModel extends RedisModel
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
+        $arr['currentTime'] = time();
         $this->page = isset($page) ? (int)$page : 0;
         $sql = "select count(*) as num from appbox_dayily where status=1 and releaseTime<=".time();
         $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);

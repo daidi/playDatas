@@ -36,6 +36,7 @@ class AppsModel extends RedisModel
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
+        $arr['currentTime'] = time();
 
         $this->page = isset($page) ? (int)$page : 0;
         $sql = "select count(*) as num from appbox_app where status=1 and is_game=" . $this->is_game . " and language='" . $this->language . "'";
@@ -114,7 +115,7 @@ class AppsModel extends RedisModel
     {
         if ($this->cid == 0)//如果不存在分类查询
         {
-            $where = $this->where . " app.status=1 and app.is_game=" . $this->is_game . " and app.language='" . $this->language . "'";
+            $where = $this->where . " app.status=1 and app.is_game=" . $this->is_game;
         } else {//存在分类查询
             $sql = "select `where` from appbox_google_category where category_id=".$this->cid;
             $other_where = $this->_db->getRow($sql);
@@ -147,22 +148,16 @@ class AppsModel extends RedisModel
                 $cid = $this->cursive($this->cid);//递归查出所有子分类
                 $cid[] = $this->cid;
                 $cid = implode(',', $cid);
-                $where = $this->where . " app.status=1 and app.is_game=" . $this->is_game . " and app.language='" . $this->language . "' and app.google_category in ($cid)";
+                $where = $this->where . " app.status=1 and app.is_game=" . $this->is_game . "  and app.google_category in ($cid)";
             }
         }
         //获取应用app
         $sql = "select app.package_id as id,app.releaseTime
                     from appbox_app as app
-                    $where
+                    $where group by app.package_id
                     order by $order
                     limit $p," . $this->pageNum;
         $info = $this->_db->getAll($sql);
-		
-/*		$sql = "UPDATE appbox_app as app SET app.sort = app.sort - 300,app.is_top = ABS(app.is_top - 1),app.score = ABS(app.score - 0.1) $where
-                    order by $order
-                    limit 10";
-					
-		$this->_db->execute($sql);*/
 		return $info;
     }
 
@@ -199,6 +194,7 @@ class AppsModel extends RedisModel
                 where app.package_name='$packageName' and app.language='{$this->language}'";
             $data = $this->_db->getRow($sql);
             if ($data) {
+                /*
                 if (time() - $data['releaseTime'] >= 86400)//检查更新，如果更新时间大于一天，则去更新应用,重新获取数据
                 {
                     file_get_contents('http://play.mobappbox.com/index.php?m=Admin&c=Application&a=getAppInfo&flag=1&language='.$this->language.'&package_name=' . $packageName);
@@ -207,7 +203,7 @@ class AppsModel extends RedisModel
                     if(!$this->updateRedis($redisData,$data)) {
                         echo '更新失败！';exit;
                     }
-                }
+                }*/
                 $data['description'] = htmlspecialchars_decode($data['description']);
                 $data['name'] = htmlspecialchars_decode($data['name']);
                 if ($data['status'] == 0 || !$data['status'])//如果app已经下线

@@ -22,7 +22,7 @@ class SpreadModel extends RedisModel
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
-
+        $arr['currentTime'] = time();
         $this->page = isset($page) ? (int)$page : 0;
         $sql = "select count(*) as num from appbox_spread where status=1 and releaseTime<=".time();
         $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
@@ -90,7 +90,7 @@ class SpreadModel extends RedisModel
             case 'gifs':
                 return $this->getCollectData('appbox_collect_gifs',$page,$id);
             break;
-            case 'colsplay':   
+            case 'manual':   
                 return $this->getAutoPicture($page,$id);
                 break;
         }
@@ -293,6 +293,10 @@ class SpreadModel extends RedisModel
             case 'app':
                  $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='".$this->language."'";
                  $app = $this->_db->getRow($sql);
+                 if(!$app){
+                     $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='en'";
+                     $app = $this->_db->getRow($sql);                    
+                 }
                  $tempArr = $this->getAppDetail($app['releaseTime'],$val['typeId'],1);
                  if($tempArr)
                     $arr = $tempArr;

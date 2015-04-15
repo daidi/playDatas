@@ -1,8 +1,8 @@
 <?php
 class SpreaddayilyModel extends RedisModel
 {
-    public static $asb;
     public $ver_code;
+    public $expire = '1800';
     public function __construct($language='') 
     {
         parent::__construct();
@@ -21,7 +21,8 @@ class SpreaddayilyModel extends RedisModel
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
-        $arr['defaultSearchWord'] = 'game';
+        $arr['currentTime'] = time();
+        $arr['defaultSearchWord'] = $this->getNewKeywords();
         $this->redis->select(5);
         //获取推广列表
         $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code;
@@ -41,11 +42,21 @@ class SpreaddayilyModel extends RedisModel
             }
             if($arr['data']){//推入缓存中
                 $this->redis->select(5);
-                $this->redis->set($keys,json_encode($arr['data']),'1800');
-                $this->redis->set($bannerKeys,json_encode($arr['banner']),'1800');
+                $this->redis->set($keys,json_encode($arr['data']),$this->expire);
+                $this->redis->set($bannerKeys,json_encode($arr['banner']),$this->expire);
             }
         }
         return json_encode($arr);
+    }
+
+    /**
+    *   获取最新的关键词
+    */
+    public function getNewKeywords(){
+        $sql = "select keywords from appbox_keywords where status=1 order by sort desc";
+        $data = $this->_db->getRow($sql);
+        $return = $data ? $data['keywords'] : 'game';
+        return $return;
     }
 
     public function getList($p,$position="is_jx")
@@ -89,6 +100,7 @@ class SpreaddayilyModel extends RedisModel
                 $datas['status'] = 'expand';
             }
         }
+
         if(!$datas['data']){
             return false;
         }

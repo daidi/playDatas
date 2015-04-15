@@ -114,9 +114,10 @@ class OtherModel extends Db_Base
     /**
     *   是否更新 9版本之后的更新通知接口
     */
-    public function getAnnounce($timeArr,$currentTime,$ver_code){
+    public function getAnnounce($timeArr,$ver_code){
         $arr = array('status'=>1,'updateTime'=>'60 6:00;12:00;18:00');//返回的json
-
+        $currentTime = time();
+        $arr['currentTime'] = $currentTime;
         $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
         foreach($timeArr as $key=>$val){
             $sql = $cSql."$val and ";

@@ -27,10 +27,9 @@ class Apps_UpdateController extends Yaf_Controller_Abstract
         $timeArr['appUpdateTime'] = isset($_GET['appUpdateTime']) ? $_GET['appUpdateTime']/1000 : 0;
         $timeArr['gameUpdateTime'] = isset($_GET['gameUpdateTime']) ? $_GET['gameUpdateTime']/1000 : 0;
         $timeArr['articleUpdateTime'] = isset($_GET['articleUpdateTime']) ? $_GET['articleUpdateTime']/1000 : 0;
-        $currentTime = isset($_GET['currentTime']) ? $_GET['currentTime']/1000 : 0;
         $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';
         $other_mod = new OtherModel();
-        $json = $other_mod->getAnnounce($timeArr,$currentTime,$ver_code);
+        $json = $other_mod->getAnnounce($timeArr,$ver_code);
         file_put_contents('../json.json',$json);//推入文件，方便查看
         echo $json;
      }

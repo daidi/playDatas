@@ -251,7 +251,14 @@ class Db_Base
         $sql = "select $field,app.package_name
                     from appbox_app as app
                     where app.package_id=$packageId and app.language='$language'";
-        return $this->_db->getRow($sql);
+        $data = $this->_db->getRow($sql);
+        if(!$data){
+            $sql = "select $field,app.package_name
+                    from appbox_app as app
+                    where app.package_id=$packageId and app.language='en'";
+            $data = $this->_db->getRow($sql);
+        }
+        return $data;
     }
 
     //查询一个包名是否存在礼包
@@ -585,7 +592,7 @@ class Db_Base
 */
     public function getCollectImages($keys){
         $this->redis->select(10);
-        $collectImagesJson = $this->redis->lRange($keys,0,100);
+        $collectImagesJson = $this->redis->lRange($keys,0,5);
         if($collectImagesJson){
             $collectImagesTempArr = array_rand($collectImagesJson,5);
             $max = 0;

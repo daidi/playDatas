@@ -30,6 +30,7 @@ class SpreadModel extends RedisModel
 
         //获取推广列表
         if($redis_data = $this->redis->get('appboxsL_' . $this->language . '_' . $this->page)) {
+            $this->_parseEtags($redis_data,$this->page);//从查询第一页缓存是否有更新
             $arr['data'] = $this->getSpreadRedis($redis_data);
             $arr['dataRedis'] = 'from redis';
         } else {
@@ -74,6 +75,7 @@ class SpreadModel extends RedisModel
         $this->page = isset($page) && $page ? (int)$page : 0;
         $arr = array();
         $arr['status'] = 1;
+        $arr['currentTime'] = time();
         $is_news = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;//是否显示新闻
         $is_images = isset($_REQUEST['is_images']) ? $_REQUEST['is_images'] : 0;//是否显示采集过来的图片
         $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';//是否显示采集过来的图片

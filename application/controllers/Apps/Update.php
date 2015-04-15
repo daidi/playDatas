@@ -22,11 +22,11 @@ class Apps_UpdateController extends Yaf_Controller_Abstract
 
     //9版本之后的更新通知接口
      public function announceAction(){
-        $timeArr['giftUpdateTime'] = isset($_GET['giftUpdateTime']) ? $_GET['giftUpdateTime']/1000 : 0;
-        $timeArr['spreadUpdateTime'] = isset($_GET['spreadUpdateTime']) ? $_GET['spreadUpdateTime']/1000 : 0;
-        $timeArr['appUpdateTime'] = isset($_GET['appUpdateTime']) ? $_GET['appUpdateTime']/1000 : 0;
-        $timeArr['gameUpdateTime'] = isset($_GET['gameUpdateTime']) ? $_GET['gameUpdateTime']/1000 : 0;
-        $timeArr['articleUpdateTime'] = isset($_GET['articleUpdateTime']) ? $_GET['articleUpdateTime']/1000 : 0;
+        $timeArr['giftUpdateTime'] = isset($_GET['giftUpdateTime']) ? $_GET['giftUpdateTime'] : 0;
+        $timeArr['spreadUpdateTime'] = isset($_GET['spreadUpdateTime']) ? $_GET['spreadUpdateTime'] : 0;
+        $timeArr['appUpdateTime'] = isset($_GET['appUpdateTime']) ? $_GET['appUpdateTime'] : 0;
+        $timeArr['gameUpdateTime'] = isset($_GET['gameUpdateTime']) ? $_GET['gameUpdateTime'] : 0;
+        $timeArr['articleUpdateTime'] = isset($_GET['articleUpdateTime']) ? $_GET['articleUpdateTime'] : 0;
         $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';
         $other_mod = new OtherModel();
         $json = $other_mod->getAnnounce($timeArr,$ver_code);
@@ -68,6 +68,7 @@ class Apps_UpdateController extends Yaf_Controller_Abstract
         $language = isset($_GET['language']) ? $_GET['language'] : 'en';
         $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : die('缺少参数！');
         $channelId = isset($_GET['channelId']) ? $_GET['channelId'] : die('缺少参数！');
+        $packageNameSelf = isset($_GET['packageNameSelf']) ? $_GET['packageNameSelf'] : die('缺少参数！');
         $other_mod = new OtherModel();
         $json = $other_mod->getRomUpdate($channelId,$language,$ver_code);
         echo $json;    

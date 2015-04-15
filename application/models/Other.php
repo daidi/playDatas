@@ -118,7 +118,8 @@ class OtherModel extends Db_Base
         $arr = array('status'=>1,'updateTime'=>'60 6:00;12:00;18:00');//返回的json
         $currentTime = time();
         $arr['currentTime'] = $currentTime;
-        $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
+       // $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
+        $cSql = "select typeId from appbox_announce where status=1 and releaseTime>";
         foreach($timeArr as $key=>$val){
             $sql = $cSql."$val and ";
             switch($key){

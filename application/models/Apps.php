@@ -62,12 +62,14 @@ class AppsModel extends RedisModel
         $this->redis->select(2);
         $is_game = $this->is_game == 1 ? 'app' : 'game';
         //获取应用app
-        if ($this->cid)
+        if ($this->cid){
             $redis_datas = $this->redis->get('appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page);
-        else
+        }else{
             $redis_datas = $this->redis->get('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page);
+        }
 
         if (isset($redis_datas) && $redis_datas && !empty($redis_datas)) {//从缓存中取数据
+            $this->_parseEtags($redis_datas,$this->page);//从查询第一页缓存是否有更新
             $arr['data'] = $this->getAppRedis($redis_datas);
             $arr['dataRedis'] = 'from redis';
         } else {
@@ -98,11 +100,7 @@ class AppsModel extends RedisModel
                     $arr['banners'] = $this->getBanners($this->pos);//推广所在位置，1：精选，2：游戏，3：应用，4礼包
                     $arr['bannersRedis'] = 'from mysql';
                 }
-/*              //将广告推到data中
-                if(isset($banners) && $banners){
-                    $arr['data'] = array_merge($banners,$arr['data']);
-                }
-*/            }
+            }
         }        
 
         return json_encode($arr);

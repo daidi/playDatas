@@ -211,8 +211,7 @@ class Db_Base
                 }
             }
         }
-        if($data && !empty($data))//缓存到redis
-        {
+        if($data && !empty($data)){//缓存到redis
             $this->redis->set('appboxbL_'.$this->language.'_'.$pos,json_encode($data));
             $this->redis->expire('appboxbL_'.$this->language.'_'.$pos,$this->expire);
         }
@@ -635,6 +634,27 @@ class Db_Base
         }
 
     }
+    /**
+    *
+    *
+    */
+    public function _parseEtags($redis_data,$page){
+        if($page === 0){
+           date_default_timezone_set('PRC');
+           header('Cache-Control: max-age=86400,must-revalidate'); 
+           header('Last-Modified: ' .gmdate('D, d M Y H:i:s') . ' GMT' ); 
+           header('Expires: ' .gmdate ('D, d M Y H:i:s', time() + '86400' ). ' GMT');
 
+            $redis_data = json_decode($redis_data);
+            $time = array_pop($redis_data);
+            if (isset($_SERVER['HTTP_IF_NONE_MATCH'])  && $_SERVER['HTTP_IF_NONE_MATCH'] == $time){ 
+                  header("Etag:".$time,true,304); 
+                  exit; 
+            } else {  
+               header("Etag:".$time); 
+            }            
+        }
+
+    }
 
 }

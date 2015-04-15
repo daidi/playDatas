@@ -21,6 +21,7 @@ class RedisModel extends Db_Base
             }
         }   
         $this->redis->select(2);
+        $tempArr[] = time();
         if(!$this->cid && $type) {//最新，下载，评分缓存
             $this->redis->set('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page, json_encode($tempArr));//键app_new_0
             $this->redis->expire('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page, $this->expire);
@@ -35,6 +36,7 @@ class RedisModel extends Db_Base
     public function getAppRedis($redis_datas)
     {
         $arr = json_decode($redis_datas,true);
+        array_pop($arr);
         $return = array();
         $this->redis->select(8);
         foreach($arr as $key=>$val)
@@ -89,6 +91,7 @@ class RedisModel extends Db_Base
                 $this->redis->expire($key,$this->expire);
             }
         }   
+        $tempArr[] = time();
         $this->redis->set('appboxsL_' . $this->language . '_' . $this->page, json_encode($tempArr));
         $this->redis->expire('appboxsL_' . $this->language . '_' . $this->page, $this->expire);
     }

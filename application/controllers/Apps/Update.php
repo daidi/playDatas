@@ -34,6 +34,13 @@ class Apps_UpdateController extends Yaf_Controller_Abstract
         echo $json;
      }
 
+     public function timerAction(){
+        $other_mod = new OtherModel();
+        $json = $other_mod->getTimer();
+        file_put_contents('../json.json',$json);//推入文件，方便查看
+        echo $json;
+     }
+
     //用户添加到收藏接口
     public function addFavoriteAction()
     {

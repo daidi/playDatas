@@ -24,7 +24,7 @@ class SpreadModel extends RedisModel
         $arr['status'] = 1;//状态
         $arr['currentTime'] = time();
         $this->page = isset($page) ? (int)$page : 0;
-        $sql = "select count(*) as num from appbox_spread where status=1 and releaseTime<=".time();
+        $sql = "select count(*) as num from appbox_spread where status=1 and is_zt=1 and releaseTime<=".time();
         $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
         $page = $this->page*$this->pageNum;//初始化页数
 
@@ -61,11 +61,6 @@ class SpreadModel extends RedisModel
                     order by spread.sort desc,spread.id desc
                     limit $p,10";
 		$info = $this->_db->getAll($sql);
-/*		$sql = "UPDATE appbox_spread as spread SET spread.sort = ABS(spread.sort - 1) where spread.status=1 and releaseTime<=".time()."
-                    order by spread.sort desc,spread.id desc
-                    limit 5";;
-		$this->_db->execute($sql);*/
-		
         return $info;
     }
 
@@ -90,10 +85,10 @@ class SpreadModel extends RedisModel
 
         switch($type){
             case 'gifs':
-                return $this->getCollectData('appbox_collect_gifs',$page,$id);
+                return $this->getCollectData('appbox_collect_gifs',$page,$id);//获取采集gif图片资源
             break;
             case 'manual':   
-                return $this->getAutoPicture($page,$id);
+                return $this->getAutoPicture($page,$id);//获取手动添加瀑布流资源
                 break;
         }
 
@@ -102,46 +97,45 @@ class SpreadModel extends RedisModel
         $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
         $page = $this->page*$this->pageNum;
 
-        //原先的模板数据重新获取
+        //查询此专题是否存在
         $sql = "select releaseTime,id,name,description from appbox_spread where id=$id";
         $data = $this->_db->getRow($sql);
-        if($data)
-        {
+        if($data){
+            //从redis中获取数据
+            $this->redis->select(5);
+            if($redis_datas = $this->redis->get('appboxsDL_'.$this->language.'_'.$this->page.'_'.$id)) {
+                $this->_parseEtags($redis_datas,$this->page);//查询此页缓存是否有更新
+                $redisArr = $this->getSpreadDetailRedis($redis_datas);
+                $arr['data'] = $redisArr;
+                $arr['dataRedis'] = 'from redis';
+                return json_encode($arr);
+            }
+            //此专题数据在第一页的时候重新获取一次用于填充
             $firstData = array();
-            if($this->page == 0)
-            {
+            if($this->page == 0){
                 //获取名称和描述
                 $json_title = json_decode(htmlspecialchars_decode($data['name']),true);
                 $json_description = json_decode(htmlspecialchars_decode($data['description']),true);
                 $arr['title'] = $json_title[$this->language];
                 $arr['description'] = $json_description[$this->language];
                 $datas = $this->getSpreadDetail($data['releaseTime'],$data['id']);
-                foreach($datas['view'] as $key=>$val)
-                {
+                foreach($datas['view'] as $key=>$val){
                     unset($datas['view'][$key]['processType']);
                 }
                 $firstData[] = $datas;                
-            }
-            //从redis中获取数据
-            $this->redis->select(5);
-            if($redis_datas = $this->redis->get('appboxsDL_'.$this->language.'_'.$this->page.'_'.$id)) {
-                $data = $this->getSpreadDetailRedis($redis_datas);
-                if($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData,$data);
-                else $arr['data'] = $data;
-                $arr['dataRedis'] = 'from redis';
-                return json_encode($arr);
-            }
+            }            
+
             //当前专题里所有的信息，从mysql中获取数据
             $arr['data'] = $firstData;
             $sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id asc limit $page,".$this->pageNum;
             $spreadList = $this->_db->getAll($sql);
             if(!$spreadList) return json_encode(array('status'=>$this->is_true));
-            foreach($spreadList as $val)
-            {
+            foreach($spreadList as $val){
                 $temp = $this->parseType($val);
                 if($temp)
                     $arr['data'][] = $temp;
             }
+            
             if($arr['data'] && !empty($arr['data'])) {//设置缓存
                 $this->setSpreadDetailRedis($arr['data'],$id);                
             }
@@ -157,8 +151,12 @@ class SpreadModel extends RedisModel
 *   @return array
 */
     private function getCollectData($key,$page,$id){
-        $arr['status'] = 1;
         $this->redis->select('10');
+        if($page === 0){
+            $time = $this->redis->get($key.'_time');
+            $this->_parseEtags(0,0,$time);//查询此页缓存是否有更新
+        }
+        $arr['status'] = 1;
         $start = $page*50;
         $end = $start+50-1;
         $articleDatas = $this->redis->lRange($key,$start,$end);
@@ -228,10 +226,18 @@ class SpreadModel extends RedisModel
         $template = $this->getSelfTemplate($data['releaseTime'],4);//获取与其时间对应的模板
         if($template)
         {
+            //从redis中获取数据 
+            $this->redis->select(6);         
+            if($redis_datas = $this->redis->get('appboxbDL_'.$this->language.'_'.$this->page.'_'.$id)) {
+                $data = $this->getSpreadDetailRedis($redis_datas,'appbox_banner_url');
+                if($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData,$data);
+                else $arr['data'] = $data;
+                $arr['dataRedis'] = 'from redis';
+                return json_encode($arr);
+            }
+            //此专题数据在第一页的时候重新获取一次用于填充
             $firstData = array();
-            if($this->page == 0)//第一页的时候发放原来模板的数据
-            {
-                //获取名称和描述
+            if($this->page == 0){
                 $json_title = json_decode(htmlspecialchars_decode($data['name']),true);
                 $json_description = json_decode(htmlspecialchars_decode($data['description']),true);
                 $arr['title'] = isset($json_title[$this->language]) ? $json_title[$this->language] : $json_title['en'];
@@ -243,21 +249,11 @@ class SpreadModel extends RedisModel
                 $extraData = array('bannerId'=>$data['id'],'imgWidth'=>$data['imgWidth'],'imgHeight'=>$data['imgHeight']);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
-                foreach($datas['view'] as $key=>$val)
-                {
+                foreach($datas['view'] as $key=>$val){
                     unset($datas['view'][$key]['processType']);
                 }            
                 $firstData[] = $datas;
-            }  
-            //从redis中获取数据 
-            $this->redis->select(6);         
-            if($redis_datas = $this->redis->get('appboxbDL_'.$this->language.'_'.$this->page.'_'.$id)) {
-                $data = $this->getSpreadDetailRedis($redis_datas,'appbox_banner_url');
-                if($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData,$data);
-                else $arr['data'] = $data;
-                $arr['dataRedis'] = 'from redis';
-                return json_encode($arr);
-            }
+            }            
             //当前模板里所有的信息，从mysql中获取数据
             $arr['data'] = $firstData;
             $sql = "select * from appbox_banner_list where bannerId=$id order by sort desc,id asc limit $page,".$this->pageNum;
@@ -309,6 +305,13 @@ class SpreadModel extends RedisModel
                  $tempArr = $this->getNewsDetail($news['release_time'],$val['typeId']);
                  if($tempArr)
                     $arr = $tempArr;
+                break;
+            case 'spread':
+                $sql = "select releaseTime from appbox_spread where id={$val['typeId']}";
+                $spread = $this->_db->getRow($sql);
+                $tempArr = $this->getSpreadDetail($spread['releaseTime'],$val['typeId']);
+                if($tempArr)
+                    $arr=$tempArr;
                 break;
         } 
         return $arr;       

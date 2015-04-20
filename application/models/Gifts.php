@@ -30,6 +30,7 @@ class GiftsModel extends RedisModel
         //获取礼包
         $this->redis->select(4);
         if ($redis_datas = $this->redis->get('appboxgL_' . $this->language . '_' . $this->page)) {
+            $this->_parseEtags($redis_datas,$this->page);//从查询第一页缓存是否有更新            
             $arr['data'] = $this->getGiftRedis($redis_datas);
             $arr['dataRedis'] = 'from redis';
         } else {
@@ -57,10 +58,6 @@ class GiftsModel extends RedisModel
                 $arr['banners'] = $this->getBanners(4);//推广所在位置，1：精选，2：游戏，3：应用，4礼包
                 $arr['bannersRedis'] = 'from mysql';
             }
-            /*//将广告推到data中
-            if(isset($banners) && $banners){
-                $arr['data'] = array_merge($banners,$arr['data']);
-            }*/
         }        
         return json_encode($arr);
     }
@@ -74,18 +71,11 @@ class GiftsModel extends RedisModel
         $sql = "select gift.start_time,gift.id
                     from appbox_gift as gift
                     left join appbox_app as app on app.package_id=gift.package_id
-                    where gift.status=1 and app.language='" . $this->language . "' and gift.start_time<=" . time() . " and
+                    where gift.status=1 and gift.start_time<=" . time() . " and
                     gift.end_time>=" . time() . " and gift.package_id>0
                     order by gift.sort desc,gift.id desc
                     limit $p," . $this->pageNum;
         $info = $this->_db->getAll($sql);
-		
-/*		$sql = "UPDATE appbox_gift as gift SET gift.sort = ABS(gift.sort - 1) 
-                    order by gift.sort desc,gift.id desc
-                    limit 5";
-					
-		$this->_db->execute($sql);*/
-		
 		return $info;
     }
 
@@ -305,6 +295,10 @@ class GiftsModel extends RedisModel
         }
     }
 
+/**
+*   循环获取礼包
+*
+*/
     public function getCircleGift($p){
         $arr['status'] = 1;
         $sql = "select count(*) as num from appbox_gift where status=1 and start_time<=".time()." ";
@@ -312,14 +306,45 @@ class GiftsModel extends RedisModel
         $arr['hasNextPage'] = $this->getPage($sql, $p, 3);
         $page = $p * 3;//初始化页数
 
+        $sql = "select id,package_id,package_name as packageName,get_count as downloadCount from appbox_gift where status=1 and start_time<=".time()." ";
+        $sql .= "and end_time>=" . time() . " and package_id>0 order by sort desc,id desc limit $page,3";
+        $data = $this->_db->getAll($sql);
+        foreach ($data as $k => $v) {
+            $csql = "select app.icon as iconUrl,app.score as rate,app.app_name as name,descs.name as description from  ";
+            $csql .= "appbox_app as app,appbox_gift_desc as descs ";
+            $sql = $csql."where descs.gid={$v['id']} and  app.package_id={$v['package_id']} and app.language='".$this->language."' and descs.language='".$this->language."' ";//查找符合情况对应语言的数据
+            $matchData = $this->_db->getRow($sql);
+            if(!$matchData && $this->language != 'en'){//取默认语言英语的
+                $sql = $csql."where descs.gid={$v['id']} and  app.package_id={$v['package_id']} and app.language='en' and descs.language='en' ";
+                $matchData = $this->_db->getRow($sql);
+                if(!$matchData){//如果没有英语的话则随便产生一条
+                    $sql = $csql."where descs.gid={$v['id']} and  app.package_id={$v['package_id']} and app.language='en' and descs.language='en' ";
+                    $matchData = $this->_db->getRow($sql);
+                }
+            }
+            
+            $arr['data'][$k]['package_id'] = $v['package_id'];
+            $arr['data'][$k]['packageName'] = $v['packageName'];
+            $arr['data'][$k]['downloadCount'] = $v['downloadCount'];
+            $arr['data'][$k]['rate'] = $matchData['rate'];
+            $arr['data'][$k]['name'] = $matchData['name'];
+            $arr['data'][$k]['description'] = $matchData['description'];
+            $arr['data'][$k]['iconUrl'] = $matchData['iconUrl'];
+
+        }
+        /*
+
+
+
         $sql = "select gift.package_id,gift.package_name as packageName,gift.get_count as downloadCount,app.score as rate,";
         $sql .= "app.icon as iconUrl,app.app_name as name,descs.name as description from appbox_gift as gift ";
         $sql .= "left join appbox_app as app on app.package_id=gift.package_id left join appbox_gift_desc as ";
         $sql .= "descs on descs.gid=gift.id where gift.status=1 and descs.language='".$this->language."' and ";
-        $sql .= "gift.start_time<=" . time() . " and gift.end_time>=" . time() . " and gift.package_id>0 ";
+        $sql .= "gift.start_time<=" . time() . " and gift.end_time>=" . time() . " and gift.package_id>0 and app.language='".$this->language."'";
         $sql .= "group by gift.package_id order by gift.sort desc,gift.id desc limit $page,3";
         $data = $this->_db->getAll($sql);
         $arr['data'] = $data;
+        */
        return json_encode($arr);
     }
 

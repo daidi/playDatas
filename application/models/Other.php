@@ -118,7 +118,7 @@ class OtherModel extends Db_Base
         $arr = array('status'=>1,'updateTime'=>'60 6:00;12:00;18:00');//返回的json
         $currentTime = time();
         $arr['currentTime'] = $currentTime;
-       // $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
+        $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
         $cSql = "select typeId from appbox_announce where status=1 and releaseTime>";
         foreach($timeArr as $key=>$val){
             $sql = $cSql."$val and ";
@@ -207,7 +207,9 @@ class OtherModel extends Db_Base
         }
         return $arr;          
     }
-
+/**
+*   9版本之后更新接卸app更新
+*/
     private function _parseApp($sql){
         $arr = array();
         $data = $this->_db->getAll($sql);
@@ -312,13 +314,33 @@ class OtherModel extends Db_Base
             $arr['data']['isMobile'] = $data['is_mobile'];
             $arr['data']['isWifi'] = $data['is_wifi'];
             $arr['data']['forcing'] = $data['is_forcing'];
-            $content = json_decode(htmlspecialchars_decode($data['dialog_content']),true);
+            $arr['data']['isSilence'] = $data['is_silence'];
+            $dialog_content = json_decode(htmlspecialchars_decode($data['dialog_content']),true);
+            $arr['data']['dialogContent'] = isset($dialog_content[$language]) ? $dialog_content[$language] : $dialog_content['en'];
+            $title = json_decode(htmlspecialchars_decode($data['title']),true);            
+            $arr['data']['title'] = isset($title[$language]) ? $title[$language] : $title['en'];
+            $content = json_decode(htmlspecialchars_decode($data['content']),true);                        
             $arr['data']['content'] = isset($content[$language]) ? $content[$language] : $content['en'];
             $arr['data']['auto_install'] = $data['is_auto_install'];
             $arr['data']['auto_download'] = $data['is_auto_download'];
         } else {
             $arr['data']['hasNew'] = false;
         }
+        return json_encode($arr);
+    }
+
+    public function getTimer(){
+        $this->redis->select(0);
+        $key = 'appbox_article_info_';
+        $data = $this->redis->get($key.$this->language);
+        if(!$data){
+            $data = $this->redis->get($key.'en');
+        }
+        $data = json_decode($data,true);
+        $first = array_shift($data);
+        $news = array('title'=>$first['title'],'imageUrl'=>$first['logo'],'newsUrl'=>$first['url'],'content'=>$first['source']);
+        $arr['status'] = 1;
+        $arr['notice']['news'][] = $news;
         return json_encode($arr);
     }
 }

@@ -8,6 +8,7 @@ class Db_Base
     protected $page = 0;//传递过来的条件    
     protected $language;
     protected $is_true = 0;
+    protected $pageNum = 10;
 
 	public function __construct() 
 	{
@@ -570,7 +571,15 @@ class Db_Base
 */
     public function getCollectNews($nums){
         $this->redis->select(0);
-        $collectNewsJson = $this->redis->get('appbox_article_info');
+        $time = $this->redis->get('appbox_article_info_time'.'_'.$this->language);
+        $this->_parseEtags(0,0,$time);//查询此页缓存是否有更新
+
+        $key = 'appbox_article_info';
+        $collectNewsJson = $this->redis->get($key.'_'.$this->language);
+        if(!$collectNewsJson){
+            $collectNewsJson = $this->redis->get($key.'_en');
+        }
+
         $collectNewsArr = json_decode($collectNewsJson,true);
         $collectNewsArr = array_slice($collectNewsArr,0,$nums);
         $sql = "select id,templateName from appbox_template where type=15";
@@ -635,23 +644,26 @@ class Db_Base
 
     }
     /**
-    *
+    *   设置etag缓存
     *
     */
-    public function _parseEtags($redis_data,$page){
+    public function _parseEtags($data,$page,$keys = false){
         if($page === 0){
            date_default_timezone_set('PRC');
            header('Cache-Control: max-age=86400,must-revalidate'); 
            header('Last-Modified: ' .gmdate('D, d M Y H:i:s') . ' GMT' ); 
            header('Expires: ' .gmdate ('D, d M Y H:i:s', time() + '86400' ). ' GMT');
-
-            $redis_data = json_decode($redis_data);
-            $time = array_pop($redis_data);
-            if (isset($_SERVER['HTTP_IF_NONE_MATCH'])  && $_SERVER['HTTP_IF_NONE_MATCH'] == $time){ 
-                  header("Etag:".$time,true,304); 
+           if($keys){
+                $key = $keys;
+           } else {
+                $data = json_decode($data);
+                $key = array_pop($data);
+           }
+            if (isset($_SERVER['HTTP_IF_NONE_MATCH'])  && $_SERVER['HTTP_IF_NONE_MATCH'] == $key){ 
+                  header("Etag:".$key,true,304); 
                   exit; 
             } else {  
-               header("Etag:".$time); 
+               header("Etag:".$key); 
             }            
         }
 

@@ -2,6 +2,7 @@
 class SpreaddayilyModel extends RedisModel
 {
     public $ver_code;
+    public $pageNum = 25;
     public $expire = '1800';
     public function __construct($language='') 
     {
@@ -22,19 +23,29 @@ class SpreaddayilyModel extends RedisModel
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
         $arr['currentTime'] = time();
+        $this->page = isset($page) ? (int)$page : 0;
+        $sql = "select count(*) as num from appbox_spread where status=1 and dayily_sort!=0 and is_jx=1 and releaseTime<=".time();
+        $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
+        $page = $this->page*$this->pageNum;//初始化页数
+
+
+
         $arr['defaultSearchWord'] = $this->getNewKeywords();
         $this->redis->select(5);
         //获取推广列表
-        $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code;
+        $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code.'_'.$this->page;
         $bannerKeys = 'banner_'.$this->language.'_'.$this->ver_code;
         if($redis_data = $this->redis->get($keys)) {
-            $arr['data'] = json_decode($redis_data);
+            $this->_parseEtags($redis_data,$this->page);//从查询第一页缓存是否有更新
+            $myData = json_decode($redis_data,true);
+            array_pop($myData);
+            $arr['data'] = $myData;
             $banner = $this->redis->get($bannerKeys);
-            $arr['banner'] = $banner ? json_decode($banner) : $this->getNav();
+            $arr['banner'] = $banner ? json_decode($banner,true) : $this->getNav();
             $arr['dataRedis'] = 'from redis';
         } else {
             $arr['banner'] = $this->getNav();//获取导航顺序列表
-           $spread = $this->getList($page,'is_jx');
+            $spread = $this->getList($page,'is_jx');
             if(!$spread) return json_encode(array('status'=>$this->is_true));
             foreach($spread as $key=>$val) {//将精选推入到数组
                 $tempData = $this->getDayilySpreadDetail($val);
@@ -42,8 +53,12 @@ class SpreaddayilyModel extends RedisModel
             }
             if($arr['data']){//推入缓存中
                 $this->redis->select(5);
+                $time = time();
+                $arr['data'][] = $time;
+                $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
                 $this->redis->set($keys,json_encode($arr['data']),$this->expire);
                 $this->redis->set($bannerKeys,json_encode($arr['banner']),$this->expire);
+                array_pop($arr['data']);
             }
         }
         return json_encode($arr);
@@ -55,18 +70,27 @@ class SpreaddayilyModel extends RedisModel
     public function getNewKeywords(){
         $sql = "select keywords from appbox_keywords where status=1 order by sort desc";
         $data = $this->_db->getRow($sql);
-        $return = $data ? $data['keywords'] : 'game';
+        if($data){
+            $return = $data['keywords'];            
+        } else {
+            $this->redis->select(0);
+            $keywords = $this->redis->get('appbox_keywords');
+            if($keywords){
+                $keyArr = json_decode($keywords,true);
+                $return = $keyArr[$this->language][0] ? $keyArr[$this->language][0] : $keyArr['en'][0];
+            }
+
+        }
+        $return = $return ? $return : 'games';
         return $return;
     }
 
     public function getList($p,$position="is_jx")
     {
         //获取应用app
-        $sql = "select spread.id,spread.releaseTime,spread.expand,spread.spread_type,spread.name
-                    from appbox_spread as spread
-                    where spread.status=1 and releaseTime<=".time()." and $position=1 
-                    order by spread.dayily_sort desc,spread.id desc
-                    limit $p,10";
+        $sql = "select id,releaseTime,expand,spread_type,name from appbox_spread
+                    where status=1 and releaseTime<=".time()." and $position=1 and dayily_sort!=0
+                    order by dayily_sort desc,id desc limit $p,".$this->pageNum;
         $info = $this->_db->getAll($sql);
         return $info;
     }

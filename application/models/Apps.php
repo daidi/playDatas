@@ -179,8 +179,10 @@ class AppsModel extends RedisModel
     /**
      *   获取应用详细的信息
      */
-    public function getDetailJson($packageName)
+    public function getDetailJson($packageName,$language = '')
     {
+		$language && $this->language = $language;
+		
         $this->redis->select(7);
         if ($data = $this->redis->get('appboxD_' . $packageName . '_' . $this->language)) {
             return $data;
@@ -190,16 +192,17 @@ class AppsModel extends RedisModel
                 select app.package_id,app.package_name as packageName,app.comment_nums as commentCounts,app.app_name as name,app.icon as iconUrl,app.current_version as versionName,app.install_count as downloadCount,app.updated as lastUpdateTime,app.score as rate,app.size,app.hateCount as treadCount,app.likeCount as praiseCount,app.desc as description,app.price as paymentAmount,app.screen_shots,app.comment_detail,app.google_category,app.extend_info,app.status,app.releaseTime
                 from appbox_app as app
                 where app.package_name='$packageName' and app.language='{$this->language}'";
+				
             $data = $this->_db->getRow($sql);
             if ($data) {
-                /*
-                if (time() - $data['releaseTime'] >= 86400)//检查更新，如果更新时间大于一天，则去更新应用,重新获取数据
+                
+/*                if (time() - $data['releaseTime'] >= 86400)//检查更新，如果更新时间大于一天，则去更新应用,重新获取数据
                 {
                     file_get_contents('http://play.mobappbox.com/index.php?m=Admin&c=Application&a=getAppInfo&flag=1&language='.$this->language.'&package_name=' . $packageName);
                     $redisData = $data;
                     $data = $this->_db->getRow($sql);
                     if(!$this->updateRedis($redisData,$data)) {
-                        echo '更新失败！';exit;
+                        //echo '更新失败！';exit;
                     }
                 }*/
                 $data['description'] = htmlspecialchars_decode($data['description']);
@@ -243,7 +246,7 @@ class AppsModel extends RedisModel
                 return json_encode($arr);
             } else {
                 file_get_contents('http://play.mobappbox.com/index.php?m=Admin&c=Application&a=getAppInfo&flag=1&language='.$this->language.'&package_name=' . $packageName);
-                return $this->getDetailJson($packageName);
+                return $this->getDetailJson($packageName,'en');
             }
         }
         return json_encode(array('status' => $this->is_true));

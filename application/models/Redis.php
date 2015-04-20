@@ -6,7 +6,6 @@ class RedisModel extends Db_Base
     {
         parent::__construct();
     }
-
     //设置应用列表缓存
     public function setAppRedis($is_game,$type='',$arr)
     {
@@ -21,7 +20,8 @@ class RedisModel extends Db_Base
             }
         }   
         $this->redis->select(2);
-        $tempArr[] = time();
+        $time = time();
+        $tempArr[] = $time;
         if(!$this->cid && $type) {//最新，下载，评分缓存
             $this->redis->set('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page, json_encode($tempArr));//键app_new_0
             $this->redis->expire('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page, $this->expire);
@@ -30,6 +30,7 @@ class RedisModel extends Db_Base
             $this->redis->set('appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page, json_encode($tempArr));//键app_cid3_0
             $this->redis->expire('appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page, $this->expire);
         }
+        $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
     }
 
     //获取应用列表缓存
@@ -91,9 +92,11 @@ class RedisModel extends Db_Base
                 $this->redis->expire($key,$this->expire);
             }
         }   
-        $tempArr[] = time();
+        $time = time();
+        $tempArr[] = $time;
         $this->redis->set('appboxsL_' . $this->language . '_' . $this->page, json_encode($tempArr));
         $this->redis->expire('appboxsL_' . $this->language . '_' . $this->page, $this->expire);
+        $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
     }
 
     //获取礼包列表缓存
@@ -197,7 +200,7 @@ class RedisModel extends Db_Base
                 }
             } elseif (isset($val['extraData']['urlId'])) {
                 $this->redis->select(5);
-                $key = 'appboxU_s_'.$val['extraData']['urlId'].'_'.$this->language;//专题列表详情
+                $key = 'appboxU_u_'.$val['extraData']['urlId'].'_'.$this->language;//专题url详情
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
                     $this->redis->set($key,json_encode($val));
@@ -211,8 +214,18 @@ class RedisModel extends Db_Base
                     $this->redis->set($key,json_encode($val));
                     $this->redis->expire($key,$this->expire);
                 }                
+            } elseif (isset($val['extraData']['spreadId'])) {
+                $this->redis->select(5);
+                $key = 'appboxL_s_'.$val['extraData']['spreadId'].'_'.$this->language;//文章类型
+                $tempArr[] = $key;
+                if(!$this->redis->exists($key)) {
+                    $this->redis->set($key,json_encode($val));
+                    $this->redis->expire($key,$this->expire);
+                }                
             } 
         }
+        $time = time();
+        $tempArr[] = $time;
         if($is_banner && $is_banner == 'banner') {
             $this->redis->select(6);
             $this->redis->set('appboxbDL_'.$this->language.'_'.$this->page.'_'.$id,json_encode($tempArr));
@@ -222,6 +235,7 @@ class RedisModel extends Db_Base
             $this->redis->set('appboxsDL_'.$this->language.'_'.$this->page.'_'.$id,json_encode($tempArr));
             $this->redis->expire('appboxsDL_'.$this->language.'_'.$this->page.'_'.$id,$this->expire);       
         }
+        $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
     }
 
     //获取专题详情列表缓存
@@ -232,7 +246,7 @@ class RedisModel extends Db_Base
         foreach($arr as $key=>$val) {
             $tempArr = explode('_',$val);
             switch ($tempArr[1]) {
-                case 's':
+                case 'u'://专题url缓存
                     $this->redis->select(5);
                     $data = $this->redis->get($val);
                     if($data) {
@@ -246,7 +260,21 @@ class RedisModel extends Db_Base
                         }
                     }                    
                     break;
-                case 'a':
+                case 's'://专题缓存
+                    $this->redis->select(5);
+                    $data = $this->redis->get($val);
+                    if($data) {
+                        $return[] = json_decode($data,true);
+                    } else { //如果在缓存中查不到，则重新生成缓存
+                        $redisData = $this->setSingleSpreadRedis($val);
+                        if ($redisData) { //如果模板存在
+                            $return[] = $redisData;
+                        } else { //否则跳过这条信息
+                            continue;
+                        }
+                    }                    
+                    break;
+                case 'a'://文章缓存
                     $this->redis->select(5);
                     $data = $this->redis->get($val);
                     if($data) {
@@ -260,7 +288,7 @@ class RedisModel extends Db_Base
                         }
                     }                    
                     break;
-                case 'g':
+                case 'g'://礼包缓存
                     $this->redis->select(4);
                     $data = $this->redis->get($val);
                     if($data) {
@@ -274,7 +302,7 @@ class RedisModel extends Db_Base
                         }
                     }                    
                     break;
-                default:
+                default://应用/游戏缓存
                     $this->redis->select(8);
                     $data = $this->redis->get($val);
                     if($data) {
@@ -306,8 +334,11 @@ class RedisModel extends Db_Base
                 $this->redis->expire($key,$this->expire);
             }
         }   
+        $time = time();
+        $tempArr[] = $time;
         $this->redis->set('appboxgL_' . $this->language . '_' . $this->page, json_encode($tempArr));
         $this->redis->expire('appboxgL_' . $this->language . '_' . $this->page, $this->expire);
+        $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
     }
 
     //获取礼包列表缓存

@@ -28,17 +28,15 @@ class SpreaddayilyModel extends RedisModel
         $arr['hasNextPage'] = $this->getPage($sql,$this->page,$this->pageNum);
         $page = $this->page*$this->pageNum;//初始化页数
 
-
-
         $arr['defaultSearchWord'] = $this->getNewKeywords();
         $this->redis->select(5);
         //获取推广列表
-        $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code.'_'.$this->page;
+        $keys = 'appbox_dayily_info_'.$this->language.'_'.$this->ver_code.'_'.$this->page;//推入缓存的key
         $bannerKeys = 'banner_'.$this->language.'_'.$this->ver_code;
         if($redis_data = $this->redis->get($keys)) {
             $this->_parseEtags($redis_data,$this->page);//从查询第一页缓存是否有更新
             $myData = json_decode($redis_data,true);
-            array_pop($myData);
+            array_pop($myData);//删除数组最后一个元素，即设置的etag缓存时间
             $arr['data'] = $myData;
             $banner = $this->redis->get($bannerKeys);
             $arr['banner'] = $banner ? json_decode($banner,true) : $this->getNav();
@@ -79,7 +77,6 @@ class SpreaddayilyModel extends RedisModel
                 $keyArr = json_decode($keywords,true);
                 $return = $keyArr[$this->language][0] ? $keyArr[$this->language][0] : $keyArr['en'][0];
             }
-
         }
         $return = $return ? $return : 'games';
         return $return;

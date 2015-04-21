@@ -103,7 +103,8 @@ class SpreadModel extends RedisModel
         if($data){
             //从redis中获取数据
             $this->redis->select(5);
-            if($redis_datas = $this->redis->get('appboxsDL_'.$this->language.'_'.$this->page.'_'.$id)) {
+            $key = 'appboxsDL_'.$this->language.'_'.$this->page.'_'.$id.'_'.$this->ver_code;
+            if($redis_datas = $this->redis->get($key)) {
                 $this->_parseEtags($redis_datas,$this->page);//查询此页缓存是否有更新
                 $redisArr = $this->getSpreadDetailRedis($redis_datas);
                 $arr['data'] = $redisArr;
@@ -118,7 +119,7 @@ class SpreadModel extends RedisModel
                 $json_description = json_decode(htmlspecialchars_decode($data['description']),true);
                 $arr['title'] = $json_title[$this->language];
                 $arr['description'] = $json_description[$this->language];
-                $datas = $this->getSpreadDetail($data['releaseTime'],$data['id']);
+                $datas = $this->getSpreadDetail($data['releaseTime'],$data['id'],$this->ver_code);
                 foreach($datas['view'] as $key=>$val){
                     unset($datas['view'][$key]['processType']);
                 }
@@ -228,7 +229,8 @@ class SpreadModel extends RedisModel
         {
             //从redis中获取数据 
             $this->redis->select(6);         
-            if($redis_datas = $this->redis->get('appboxbDL_'.$this->language.'_'.$this->page.'_'.$id)) {
+            $key = 'appboxbDL_'.$this->language.'_'.$this->page.'_'.$id.'_'.$this->ver_code;
+            if($redis_datas = $this->redis->get($key)) {
                 $data = $this->getSpreadDetailRedis($redis_datas,'appbox_banner_url');
                 if($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData,$data);
                 else $arr['data'] = $data;

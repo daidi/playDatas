@@ -9,6 +9,7 @@ class Db_Base
     protected $language;
     protected $is_true = 0;
     protected $pageNum = 10;
+    protected $ver_code = 8;
 
 	public function __construct() 
 	{
@@ -16,7 +17,7 @@ class Db_Base
 		$this->_db = Yaf_Registry::get("Db");
         $this->site_root="http://".$_SERVER['SERVER_NAME'].($_SERVER['SERVER_PORT'] == 80 ? '' : ':'.$_SERVER['SERVER_PORT']);
         $this->is_true = 0;
-        
+        $this->ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : 8;
         //如果所在国家没有开通此语言，则默认显示英语
         $language = isset($_GET['language']) && $_GET['language'] ? $_GET['language'] : 'en';
         $sql = "select status from appbox_app_language where flag='".$language."' and status=1";
@@ -545,11 +546,13 @@ class Db_Base
     *   @param array $template 模板内容
     *   @param int $spreadId  模板的id
     *   @param string $language 取出模板中对应的语言
+    *   @param int $ver_code 版本号
     *   @return  array
     */
-    public function getSpreadDetail($releaseTime, $spreadId)
+    public function getSpreadDetail($releaseTime, $spreadId,$ver_code = '')
     {
-        $template = $this->getSelfTemplate($releaseTime,4);//获取与其时间对应的模板
+        $templatePos = $ver_code > 11 ? 17 : 4;
+        $template = $this->getSelfTemplate($releaseTime,$templatePos);//获取与其时间对应的模板
         if ($template) {//如果模板存在
             $field = $this->getField($template['id'],'spread');//取出与其对应模板的内容
             $spread = $this->getSpread($spreadId,$field['field'],$this->language);//获取这条专题的内容

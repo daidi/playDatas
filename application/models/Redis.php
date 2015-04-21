@@ -217,11 +217,11 @@ class RedisModel extends Db_Base
         $tempArr[] = $time;
         if($is_banner && $is_banner == 'banner') {
             $this->redis->select(6);
-            $key = 'appboxbDL_'.$this->language.'_'.$this->page.'_'.$id;
+            $key = 'appboxbDL_'.$this->language.'_'.$this->page.'_'.$id.'_'.$this->ver_code;
             $this->redis->set($key,json_encode($tempArr),$this->expire);
         } else {
             $this->redis->select(5);
-            $key = 'appboxsDL_'.$this->language.'_'.$this->page.'_'.$id;
+            $key = 'appboxsDL_'.$this->language.'_'.$this->page.'_'.$id.'_'.$this->ver_code;
             $this->redis->set($key,json_encode($tempArr),$this->expire);
         }
         $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新

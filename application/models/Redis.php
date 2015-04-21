@@ -7,7 +7,7 @@ class RedisModel extends Db_Base
         parent::__construct();
     }
     //设置应用列表缓存
-    public function setAppRedis($is_game,$type='',$arr)
+    public function setAppRedis($is_game,$type = '',$arr,$sort = '')
     {
         $tempArr = array();
         $this->redis->select(8);
@@ -15,20 +15,19 @@ class RedisModel extends Db_Base
             $key = 'appboxL_'.$val['extraData']['appId'].'_'.$this->language.'_'.$val['extraData']['templateId'];
             $tempArr[] = $key;
             if(!$this->redis->exists($key)) {
-                $this->redis->set($key,json_encode($val));
-                $this->redis->expire($key,$this->expire);
+                $this->redis->set($key,json_encode($val),$this->expire);
             }
         }   
         $this->redis->select(2);
         $time = time();
         $tempArr[] = $time;
         if(!$this->cid && $type) {//最新，下载，评分缓存
-            $this->redis->set('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page, json_encode($tempArr));//键app_new_0
-            $this->redis->expire('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page, $this->expire);
+            $key = 'appbox_'.$is_game.'_'.$type.'_'.$this->language.'_'.$this->page;
+            $this->redis->set($key, json_encode($tempArr),$this->expire);//键app_new_0
         }
         else {//每个分类进行缓存
-            $this->redis->set('appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page, json_encode($tempArr));//键app_cid3_0
-            $this->redis->expire('appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page, $this->expire);
+            $cidKey = 'appbox_'.$is_game.'_cid'.$this->cid.'_'.$this->language.'_' .$this->page.'_'.$sort;
+            $this->redis->set($cidKey, json_encode($tempArr),$this->expire);//键app_cid3_0
         }
         $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
     }
@@ -72,8 +71,7 @@ class RedisModel extends Db_Base
         $templateType = isset($templateType) && $templateType ? $templateType : $this->templateType;
         $redisData = $this->getAppDetail($data['releaseTime'], $packageId,$templateType);
         if($redisData) {
-            $this->redis->set($key,json_encode($redisData));
-            $this->redis->expire($key,$this->expire);   
+            $this->redis->set($key,json_encode($redisData),$this->expire);
             return $redisData;      
         }
         return false;
@@ -88,14 +86,13 @@ class RedisModel extends Db_Base
             $key = 'appboxL_s_'.$val['extraData']['spreadId'].'_'.$this->language;
             $tempArr[] = $key;
             if(!$this->redis->exists($key)) {
-                $this->redis->set($key,json_encode($val));
-                $this->redis->expire($key,$this->expire);
+                $this->redis->set($key,json_encode($val),$this->expire);
             }
         }   
         $time = time();
         $tempArr[] = $time;
-        $this->redis->set('appboxsL_' . $this->language . '_' . $this->page, json_encode($tempArr));
-        $this->redis->expire('appboxsL_' . $this->language . '_' . $this->page, $this->expire);
+        $key = 'appboxsL_' . $this->language . '_' . $this->page;
+        $this->redis->set($key, json_encode($tempArr),$this->expire);
         $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
     }
 
@@ -132,8 +129,7 @@ class RedisModel extends Db_Base
         $data = $this->_db->getRow($sql);
         $redisData = $this->getSpreadDetail($data['releaseTime'], $data['id']);
         if($redisData) {
-            $this->redis->set($key,json_encode($redisData));
-            $this->redis->expire($key,$this->expire);   
+            $this->redis->set($key,json_encode($redisData),$this->expire);
             return $redisData;      
         }
         return false;
@@ -147,8 +143,7 @@ class RedisModel extends Db_Base
         $data = $this->_db->getRow($sql);
         $redisData = $this->getNewsDetail($data['release_time'], $data['id']);
         if($redisData) {
-            $this->redis->set($key,json_encode($redisData));
-            $this->redis->expire($key,$this->expire);   
+            $this->redis->set($key,json_encode($redisData),$this->expire);
             return $redisData;      
         }
         return false;
@@ -165,8 +160,7 @@ class RedisModel extends Db_Base
 
         $redisData = $this->getUrlDetail($data['releaseTime'],$id,$type);
         if($redisData) {
-            $this->redis->set($key,json_encode($redisData));
-            $this->redis->expire($key,$this->expire);   
+            $this->redis->set($key,json_encode($redisData),$this->expire);
             return $redisData;      
         }
         return false;
@@ -187,40 +181,35 @@ class RedisModel extends Db_Base
                 $key = 'appboxL_g_'.$val['extraData']['giftId'].'_'.$this->language;//礼包列表详情
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
-                    $this->redis->set($key,json_encode($val));
-                    $this->redis->expire($key,$this->expire);
+                    $this->redis->set($key,json_encode($val),$this->expire);
                 }
             } elseif (isset($val['extraData']['appId'])) {
                 $this->redis->select(8);
                 $key = 'appboxL_'.$val['extraData']['appId'].'_'.$this->language.'_'.$val['extraData']['templateId'];//应用列表详情
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
-                    $this->redis->set($key,json_encode($val));
-                    $this->redis->expire($key,$this->expire);
+                    $this->redis->set($key,json_encode($val),$this->expire);
                 }
             } elseif (isset($val['extraData']['urlId'])) {
                 $this->redis->select(5);
                 $key = 'appboxU_u_'.$val['extraData']['urlId'].'_'.$this->language;//专题url详情
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
-                    $this->redis->set($key,json_encode($val));
-                    $this->redis->expire($key,$this->expire);
+                    $this->redis->set($key,json_encode($val),$this->expire);
                 }                
             } elseif (isset($val['extraData']['newsId'])) {
                 $this->redis->select(5);
                 $key = 'appboxL_a_'.$val['extraData']['newsId'].'_'.$this->language;//文章类型
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
-                    $this->redis->set($key,json_encode($val));
-                    $this->redis->expire($key,$this->expire);
+                    $this->redis->set($key,json_encode($val),$this->expire);
                 }                
             } elseif (isset($val['extraData']['spreadId'])) {
                 $this->redis->select(5);
                 $key = 'appboxL_s_'.$val['extraData']['spreadId'].'_'.$this->language;//文章类型
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
-                    $this->redis->set($key,json_encode($val));
-                    $this->redis->expire($key,$this->expire);
+                    $this->redis->set($key,json_encode($val),$this->expire);
                 }                
             } 
         }
@@ -228,12 +217,12 @@ class RedisModel extends Db_Base
         $tempArr[] = $time;
         if($is_banner && $is_banner == 'banner') {
             $this->redis->select(6);
-            $this->redis->set('appboxbDL_'.$this->language.'_'.$this->page.'_'.$id,json_encode($tempArr));
-            $this->redis->expire('appboxbDL_'.$this->language.'_'.$this->page.'_'.$id,$this->expire);
+            $key = 'appboxbDL_'.$this->language.'_'.$this->page.'_'.$id;
+            $this->redis->set($key,json_encode($tempArr),$this->expire);
         } else {
             $this->redis->select(5);
-            $this->redis->set('appboxsDL_'.$this->language.'_'.$this->page.'_'.$id,json_encode($tempArr));
-            $this->redis->expire('appboxsDL_'.$this->language.'_'.$this->page.'_'.$id,$this->expire);       
+            $key = 'appboxsDL_'.$this->language.'_'.$this->page.'_'.$id;
+            $this->redis->set($key,json_encode($tempArr),$this->expire);
         }
         $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
     }
@@ -330,14 +319,13 @@ class RedisModel extends Db_Base
             $key = 'appboxL_g_'.$val['extraData']['giftId'].'_'.$this->language;
             $tempArr[] = $key;
             if(!$this->redis->exists($key)) {
-                $this->redis->set($key,json_encode($val));
-                $this->redis->expire($key,$this->expire);
+                $this->redis->set($key,json_encode($val),$this->expire);
             }
         }   
         $time = time();
         $tempArr[] = $time;
-        $this->redis->set('appboxgL_' . $this->language . '_' . $this->page, json_encode($tempArr));
-        $this->redis->expire('appboxgL_' . $this->language . '_' . $this->page, $this->expire);
+        $key = 'appboxgL_' . $this->language . '_' . $this->page;
+        $this->redis->set($key, json_encode($tempArr),$this->expire);
         $this->_parseEtags(0,0,$time);//从查询第一页缓存是否有更新
     }
 
@@ -374,8 +362,7 @@ class RedisModel extends Db_Base
         $data = $this->_db->getRow($sql);
         $redisData = $this->getGiftDetail($data['start_time'], $data['id']);
         if($redisData) {
-            $this->redis->set($key,json_encode($redisData));
-            $this->redis->expire($key,$this->expire);   
+            $this->redis->set($key,json_encode($redisData),$this->expire);
             return $redisData;      
         }
         return false;
@@ -391,16 +378,14 @@ class RedisModel extends Db_Base
                 $key = 'appboxL_g_'.$val['extraData']['giftId'].'_'.$this->language;//礼包列表详情
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
-                    $this->redis->set($key,json_encode($val));
-                    $this->redis->expire($key,$this->expire);
+                    $this->redis->set($key,json_encode($val),$this->expire);
                 }
             } elseif (isset($val['extraData']['appId'])) {
                 $this->redis->select(8);
                 $key = 'appboxL_'.$val['extraData']['appId'].'_'.$this->language.'_'.$val['extraData']['templateId'];//应用列表详情
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
-                    $this->redis->set($key,json_encode($val));
-                    $this->redis->expire($key,$this->expire);
+                    $this->redis->set($key,json_encode($val),$this->expire);
                 }
             } elseif (isset($val['extraData']['spreadId'])) {
                 $this->redis->select(5);
@@ -408,14 +393,13 @@ class RedisModel extends Db_Base
 
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
-                    $this->redis->set($key,json_encode($val));
-                    $this->redis->expire($key,$this->expire);
+                    $this->redis->set($key,json_encode($val),$this->expire);
                 }                
             }
         }
         $this->redis->select(3);
-        $this->redis->set('appboxdL_'.$this->language.'_'.$this->page,json_encode($tempArr));
-        $this->redis->expire('appboxdL_'.$this->language.'_'.$this->page,$this->expire);     
+        $key = 'appboxdL_'.$this->language.'_'.$this->page;
+        $this->redis->set($key,json_encode($tempArr),$this->expire);
     }
 
     //获取精选缓存

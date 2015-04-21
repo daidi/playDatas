@@ -5,7 +5,7 @@ class AppsModel extends RedisModel
     protected $category = 1;//分类，1，应用，2游戏
     protected $is_game = 2;//是游戏还是应用，1，应用 2,游戏，
     protected $pos = 2;//推广所在位置，1：精选，2：游戏，3：应用，4礼包
-    protected $pageNum = 10;//每页的数量
+    protected $pageNum = 25;//每页的数量
     protected $order = 'app.is_top desc,app.sort desc,app.id desc';//默认的排序
     protected $cid = 0;//排序
     protected $where = 'where';//传递过来的条件
@@ -61,11 +61,14 @@ class AppsModel extends RedisModel
 
         $this->redis->select(2);
         $is_game = $this->is_game == 1 ? 'app' : 'game';
+        $sort = isset($_GET['sort']) ? $_GET['sort'] : '';
         //获取应用app
         if ($this->cid){
-            $redis_datas = $this->redis->get('appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page);
+            $cidKey = 'appbox_'.$is_game.'_cid'.$this->cid.'_'.$this->language.'_'.$this->page.'_'.$sort;
+            $redis_datas = $this->redis->get($cidKey);
         }else{
-            $redis_datas = $this->redis->get('appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page);
+            $key = 'appbox_'.$is_game.'_'.$type.'_'.$this->language.'_'.$this->page;
+            $redis_datas = $this->redis->get($key);
         }
 
         if (isset($redis_datas) && $redis_datas && !empty($redis_datas)) {//从缓存中取数据
@@ -73,7 +76,7 @@ class AppsModel extends RedisModel
             $arr['data'] = $this->getAppRedis($redis_datas);
             $arr['dataRedis'] = 'from redis';
         } else {
-            $apps = $this->getList($page, $this->order);
+            $apps = $this->getList($page, $this->order,$sort);
             if (!$apps) return json_encode(array('status' => $this->is_true));
             foreach ($apps as $val) { //将app推入到数组
                 $tempData = $this->getAppDetail($val['releaseTime'], $val['id'],$this->templateType);
@@ -82,7 +85,7 @@ class AppsModel extends RedisModel
             }
             if ($arr['data'] && !empty($arr['data'])) {//缓存到redis
                 if ($this->cid) {//每个分类进行缓存
-                    $this->setAppRedis($is_game,'',$arr['data']);
+                    $this->setAppRedis($is_game,'',$arr['data'],$sort);
                 }else {//最新，下载，评分缓存
                     $this->setAppRedis($is_game,$type,$arr['data']);
                 }
@@ -109,7 +112,7 @@ class AppsModel extends RedisModel
     /*
      * 获取应用
      */
-    public function getList($p, $order)
+    public function getList($p, $order,$sort='')
     {
         if ($this->cid == 0)//如果不存在分类查询
         {
@@ -149,6 +152,18 @@ class AppsModel extends RedisModel
                 $where = $this->where . " app.status=1 and app.is_game=" . $this->is_game . "  and app.google_category in ($cid)";
             }
         }
+        //
+        if($sort && $this->cid != 0){
+            switch($sort){
+                case 'rate':
+                    $order = "app.score_sort desc,app.score desc,app.install_count desc,app.id desc";
+                    break;
+                case 'download':
+                    $order = "app.download_sort desc,app.install_count desc,app.score desc,app.id desc";
+                    break;
+            }
+        }
+
         //获取应用app
         $sql = "select app.package_id as id,app.releaseTime
                     from appbox_app as app
@@ -240,8 +255,7 @@ class AppsModel extends RedisModel
                 $arr['data'] = $data;
                 if ($arr && !empty($arr)) {//缓存到redis
                     $this->redis->select(7);
-                    $this->redis->set('appboxD_' . $packageName . '_' . $this->language, json_encode($arr));
-                    $this->redis->expire('appboxD_' . $packageName . '_' . $this->language, $this->expire);
+                    $this->redis->set('appboxD_' . $packageName . '_' . $this->language, json_encode($arr), $this->expire);
                 }
                 return json_encode($arr);
             } else {
@@ -368,8 +382,7 @@ class AppsModel extends RedisModel
             $url = 'http://play.mobappbox.com/index.php?m=Admin&c=Api&a=searchApp&keywords='.$keywords.'&language='.$this->language;
             $datas = file_get_contents($url);
             $datas = $this->matchTemplate(json_decode($datas,true));
-            $this->redis->set('appbox_g_'.$keywords,json_encode($datas));
-            $this->redis->expire('appbox_g_'.$keywords,3600);
+            $this->redis->set('appbox_g_'.$keywords,json_encode($datas),3600);
             $arr['data'] = $datas;
         }
         return json_encode($arr);

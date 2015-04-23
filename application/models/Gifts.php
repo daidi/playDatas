@@ -50,8 +50,7 @@ class GiftsModel extends RedisModel
         if ($this->page == 0)//第一页的时候发放所有的广告
         {
             $this->redis->select(6);
-            if ($banners = $this->redis->get('appboxbL_'.$this->language.'_4'))//从缓存中取数据
-            {
+            if ($banners = $this->redis->get('appboxbL_'.$this->language.'_4')){//从缓存中取数据
                 $arr['banners'] = json_decode($banners, true);
                 $arr['bannersRedis'] = 'from redis';
             } else {
@@ -94,18 +93,12 @@ class GiftsModel extends RedisModel
         if ($data = $this->redis->get('appboxgD_' . $this->language . '_' . $id)) {
             return $data;
         }
-
-        $sql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid,gift.logo_width as imgWidth,gift.logo_height as imgHeight,gift.logo as image
-                from appbox_gift as gift 
-                left join appbox_app as app on app.package_id=gift.package_id left join appbox_gift_desc as descs on descs.gid=gift.id
-                $where and descs.language='" . $this->language . "'";
+        $cSql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid,gift.logo_width as imgWidth,gift.logo_height as imgHeight,gift.logo as image from appbox_gift as gift 
+                left join appbox_app as app on app.package_id=gift.package_id left join appbox_gift_desc as descs on descs.gid=gift.id $where and descs.language=";
+        $sql = $cSql."'" . $this->language . "'";
         $gift = $this->_db->getRow($sql);
-        if (!$gift['giftDesc'] && $this->language != 'en')//如果对应语言没有取到,则取默认语言英语
-        {
-            $sql = "select app.app_name as name,app.package_name as pkg_name,app.icon as icon_url,app.price,app.score as rating_num,app.install_count as download_num,descs.description as giftDesc,descs.name as giftName,descs.manual as giftUsageDesc,descs.gid,gift.logo_width as imgWidth,gift.logo_height as imgheight,gift.logo as image
-                    from appbox_gift as gift 
-                    left join appbox_app as app on app.package_id=gift.package_id left join appbox_gift_desc as descs on descs.gid=gift.id
-                    $where and descs.language='en'";
+        if (!$gift['giftDesc'] && $this->language != 'en'){//如果对应语言没有取到,则取默认语言英语
+            $sql = $cSql."'en'";
             $gift = $this->_db->getRow($sql);
         }
         if (!$gift) return json_encode(array('status' => $this->is_true));
@@ -114,17 +107,18 @@ class GiftsModel extends RedisModel
         $sql = "select descs.gid,descs.name from appbox_gift as gift left join appbox_gift_desc as descs on descs.gid=gift.id
             where gift.package_name='{$gift['pkg_name']}' and descs.language='".$this->language."' and gift.id!={$gift['gid']}";
         $siblings = $this->_db->getAll($sql);
-        foreach($siblings as $key=>$val) {
-            if(!$val['name']) {
-                $sql = "select name from appbox_gift_desc where gid=".$val['gid']." and language='en'";
-                $data = $this->_db->getRow($sql);
-                $siblings[$key]['name'] = $data['name'];
-            }
+        if($siblings){
+            foreach($siblings as $key=>$val) {
+                if(!$val['name']) {//如果没有填写对应语言礼包的描述，则取英文描述
+                    $sql = "select name from appbox_gift_desc where gid=".$val['gid']." and language='en'";
+                    $data = $this->_db->getRow($sql);
+                    $siblings[$key]['name'] = $data['name'];
+                }
+            } 
+            $gift['gift'] = $siblings;               
         }
-        if($siblings) {
-            $gift['gift'] = $siblings;    
-        }
-        
+
+        $gift['icon_url'] = $this->getGooglePic($gift['icon_url']);
         $gift['market_url'] = 'http://play.google.com/store/apps/details?id=' . $gift['pkg_name'];
         $return = array();
         $return['data'] = $gift;
@@ -186,12 +180,8 @@ class GiftsModel extends RedisModel
     }
 
     //获取app详细信息返回
-    public function getLocalData($id, $field)
-    {
-        $sql = "select $field
-                from appbox_app as app
-                where app.id=$id
-        ";
+    public function getLocalData($id, $field){
+        $sql = "select $field from appbox_app as app where app.id=$id";
         return $this->_db->getRow($sql);
     }
 
@@ -329,7 +319,11 @@ class GiftsModel extends RedisModel
             $arr['data'][$k]['rate'] = $matchData['rate'];
             $arr['data'][$k]['name'] = $matchData['name'];
             $arr['data'][$k]['description'] = $matchData['description'];
-            $arr['data'][$k]['iconUrl'] = $matchData['iconUrl'];
+            
+			//-----------------------------------20150423修改部分----------------------------------
+			//$arr['data'][$k]['iconUrl'] = $matchData['iconUrl'];
+			$arr['data'][$k]['iconUrl'] = $this->getGooglePic($matchData['iconUrl']);
+			//-----------------------------------20150423修改部分----------------------------------
 
         }
         /*
@@ -387,6 +381,10 @@ class GiftsModel extends RedisModel
             $sql .= "group by gift.package_id order by rand() limit 2";
             $return['data'] = $this->_db->getAll($sql);
         }
+		//-----------------------------------20150423修改部分----------------------------------
+		$return['data'][0]['icon_url'] = $this->getGooglePic($return['data'][0]['icon_url']);
+		$return['data'][1]['icon_url'] = $this->getGooglePic($return['data'][1]['icon_url']);
+		//-----------------------------------20150423修改部分----------------------------------
         return json_encode($return);
     }
 }

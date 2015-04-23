@@ -298,9 +298,9 @@ class OtherModel extends Db_Base
         }
     }
 
-    public function getRomUpdate($channelId,$language,$ver_code){
+    public function getRomUpdate($channelId,$language,$ver_code,$packageNameSelf){
         //检查自身版本是后否有更新
-        $sql = "select max(version) as id from appbox_rom where status=1 and channel_id='$channelId'";
+        $sql = "select max(version) as id from appbox_rom where status=1 and channel_id='$channelId' and package_name='$packageNameSelf'";
         $maxVersionCode = $this->_db->getRow($sql);
         $arr['status'] = 1;
         //echo $sql;
@@ -315,6 +315,7 @@ class OtherModel extends Db_Base
             $arr['data']['isWifi'] = $data['is_wifi'];
             $arr['data']['forcing'] = $data['is_forcing'];
             $arr['data']['isSilence'] = $data['is_silence'];
+            $arr['data']['md5'] = $data['md5_file'];
             $dialog_content = json_decode(htmlspecialchars_decode($data['dialog_content']),true);
             $arr['data']['dialogContent'] = isset($dialog_content[$language]) ? $dialog_content[$language] : $dialog_content['en'];
             $title = json_decode(htmlspecialchars_decode($data['title']),true);            

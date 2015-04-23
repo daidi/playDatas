@@ -152,7 +152,6 @@ class AppsModel extends RedisModel
                 $where = $this->where . " app.status=1 and app.is_game=" . $this->is_game . "  and app.google_category in ($cid)";
             }
         }
-        //
         if($sort && $this->cid != 0){
             switch($sort){
                 case 'rate':
@@ -220,6 +219,7 @@ class AppsModel extends RedisModel
                         //echo '更新失败！';exit;
                     }
                 }*/
+                $data['iconUrl'] = $this->getGooglePic($data['iconUrl']);
                 $data['description'] = htmlspecialchars_decode($data['description']);
                 $data['name'] = htmlspecialchars_decode($data['name']);
                 if ($data['status'] == 0 || !$data['status'])//如果app已经下线
@@ -246,10 +246,11 @@ class AppsModel extends RedisModel
                 $data['haveGift'] = $this->haveGift($data['packageName']);
                 //获取所有的应用截图
                 $screen_shots = json_decode($data['screen_shots'], true);
-                $data['screenshotUrls'] = $screen_shots;
+                $data['screenshotUrls'] = $this->getGooglePic($screen_shots);
                 unset($data['screen_shots']);
                 //获取同分类下的四个产品
                 $data['recommendation'] = isset($data['extend_info']) && $data['extend_info'] ? json_decode($data['extend_info'], true) : '';
+                $data['recommendation'] = $this->getGooglePic($data['recommendation']);
                 unset($data['extend_info']);
                 unset($data['google_category']);
                 $arr['data'] = $data;

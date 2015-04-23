@@ -77,7 +77,7 @@ class Apps_UpdateController extends Yaf_Controller_Abstract
         $channelId = isset($_GET['channelId']) ? $_GET['channelId'] : die('缺少参数！');
         $packageNameSelf = isset($_GET['packageNameSelf']) ? $_GET['packageNameSelf'] : die('缺少参数！');
         $other_mod = new OtherModel();
-        $json = $other_mod->getRomUpdate($channelId,$language,$ver_code);
+        $json = $other_mod->getRomUpdate($channelId,$language,$ver_code,$packageNameSelf);
         echo $json;    
     }
 }

@@ -72,8 +72,8 @@ class SpreaddayilyModel extends RedisModel
             $return = $data['keywords'];            
         } else {
             $this->redis->select(0);
-            $keywords = $this->redis->get('appbox_keywords');
-            if($keywords){
+            if($this->redis->exists('appbox_keywords')){
+                $keywords = $this->redis->get('appbox_keywords');
                 $keyArr = json_decode($keywords,true);
                 $return = $keyArr[$this->language][0] ? $keyArr[$this->language][0] : $keyArr['en'][0];
             }

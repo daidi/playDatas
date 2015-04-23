@@ -179,22 +179,16 @@ class Db_Base
         $sql = "select img as iconUrl,id,imgWidth,imgHeight from appbox_banner where position=$pos and status=1 and releaseTime<=".time()." order by sort desc,id desc limit 0,4";
         $data = $this->_db->getAll($sql);
         if(!$data) return '';
-        foreach($data as $key=>$val)
-        {
+        foreach($data as $key=>$val){
             $sql = "select type,typeId from appbox_banner_list where bannerId={$val['id']}";
             $banner = $this->_db->getAll($sql);
             $count = count($banner);
-            if($count > 1)//如果推广位是多个的话，就让他跳到推广列表
-            {
+            if($count > 1){//如果推广位是多个的话，就让他跳到推广列表
                 $data[$key]['processType'] = 106; //100下载应用 101 启动应用 102 礼包详情 103 应用详情 104 专题详情 105 打开网址 106 banner跳转到列表详情
                 $data[$key]['url'] = $this->site_root."/Apps_Spread/bannerDetail?id={$val['id']}";
-            }
-            else//如果推广位是单个的话，就让他调到对应的当个应用上去
-            {   
-                foreach($banner as $k=>$v)
-                {
-                    switch($v['type'])
-                    {
+            } else {//如果推广位是单个的话，就让他调到对应的当个应用上去
+                foreach($banner as $k=>$v){
+                    switch($v['type']) {
                         case 'url':
                             $data[$key]['processType'] = 104;
                             $data[$key]['urlId'] = $v['typeId'];
@@ -249,14 +243,13 @@ class Db_Base
     */
     public function getApp($packageId,$field,$language)
     {
-        $sql = "select $field,app.package_name
+        $cSql = "select $field,app.package_name
                     from appbox_app as app
-                    where app.package_id=$packageId and app.language='$language'";
+                    where app.package_id=$packageId and app.language=";
+        $sql = $cSql."'{$language}'";
         $data = $this->_db->getRow($sql);
         if(!$data){
-            $sql = "select $field,app.package_name
-                    from appbox_app as app
-                    where app.package_id=$packageId and app.language='en'";
+            $sql = $cSql."'en'";
             $data = $this->_db->getRow($sql);
         }
         return $data;
@@ -288,6 +281,8 @@ class Db_Base
             if($app) {
                 $haveGift = $this->haveGift($app['package_name']);
                 $app['app_name'] = htmlspecialchars_decode($app['app_name']);
+                
+                $app['icon'] = $this->getGooglePic($app['icon']);
                 //json格式中的view
                 $view = $this->getView($field['data'],$app);
                 //json格式中的extraData
@@ -375,17 +370,14 @@ class Db_Base
     */
     public function getGift($id,$field,$language)
     {
-        $sql = "select $field,app.id as appId,gift.logo,gift.get_count,gift.start_time,gift.package_name
+        $cSql = "select $field,app.id as appId,gift.logo,gift.get_count,gift.start_time,gift.package_name
                     from appbox_gift as gift
                     left join appbox_app as app on app.package_name=gift.package_name left join appbox_gift_desc as descs on gift.id=descs.gid
-                    where gift.id=$id and descs.language='$language' and app.language = '{$language}' ";
+                    where gift.id=$id and ";
+        $sql = $cSql."descs.language='{$language}' and app.language = '{$language}'";
         $datas = $this->_db->getRow($sql);
-        if(!$datas['name'] && $language != 'en')
-        {
-            $sql = "select $field,app.id as appId,gift.logo,gift.get_count,gift.start_time,gift.package_name
-                        from appbox_gift as gift
-                        left join appbox_app as app on app.package_name=gift.package_name left join appbox_gift_desc as descs on gift.id=descs.gid
-                        where gift.id=$id and descs.language='en' ";
+        if(!$datas['name'] && $language != 'en'){
+            $sql = $cSql."descs.language='en' and app.language = 'en'";
             return $this->_db->getRow($sql);
         }
         return $datas;
@@ -407,17 +399,12 @@ class Db_Base
         $descs = array('description','name','keywords');
         $app = array('app_name','install_count','score','icon');
         $tempArr = array();//用户可能设置多个重复的字段，排除重复的字段
-        foreach($data as $val)
-        {
-            if($val['attrValue'] && !in_array($val['attrValue'],$tempArr))
-            {
-                if(in_array($val['attrValue'],$descs))
-                {
+        foreach($data as $val){
+            if($val['attrValue'] && !in_array($val['attrValue'],$tempArr)){
+                if(in_array($val['attrValue'],$descs)){
                     $tempArr[] = $val['attrValue'];
                     $field .= 'descs.'.$val['attrValue'].',';
-                }
-                elseif(in_array($val['attrValue'],$app))
-                {
+                }elseif(in_array($val['attrValue'],$app)) {
                     $tempArr[] = $val['attrValue'];
                     $field .= 'app.'.$val['attrValue'].',';
                 }
@@ -439,13 +426,13 @@ class Db_Base
      */
     public function getGiftDetail($releaseTime, $giftId)
     {
-
         $template = $this->getSelfTemplate($releaseTime, 5);//获取与其时间对应的模板
         if ($template) {//如果模板存在
             $field = $this->getGiftField($template['id']);//取出与其对应模板的内容
             $gift = $this->getGift($giftId,$field['field'],$this->language);//获取这条app的内容
             if($gift) {
                 $gift['install_count'] = isset($gift['install_count']) ? $gift['install_count'] : '0';
+                $gift['icon'] = $this->getGooglePic($gift['icon']);
                 //json格式中的view
                 $view = $this->getView($field['data'],$gift);
                 //json格式中的extraData
@@ -532,8 +519,7 @@ class Db_Base
             $data['name'] = isset($arr[$language]) && $arr[$language] ? $arr[$language] : $arr['en'];
             unset($arr);
         }
-        if(isset($data['description'])&& $data['description'])
-        {
+        if(isset($data['description'])&& $data['description']){
             $arr = json_decode(htmlspecialchars_decode($data['description']),true);
             $data['description'] = isset($arr[$language]) && $arr[$language] ? $arr[$language] : $arr['en'];
             unset($arr);
@@ -672,4 +658,22 @@ class Db_Base
 
     }
 
+
+    public function getGooglePic($val){
+        $baseUrl = 'http://play.mobappbox.com/proxy.php?url=';
+        $return = null;
+        if(is_array($val)){
+            foreach($val as $k=>$v){
+                if(is_array($v)){
+                    $val[$k]['logo'] = $baseUrl.urlencode($val[$k]['logo']);
+                } else {
+                    $val[$k] = $baseUrl.urlencode($v);
+                }
+            }
+            $return = $val;
+        } else {
+            $return = $baseUrl.urlencode($val);
+        }
+        return $return;
+    }
 }

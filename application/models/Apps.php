@@ -6,7 +6,7 @@ class AppsModel extends RedisModel
     protected $is_game = 2;//是游戏还是应用，1，应用 2,游戏，
     protected $pos = 2;//推广所在位置，1：精选，2：游戏，3：应用，4礼包
     protected $pageNum = 25;//每页的数量
-    protected $order = 'app.is_top desc,app.sort desc,app.id desc';//默认的排序
+    protected $order = 'app.status desc,app.is_top desc,app.sort desc,app.id desc';//默认的排序
     protected $cid = 0;//排序
     protected $where = 'where';//传递过来的条件
     protected $templateType = 1;//模板类型。1：应用/游戏模板，2下载排行模板，3评分排行模板，4专题模板，5礼包模板,6URL模板
@@ -124,8 +124,7 @@ class AppsModel extends RedisModel
                 $wheres = json_decode($other_where['where'],true);
                 $where = $this->where . " 1=1 " ;
                 foreach($wheres as $key=>$val){
-                    if($val)
-                    {
+                    if($val){
                         switch($key){
                             case 'team_type':
                                 $where .= " and app.team_type != ''";
@@ -155,10 +154,11 @@ class AppsModel extends RedisModel
         if($sort && $this->cid != 0){
             switch($sort){
                 case 'rate':
-                    $order = "app.score_sort desc,app.score desc,app.install_count desc,app.id desc";
+                    $where .= " and app.install_avarage>100000";
+                    $order = "app.score_sort desc,app.score desc,app.install_avarage desc,app.id desc";
                     break;
                 case 'download':
-                    $order = "app.download_sort desc,app.install_count desc,app.score desc,app.id desc";
+                    $order = "app.download_sort desc,app.install_avarage desc,app.score desc,app.id desc";
                     break;
             }
         }
@@ -203,7 +203,8 @@ class AppsModel extends RedisModel
         } else {
             $arr = array('status' => 1);
             $sql = "
-                select app.package_id,app.package_name as packageName,app.comment_nums as commentCounts,app.app_name as name,app.icon as iconUrl,app.current_version as versionName,app.install_count as downloadCount,app.updated as lastUpdateTime,app.score as rate,app.size,app.hateCount as treadCount,app.likeCount as praiseCount,app.desc as description,app.price as paymentAmount,app.screen_shots,app.comment_detail,app.google_category,app.extend_info,app.status,app.releaseTime
+                select app.package_id,app.package_name as packageName,app.comment_nums as commentCounts,app.app_name as name,app.icon as iconUrl,app.current_version as versionName,app.
+                echo $sql;exit; as downloadCount,app.updated as lastUpdateTime,app.score as rate,app.size,app.hateCount as treadCount,app.likeCount as praiseCount,app.desc as description,app.price as paymentAmount,app.screen_shots,app.comment_detail,app.google_category,app.extend_info,app.status,app.releaseTime
                 from appbox_app as app
                 where app.package_name='$packageName' and app.language='{$this->language}'";
 				

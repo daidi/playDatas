@@ -306,7 +306,7 @@ class OtherModel extends Db_Base
         //echo $sql;
         //print_r($maxVersionCode);
         if($maxVersionCode['id'] > $ver_code) {
-            $sql = "select * from appbox_rom where version=".$maxVersionCode['id']." and channel_id='$channelId'";
+            $sql = "select * from appbox_rom where version=".$maxVersionCode['id']." and status=1 and channel_id='$channelId' and package_name='$packageNameSelf'";
             $data = $this->_db->getRow($sql);
             $arr['data']['hasNew'] = true;
             $arr['data']['downloadUrl'] = $data['download_url'];

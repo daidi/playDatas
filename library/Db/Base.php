@@ -68,33 +68,32 @@ class Db_Base
     public function getAppsCategory($cid,$arr = array())
     {
         $this->redis->select(1);
-        $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where parent_id=$cid and status=1 and language='".$this->language."' order by sort asc";
+        $cSql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where parent_id=$cid and status=1 and language=";
+        $sql = $cSql."'".$this->language."' order by sort asc";
         $data = $this->_db->getAll($sql);
         if(!$data) {
-            $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where parent_id=$cid and status=1 and language='en' order by sort asc";
+            $sql = $cSql."'en' order by sort asc";
             $data = $this->_db->getAll($sql);
         }
-        if(!$data)
-        {
+        if(!$data){
             return $arr;
         }
-        foreach($data as $key=>$val)
-        {
+        foreach($data as $key=>$val){
             $val['typeName'] = htmlspecialchars_decode($val['typeName']);
             $arr[] = $val;
             $arr = $this->getAppsCategory($val['categoryId'],$arr);
         }
-        $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where category_id=$cid and status=1 and language='".$this->language."'";
+        $cSql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where category_id=$cid and status=1 and language=";
+        $sql = $cSql."'".$this->language."'";
         $tempData = $this->_db->getRow($sql);//获取本身
         if(!$tempData) {
-            $sql = "select alias_name as typeName,category_id as categoryId,bg as iconUrl from appbox_google_category where category_id=$cid and status=1 and language='en'";
+            $sql = $cSql."'en'";
             $tempData = $this->_db->getRow($sql);//获取本身
             $tempData['typeName'] = htmlspecialchars_decode($tempData['typeName']);
         }
         $self[] = $tempData;
         $data = array_merge($self,$arr);
-        if($data && !empty($data))//缓存到redis
-        {
+        if($data && !empty($data)){
             $this->redis->set('appbox_categorys_'.$this->language.'_'.$cid,json_encode($data));
             $this->redis->expire('appbox_categorys_'.$this->language.'_'.$cid,$this->expire);
         }        
@@ -226,12 +225,9 @@ class Db_Base
         $count = $this->_db->getRow($sql);
         //echo ($page+1)*$num;exit;
         //echo $count['num'];
-        if(($page+1)*$num >= $count['num'])//如果当前页数乘以每页条数加1大于总条数
-        {
+        if(($page+1)*$num >= $count['num']){//如果当前页数乘以每页条数加1大于总条数
             $hasNextPage = false;//没有分页了        
-        }
-        else
-        {
+        } else {
             $hasNextPage = true;//还有分页
         }
         return $hasNextPage;            

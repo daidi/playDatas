@@ -196,18 +196,15 @@ class AppsModel extends RedisModel
     public function getDetailJson($packageName,$language = '')
     {
 		$language && $this->language = $language;
-		
         $this->redis->select(7);
         if ($data = $this->redis->get('appboxD_' . $packageName . '_' . $this->language)) {
             return $data;
         } else {
             $arr = array('status' => 1);
             $sql = "
-                select app.package_id,app.package_name as packageName,app.comment_nums as commentCounts,app.app_name as name,app.icon as iconUrl,app.current_version as versionName,app.
-                echo $sql;exit; as downloadCount,app.updated as lastUpdateTime,app.score as rate,app.size,app.hateCount as treadCount,app.likeCount as praiseCount,app.desc as description,app.price as paymentAmount,app.screen_shots,app.comment_detail,app.google_category,app.extend_info,app.status,app.releaseTime
+                select app.package_id,app.package_name as packageName,app.comment_nums as commentCounts,app.app_name as name,app.icon as iconUrl,app.current_version as versionName,app.install_avarage as downloadCount,app.updated as lastUpdateTime,app.score as rate,app.size,app.hateCount as treadCount,app.likeCount as praiseCount,app.desc as description,app.price as paymentAmount,app.screen_shots,app.comment_detail,app.google_category,app.extend_info,app.status,app.releaseTime
                 from appbox_app as app
                 where app.package_name='$packageName' and app.language='{$this->language}'";
-				
             $data = $this->_db->getRow($sql);
             if ($data) {
                 

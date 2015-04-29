@@ -146,7 +146,7 @@ class SpreaddayilyModel extends RedisModel
         $data = $this->_db->getAll($sql);
         foreach($data as $key=>$val){
             $title = json_decode(htmlspecialchars_decode($val['title']),true);
-            $data[$key]['title'] = $title[$this->language];
+            $data[$key]['title'] = isset($title[$this->language]) && !empty($title[$this->language]) ? $title[$this->language] : $title['en'];
         }
         return $data;
     }

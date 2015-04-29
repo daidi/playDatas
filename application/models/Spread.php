@@ -65,8 +65,7 @@ class SpreadModel extends RedisModel
     }
 
     //专题详情
-    public function getDetailJson($id,$page='')
-    {
+    public function getDetailJson($id,$page=''){
         $this->page = isset($page) && $page ? (int)$page : 0;
         $arr = array();
         $arr['status'] = 1;
@@ -101,17 +100,9 @@ class SpreadModel extends RedisModel
         $sql = "select releaseTime,id,name,description from appbox_spread where id=$id";
         $data = $this->_db->getRow($sql);
         if($data){
-            //从redis中获取数据
-            $this->redis->select(5);
-            $key = 'appboxsDL_'.$this->language.'_'.$this->page.'_'.$id.'_'.$this->ver_code;
-            if($redis_datas = $this->redis->get($key)) {
-                $this->_parseEtags($redis_datas,$this->page);//查询此页缓存是否有更新
-                $redisArr = $this->getSpreadDetailRedis($redis_datas);
-                $arr['data'] = $redisArr;
-                $arr['dataRedis'] = 'from redis';
-                return json_encode($arr);
-            }
-            //此专题数据在第一页的时候重新获取一次用于填充
+
+
+            //此专题数据在第一页的时候重新获取一次用于填充,原专题单独发送标题及删除了process_type
             $firstData = array();
             if($this->page == 0){
                 //获取名称和描述
@@ -124,10 +115,21 @@ class SpreadModel extends RedisModel
                     unset($datas['view'][$key]['processType']);
                 }
                 $firstData[] = $datas;                
-            }            
+            }   
+
+            //从redis中获取数据
+            $this->redis->select(5);
+            $key = 'appboxsDL_'.$this->language.'_'.$this->page.'_'.$id.'_'.$this->ver_code;
+            if($redis_datas = $this->redis->get($key)) {
+                $this->_parseEtags($redis_datas,$this->page);//查询此页缓存是否有更新
+                $redisArr = $this->getSpreadDetailRedis($redis_datas);
+                $redisArr = array_merge($firstData,$redisArr);
+                $arr['data'] = $redisArr;
+                $arr['dataRedis'] = 'from redis';
+                return json_encode($arr);
+            }         
 
             //当前专题里所有的信息，从mysql中获取数据
-            $arr['data'] = $firstData;
             $sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id asc limit $page,".$this->pageNum;
             $spreadList = $this->_db->getAll($sql);
             if(!$spreadList) return json_encode(array('status'=>$this->is_true));
@@ -136,10 +138,10 @@ class SpreadModel extends RedisModel
                 if($temp)
                     $arr['data'][] = $temp;
             }
-            
             if($arr['data'] && !empty($arr['data'])) {//设置缓存
                 $this->setSpreadDetailRedis($arr['data'],$id);                
             }
+            $arr['data'] = array_merge($firstData,$arr['data']);
             return json_encode($arr);
         } else {
             return json_encode(array('status'=>$this->is_true));

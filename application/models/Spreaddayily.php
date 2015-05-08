@@ -2,7 +2,7 @@
 class SpreaddayilyModel extends RedisModel
 {
     public $ver_code;
-    public $pageNum = 25;
+    public $pageNum = 100;
     public $expire = '1800';
     public function __construct($language='') 
     {
@@ -16,8 +16,7 @@ class SpreaddayilyModel extends RedisModel
      * @date 2014/12/20 11:11
      * @return string
      */
-    public function getJson($page='',$templateUpdateTime=0)
-    {
+    public function getJson($page='',$templateUpdateTime=0){
         $this->ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : 8;//获取版本号
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
@@ -37,12 +36,12 @@ class SpreaddayilyModel extends RedisModel
             $this->_parseEtags($redis_data,$this->page);//从查询第一页缓存是否有更新
             $myData = json_decode($redis_data,true);
             array_pop($myData);//删除数组最后一个元素，即设置的etag缓存时间
+            if($this->page == 0) $arr['banner'] = $banner ? json_decode($banner,true) : $this->getNav();
             $arr['data'] = $myData;
             $banner = $this->redis->get($bannerKeys);
-            $arr['banner'] = $banner ? json_decode($banner,true) : $this->getNav();
             $arr['dataRedis'] = 'from redis';
         } else {
-            $arr['banner'] = $this->getNav();//获取导航顺序列表
+            if($this->page == 0) $arr['banner'] = $this->getNav();//获取导航顺序列表
             $spread = $this->getList($page,'is_jx');
             if(!$spread) return json_encode(array('status'=>$this->is_true));
             foreach($spread as $key=>$val) {//将精选推入到数组

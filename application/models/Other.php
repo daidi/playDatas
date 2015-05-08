@@ -28,9 +28,7 @@ class OtherModel extends Db_Base
                 $this->redis->getSet('appboxD_' . $packageName . '_' . $this->language,json_encode($dataArr));
             }
             return array('status'=>1,'info'=>'设置成功！');
-        }
-        else
-        {
+        } else {
             return array('status'=>0,'info'=>'设置失败！');
         }
     }
@@ -250,13 +248,14 @@ class OtherModel extends Db_Base
         //自定义关键词
         $sql = "select keywords from appbox_keywords where status=1 order by sort desc";
         $data = $this->_db->getAll($sql);
-        if(!$data) return json_encode(array('status'=>$this->is_true));
-        $temp = array();
-        foreach($data as $key=>$val)
-        {
-            $temp[] = $val['keywords'];
+        //if(!$data) return json_encode(array('status'=>$this->is_true));
+        if($data){
+            $temp = array();
+            foreach($data as $key=>$val){
+                $temp[] = $val['keywords'];
+            }
+            $arr['data'] = $temp;            
         }
-        $arr['data'] = $temp;
         //从googleplay抓取过来的关键词
         $this->redis->select(0);
         if(!$this->redis->exists('appbox_keywords')) {

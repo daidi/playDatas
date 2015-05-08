@@ -11,8 +11,7 @@ class AppsModel extends RedisModel
     protected $where = 'where';//传递过来的条件
     protected $templateType = 1;//模板类型。1：应用/游戏模板，2下载排行模板，3评分排行模板，4专题模板，5礼包模板,6URL模板
 
-    public function __construct($category = '', $is_game = '', $pos = '', $order = '', $language = '', $cid = '', $where = '',$templateType='')
-    {
+    public function __construct($category = '', $is_game = '', $pos = '', $order = '', $language = '', $cid = '', $where = '',$templateType=''){
         parent::__construct();
         //$this->redis->flushall();exit;
         $this->category = isset($category) && $category ? $category : $this->category;
@@ -388,8 +387,7 @@ class AppsModel extends RedisModel
     }
 
     //点击应用进入详情，更新缓存
-    public function updateRedis($redisData,$data)
-    {
+    public function updateRedis($redisData,$data){
         if($redisData['name'] != $data['name'] || $redisData['downloadCount'] != $data['downloadCount'] || $redisData['rate'] != $data['rate']) {//如果评分，下载量，名称有改变，则更新缓存
             $this->redis->select(8);
             $is_delete_app = $this->redis->delete($this->redis->keys('appboxL_'.$data['package_id'].'_*'));

@@ -13,10 +13,8 @@ class OtherModel extends Db_Base
     /**
     * 赞或者啋
     */
-    public function handleLike($sql,$packageName)
-    {
-        if($this->_db->query($sql))
-        {
+    public function handleLike($sql,$packageName,$cancel,$field){
+        if($this->_db->query($sql)){
             $this->redis->select(7);
             if($jsonData = $this->redis->get('appboxD_' . $packageName . '_' . $this->language)) {//重置赞啋数
                 $dataArr = json_decode($jsonData,true);
@@ -27,6 +25,7 @@ class OtherModel extends Db_Base
                 $dataArr['data']['praiseCount'] = $count['likeCount'];
                 $this->redis->getSet('appboxD_' . $packageName . '_' . $this->language,json_encode($dataArr));
             }
+            $this->_parseMonth($packageName,$cancel,$field);//点赞，点啋一个月统计一次
             return array('status'=>1,'info'=>'设置成功！');
         } else {
             return array('status'=>0,'info'=>'设置失败！');
@@ -342,5 +341,28 @@ class OtherModel extends Db_Base
         $arr['status'] = 1;
         $arr['notice']['news'][] = $news;
         return json_encode($arr);
+    }
+
+    /**
+    *   对每月的每个应用点赞，点啋进行统计
+    *   @param $packageName string 包名 
+    *   @param $cancel int 加1还是减一
+    *   @param $field 要操作的字段
+    */
+    public function _parseMonth($packageName,$cancel,$field){
+        $month = date('Y').date('m');
+        $where = " where package_name='$packageName' and month=$month";
+        $sql = "select count(*) as num from appbox_app_month $where";
+        $num = $this->_db->getRow($sql);
+        if(!$num['num']){//如果本地记录不存在
+            $sql = "insert into appbox_app_month (package_name,likeCount,hateCount,month,add_time) values('$packageName',0,0,'$month',".time().")";
+            $this->_db->query($sql);
+        }
+        if($cancel){//如果取消点赞
+            $sql = "update appbox_app_month set $field=$field-1 $where";
+        } else {
+            $sql = "update appbox_app_month set $field=$field+1 $where";
+        }
+        $this->_db->query($sql);   
     }
 }

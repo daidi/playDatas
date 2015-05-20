@@ -116,7 +116,7 @@ class OtherModel extends Db_Base
         $currentTime = time();
         $arr['currentTime'] = $currentTime;
         $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
-        $cSql = "select typeId from appbox_announce where status=1 and releaseTime>";
+        //$cSql = "select typeId from appbox_announce where status=1 and releaseTime>";
         foreach($timeArr as $key=>$val){
             $sql = $cSql."$val and ";
             switch($key){
@@ -339,6 +339,7 @@ class OtherModel extends Db_Base
         $first = array_shift($data);
         $news = array('title'=>$first['title'],'imageUrl'=>$first['logo'],'newsUrl'=>$first['url'],'content'=>$first['source']);
         $arr['status'] = 1;
+        $arr['currentTime'] = time();
         $arr['notice']['news'][] = $news;
         return json_encode($arr);
     }

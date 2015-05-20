@@ -268,21 +268,23 @@ class Db_Base
     *   @param $language string 语言
     *   @return array
     */
-    public function getAppDetail($releaseTime, $packageId, $templateType)
-    {
-        $template = $this->getSelfTemplate($releaseTime, $templateType);//获取与其时间对应的模板
+    public function getAppDetail($releaseTime, $packageId, $templatePos = ''){
+        $templatePos = isset($templatePos) && $templatePos ? $templatePos : 1;
+        $template = $this->getSelfTemplate($releaseTime, $templatePos);//获取与其时间对应的模板
         if ($template) {//如果模板存在
             $field = $this->getField($template['id'],'app');//取出与其对应模板的内容
             $app = $this->getApp($packageId,$field['field'],$this->language);//获取这条app的内容
             if($app) {
                 $haveGift = $this->haveGift($app['package_name']);
                 $app['app_name'] = htmlspecialchars_decode($app['app_name']);
+                $app['desc'] = htmlspecialchars_decode($app['desc']);
                 
                 $app['icon'] = $this->getGooglePic($app['icon']);
                 //json格式中的view
                 $view = $this->getView($field['data'],$app);
                 //json格式中的extraData
-                $extraData = array('appId'=>$packageId,'packageName'=>$app['package_name'],'market_url'=>$this->url.$app['package_name'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'download_count'=>$app['install_count'],'templateId'=>$template['id'],'haveGift'=>$haveGift);
+                $extraData = array('appId'=>$packageId,'packageName'=>$app['package_name'],'market_url'=>$this->url.$app['package_name'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'downloadCount'=>$app['install_count'],'templateId'=>$template['id'],'haveGift'=>$haveGift,'iconUrl'=>$app['icon'],
+                    'appName'=>$app['app_name'],'rateScore'=>$app['score']);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
                 return $datas;
@@ -298,9 +300,9 @@ class Db_Base
     *   @param $newsId int 新闻id
     *   @return array
     */
-    public function getNewsDetail($releaseTime, $newsId)
-    {
-        $template = $this->getSelfTemplate($releaseTime, 14);//获取与其时间对应的模板
+    public function getNewsDetail($releaseTime, $newsId,$templatePos = ''){
+        $templatePos = isset($templatePos) && $templatePos ? $templatePos : 14;
+        $template = $this->getSelfTemplate($releaseTime, $templatePos);//获取与其时间对应的模板
         if ($template) {//如果模板存在
             $field = $this->getNewsField($template['id'],'news');//取出与其对应模板的内容
             $news = $this->getNews($newsId,$field['field']);//获取这条app的内容
@@ -420,8 +422,9 @@ class Db_Base
      *   @internal param array $templae 模板内容
      *   @return array
      */
-    public function getGiftDetail($releaseTime, $giftId)
+    public function getGiftDetail($releaseTime, $giftId,$templatePos = '')
     {
+        $templatePos = isset($templatePos) && $templatePos ? $templatePos : 5;
         $template = $this->getSelfTemplate($releaseTime, 5);//获取与其时间对应的模板
         if ($template) {//如果模板存在
             $field = $this->getGiftField($template['id']);//取出与其对应模板的内容
@@ -475,9 +478,10 @@ class Db_Base
         return $data;
     }
 
-    public function getUrlDetail($releaseTime,$urlId,$type='appbox_spread_url')
+    public function getUrlDetail($releaseTime,$urlId,$type='appbox_spread_url',$templatePos = '')
     {
-        $template = $this->getSelfTemplate($releaseTime,6);//获取与其时间对应的模板  
+        $templatePos = isset($templatePos) && $templatePos ? $templatePos : 6;
+        $template = $this->getSelfTemplate($releaseTime,$templatePos);//获取与其时间对应的模板  
         if($template) {
             $field = $this->getField($template['id'],'url');
             $url = $this->getUrl($urlId,$field['field'],$type,$this->language);
@@ -531,9 +535,9 @@ class Db_Base
     *   @param int $ver_code 版本号
     *   @return  array
     */
-    public function getSpreadDetail($releaseTime, $spreadId,$ver_code = '')
+    public function getSpreadDetail($releaseTime, $spreadId,$templatePos = '')
     {
-        $templatePos = $ver_code > 11 ? 17 : 4;
+        $templatePos = isset($templatePos) && $templatePos ? $templatePos : 4;
         $template = $this->getSelfTemplate($releaseTime,$templatePos);//获取与其时间对应的模板
         if ($template) {//如果模板存在
             $field = $this->getField($template['id'],'spread');//取出与其对应模板的内容

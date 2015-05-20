@@ -376,7 +376,7 @@ class AppsModel extends RedisModel
                     unset($temp);
                 }
             }        
-        } else {
+        } else {//去googleplay把所有的数据抓取出来
             $url = 'http://play.mobappbox.com/index.php?m=Admin&c=Api&a=searchApp&keywords='.$keywords.'&language='.$this->language;
             $datas = file_get_contents($url);
             $datas = $this->matchTemplate(json_decode($datas,true));

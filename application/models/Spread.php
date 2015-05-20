@@ -100,8 +100,6 @@ class SpreadModel extends RedisModel
         $sql = "select releaseTime,id,name,description from appbox_spread where id=$id";
         $data = $this->_db->getRow($sql);
         if($data){
-
-
             //此专题数据在第一页的时候重新获取一次用于填充,原专题单独发送标题及删除了process_type
             $firstData = array();
             if($this->page == 0){
@@ -110,7 +108,7 @@ class SpreadModel extends RedisModel
                 $json_description = json_decode(htmlspecialchars_decode($data['description']),true);
                 $arr['title'] = $json_title[$this->language];
                 $arr['description'] = $json_description[$this->language];
-                $datas = $this->getSpreadDetail($data['releaseTime'],$data['id'],$this->ver_code);
+                $datas = $this->getSpreadDetail($data['releaseTime'],$data['id'],17);
                 foreach($datas['view'] as $key=>$val){
                     unset($datas['view'][$key]['processType']);
                 }
@@ -274,7 +272,14 @@ class SpreadModel extends RedisModel
         }
     }
 
-    public function parseType($val,$table='appbox_spread_url'){
+    /**
+    *   解析专题中的各种类型，返回解析好的xml数据
+    *   @param $val array 类型
+    *   @param $table 操作appbox_spread_url表还是appbox_spread_banner表
+    *   @param $templatePos 携带的模板地址
+    *   @return array
+    */
+    public function parseType($val,$table='appbox_spread_url',$templatePos = ''){
         $arr = array();
         switch($val['type'])
         {
@@ -299,7 +304,7 @@ class SpreadModel extends RedisModel
                      $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='en'";
                      $app = $this->_db->getRow($sql);                    
                  }
-                 $tempArr = $this->getAppDetail($app['releaseTime'],$val['typeId'],1);
+                 $tempArr = $this->getAppDetail($app['releaseTime'],$val['typeId'],$templatePos);
                  if($tempArr)
                     $arr = $tempArr;
                 break;
@@ -313,7 +318,7 @@ class SpreadModel extends RedisModel
             case 'spread':
                 $sql = "select releaseTime from appbox_spread where id={$val['typeId']}";
                 $spread = $this->_db->getRow($sql);
-                $tempArr = $this->getSpreadDetail($spread['releaseTime'],$val['typeId']);
+                $tempArr = $this->getSpreadDetail($spread['releaseTime'],$val['typeId'],$templatePos);
                 if($tempArr)
                     $arr=$tempArr;
                 break;

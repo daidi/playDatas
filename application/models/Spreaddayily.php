@@ -165,7 +165,10 @@ class SpreaddayilyModel extends RedisModel
     *   @return array
     */
     public function getDetailJson($id,$nums,$templatePos = ''){
-        $sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id asc limit ".$nums;
+        //$sql = "select list.* from appbox_spread_list as list left join appbox_app as app on ";
+        //$sql .= "app.package_id=list.typeId and app.language='{$this->language}' ";
+        //$sql .= "where list.spreadId=$id and app.status!=0 order by list.sort desc,list.id asc limit ".$nums;
+        $sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id desc limit ".$nums;
         $data = $this->_db->getAll($sql);
         $spread_mod = new SpreadModel($this->language);
         foreach($data as $key=>$val){

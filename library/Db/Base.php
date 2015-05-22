@@ -22,10 +22,8 @@ class Db_Base
         $language = isset($_GET['language']) && $_GET['language'] ? $_GET['language'] : 'en';
         $sql = "select status from appbox_app_language where flag='".$language."' and status=1";
         $status = $this->_db->getRow($sql);
-        if(!$status['status'])
-            $this->language='en';
-        else
-            $this->language = $language;
+        if(!$status['status']) $this->language='en';
+        else $this->language = $language;
         //使用redis缓存
         $this->redis = new Redis();
         $this->redis->connect('127.0.0.1',6379);
@@ -37,7 +35,6 @@ class Db_Base
     */
     public function getTemplate($templateUpdateTime = '')
     {
-
         $sql = "select templateUpdateTime from appbox_template";
         $time = $this->_db->getRow($sql);//如果时间和原来的时间不一致，则把所有模板再次进行发放
         if($time['templateUpdateTime'] != $templateUpdateTime && $time)
@@ -239,7 +236,7 @@ class Db_Base
     */
     public function getApp($packageId,$field,$language)
     {
-        $cSql = "select $field,app.package_name
+        $cSql = "select $field,app.package_name,app.status
                     from appbox_app as app
                     where app.package_id=$packageId and app.language=";
         $sql = $cSql."'{$language}'";
@@ -269,12 +266,12 @@ class Db_Base
     *   @return array
     */
     public function getAppDetail($releaseTime, $packageId, $templatePos = ''){
-        $templatePos = isset($templatePos) && $templatePos ? $templatePos : 1;
+        $templatePos = isset($templatePos) && $templatePos ? $templatePos : ($this->ver_code >= 15 ? 21 : 1);
         $template = $this->getSelfTemplate($releaseTime, $templatePos);//获取与其时间对应的模板
         if ($template) {//如果模板存在
             $field = $this->getField($template['id'],'app');//取出与其对应模板的内容
             $app = $this->getApp($packageId,$field['field'],$this->language);//获取这条app的内容
-            if($app) {
+            if($app && $app['status']) {
                 $haveGift = $this->haveGift($app['package_name']);
                 $app['app_name'] = htmlspecialchars_decode($app['app_name']);
                 $app['desc'] = htmlspecialchars_decode($app['desc']);

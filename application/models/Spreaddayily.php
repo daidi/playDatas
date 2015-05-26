@@ -61,7 +61,6 @@ class SpreaddayilyModel extends RedisModel
                         if($tempData) $arr['data'][] = $tempData;
                     }                
             }
-
             if($arr['data']){//推入缓存中
                 $this->redis->select(5);
                 $time = time();

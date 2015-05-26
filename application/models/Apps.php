@@ -108,15 +108,6 @@ class AppsModel extends RedisModel {
         return json_encode($arr);
     }
 
-    function test() {
-        echo 111;
-        if (1 == 1) {
-            echo 111;
-        } else {
-            echo 222;
-        }
-    }
-
     /*
      * 获取应用
      */
@@ -211,12 +202,13 @@ class AppsModel extends RedisModel {
                 where app.package_name='$packageName' and app.language='{$this->language}'";
             $data = $this->_db->getRow($sql);
             if ($data) {
+                /*
                 if (time() - $data['releaseTime'] >= 86400) {//检查更新，如果更新时间大于一天，则去更新应用,重新获取数据
                     file_get_contents('http://play.mobappbox.com/index.php?m=Admin&c=Application&a=getAppInfo&flag=1&language=' . $this->language . '&package_name=' . $packageName);
                     $redisData = $data;
                     $data = $this->_db->getRow($sql);
                     $this->updateRedis($redisData, $data);//更新缓存
-                }
+                }*/
                 $data['iconUrl'] = $this->getGooglePic($data['iconUrl']);
                 $data['description'] = htmlspecialchars_decode($data['description']);
                 $data['name'] = htmlspecialchars_decode($data['name']);

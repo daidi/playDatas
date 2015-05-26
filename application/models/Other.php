@@ -37,6 +37,8 @@ class OtherModel extends Db_Base
     */
     public function getUpdate($giftUpdateTime,$spreadUpdateTime,$dayilyUpdateTime,$ver_code)
     {
+        return json_decode(array('status'=>0));
+
         if(!$ver_code) {
             echo '参数错误！';exit;
         }
@@ -104,14 +106,14 @@ class OtherModel extends Db_Base
 
         //检查自身版本是后否有更新
         $arr['appUpdate'] = $this->getVersion();
-     
         return json_encode($arr);
-    }    
+    } 
 
     /**
     *   是否更新 9版本之后的更新通知接口
     */
     public function getAnnounce($timeArr,$ver_code){
+        return json_decode(array('status'=>0));
         $arr = array('status'=>1,'updateTime'=>'60 6:00;12:00;18:00');//返回的json
         $currentTime = time();
         $arr['currentTime'] = $currentTime;

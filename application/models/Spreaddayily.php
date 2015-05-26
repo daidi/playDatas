@@ -201,8 +201,8 @@ class SpreaddayilyModel extends RedisModel
         $datas['subject_id'] = $arr['id'];
         $datas['subjectImage'] = $arr['img'];
         $datas['imgWidth'] = $arr['imgWidth'];
-        $datas['imgHeight'] = $arr['imgHeight'];
-        $datas['columnNum'] = $arr['show_mode_num'];
+        $datas['imgHeight'] = $arr['imgHeight'];//展示模式
+        $datas['columnNum'] = $arr['show_mode_num'];//每行展示个数
         $name = json_decode(htmlspecialchars_decode($arr['name']),true);
         $datas['subject_title'] = $name[$this->language];
         $datas['status'] = 'expand';
@@ -216,6 +216,7 @@ class SpreaddayilyModel extends RedisModel
                     break;
                 case 3:
                     $datas['layoutType'] = 'no_gap';
+                    $datas['columnNum'] = 1;//当为展示形式三的情况下，每行展示个数固定为1
                     $data = $this->getDetailJson($arr['id'],$arr['expand']);//头部一张图片，跟着几个item形式
                     foreach($data as $key=>$val){
                         if(isset($val['extraData']['giftId'])){

@@ -287,7 +287,8 @@ class GiftsModel extends RedisModel
 
 /**
 *   循环获取礼包
-*
+* @param $p int 传递过来的页数
+* @return array
 */
     public function getCircleGift($p){
         $arr['status'] = 1;
@@ -304,7 +305,7 @@ class GiftsModel extends RedisModel
             $csql .= "appbox_app as app,appbox_gift_desc as descs ";
             $sql = $csql."where descs.gid={$v['id']} and  app.package_id={$v['package_id']} and app.language='".$this->language."' and descs.language='".$this->language."' ";//查找符合情况对应语言的数据
             $matchData = $this->_db->getRow($sql);
-            if(!$matchData && $this->language != 'en'){//取默认语言英语的
+            if(!$matchData && $this->language != 'en'){//取默认语言英语
                 $sql = $csql."where descs.gid={$v['id']} and  app.package_id={$v['package_id']} and app.language='en' and descs.language='en' ";
                 $matchData = $this->_db->getRow($sql);
                 if(!$matchData){//如果没有英语的话则随便产生一条
@@ -312,19 +313,14 @@ class GiftsModel extends RedisModel
                     $matchData = $this->_db->getRow($sql);
                 }
             }
-            
             $arr['data'][$k]['package_id'] = $v['package_id'];
             $arr['data'][$k]['packageName'] = $v['packageName'];
             $arr['data'][$k]['downloadCount'] = $v['downloadCount'];
             $arr['data'][$k]['rate'] = $matchData['rate'];
             $arr['data'][$k]['name'] = $matchData['name'];
             $arr['data'][$k]['description'] = $matchData['description'];
-            
-			//-----------------------------------20150423修改部分----------------------------------
 			//$arr['data'][$k]['iconUrl'] = $matchData['iconUrl'];
 			$arr['data'][$k]['iconUrl'] = $this->getGooglePic($matchData['iconUrl']);
-			//-----------------------------------20150423修改部分----------------------------------
-
         }
         /*
 

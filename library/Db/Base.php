@@ -11,7 +11,7 @@ class Db_Base
     protected $pageNum = 10;
     protected $ver_code = 8;
 
-	public function __construct() 
+	public function __construct()
 	{
         error_reporting(E_ERROR);
 		$this->_db = Yaf_Registry::get("Db");
@@ -38,7 +38,7 @@ class Db_Base
         $sql = "select templateUpdateTime from appbox_template";
         $time = $this->_db->getRow($sql);//如果时间和原来的时间不一致，则把所有模板再次进行发放
         if($time['templateUpdateTime'] != $templateUpdateTime && $time)
-        { 
+        {
             $return = array();
             //应用查出最新的模板 
             $sql = "select id,templateName,releaseTime,templateUpdateTime,content from appbox_template order by releaseTime desc";
@@ -51,7 +51,7 @@ class Db_Base
                 $data[$key]['content'] = preg_replace("/\s+/"," ",$data[$key]['content']);//替换空格，也可以不开启
                 $return['template'][$val['templateName']] = $data[$key]['content'];
             }
-            return $return;  
+            return $return;
         }
         else
         {
@@ -93,9 +93,9 @@ class Db_Base
         if($data && !empty($data)){
             $this->redis->set('appbox_categorys_'.$this->language.'_'.$cid,json_encode($data));
             $this->redis->expire('appbox_categorys_'.$this->language.'_'.$cid,$this->expire);
-        }        
+        }
         return $data;
-    }	
+    }
 
     /**
     *   1、获取对应模板里的所有数据
@@ -123,7 +123,7 @@ class Db_Base
         unset($tempArr);
         $field = trim($field,',');
         $arr['field'] = $field;
-        return $arr;    
+        return $arr;
     }
 /**
 *   json格式中的view
@@ -144,7 +144,7 @@ class Db_Base
             }
             $view[$v['name']] = $tempArr;
         }
-        return $view;        
+        return $view;
     }
 
     /**
@@ -157,7 +157,7 @@ class Db_Base
     public function getSelfTemplate($releaseTime,$type)
     {
         $sql = "select id,templateName,downIcon as downIconUrl,openIcon as openIconUrl from appbox_template where $releaseTime < releaseTime and type=$type order by releaseTime asc";
-        return $this->_db->getRow($sql);        
+        return $this->_db->getRow($sql);
     }
 
     public function getMytemplate($id){
@@ -199,7 +199,7 @@ class Db_Base
                             $app = $this->_db->getRow($sql);
                             $data[$key]['packageName'] = $app['packageName'];
                             break;
-                    }                    
+                    }
                 }
             }
         }
@@ -227,7 +227,7 @@ class Db_Base
         } else {
             $hasNextPage = true;//还有分页
         }
-        return $hasNextPage;            
+        return $hasNextPage;
     }
 
 
@@ -275,7 +275,7 @@ class Db_Base
                 $haveGift = $this->haveGift($app['package_name']);
                 $app['app_name'] = htmlspecialchars_decode($app['app_name']);
                 $app['desc'] = htmlspecialchars_decode($app['desc']);
-                
+
                 $app['icon'] = $this->getGooglePic($app['icon']);
                 //json格式中的view
                 $view = $this->getView($field['data'],$app);
@@ -288,7 +288,7 @@ class Db_Base
             }
             return false;
         }
-        return false;         
+        return false;
     }
 
     /**
@@ -314,7 +314,7 @@ class Db_Base
             }
             return false;
         }
-        return false;   
+        return false;
     }
 
     /**
@@ -357,7 +357,7 @@ class Db_Base
         unset($tempArr);
         $field = trim($field,',');
         $arr['field'] = $field;
-        return $arr;     
+        return $arr;
     }
 
     /**
@@ -408,7 +408,7 @@ class Db_Base
         unset($tempArr);
         $field = trim($field,',');
         $arr['field'] = $field;
-        return $arr;    
+        return $arr;
     }
 
     /**
@@ -440,7 +440,7 @@ class Db_Base
                 $extraData = array('giftId'=>$giftId,'appId'=>$gift['appId'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'download_count'=>$gift['install_count'],'acquireTime'=>$gift['get_count'],'isHot'=>$is_hot,'isNew'=>$is_new,'pkg_name'=>$gift['package_name']);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
-                return $datas;            
+                return $datas;
             }
             return false;
         }
@@ -465,7 +465,7 @@ class Db_Base
         $sql = "select $field,url.imgHeight,url.imgWidth
                     from $type as url
                     where url.id=$id";
-        $data = $this->_db->getRow($sql);    
+        $data = $this->_db->getRow($sql);
         if(isset($data['content']) && $data['content'])
         {
             $arr = json_decode($data['content'],true);
@@ -477,8 +477,18 @@ class Db_Base
 
     public function getUrlDetail($releaseTime,$urlId,$type='appbox_spread_url',$templatePos = '')
     {
+        if($type == 'appbox_spread_url' && $this->ver_code >= 15){//在版本15增加了文字分隔线
+            $sql = "select content from appbox_spread_url where id=$urlId";
+            $data = $this->_db->getRow($sql);
+            if($data){
+                $content = json_decode($data['content'],true);
+                if($content['en'] || $content['zh-chs']){
+                    $templatePos = 24;
+                }
+            }
+        }
         $templatePos = isset($templatePos) && $templatePos ? $templatePos : 6;
-        $template = $this->getSelfTemplate($releaseTime,$templatePos);//获取与其时间对应的模板  
+        $template = $this->getSelfTemplate($releaseTime,$templatePos);//获取与其时间对应的模板
         if($template) {
             $field = $this->getField($template['id'],'url');
             $url = $this->getUrl($urlId,$field['field'],$type,$this->language);
@@ -489,10 +499,10 @@ class Db_Base
                 $extraData = array('urlId'=>$urlId,'url'=>$url['url'],'downIconUrl'=>$template['downIconUrl'],'openIconUrl'=>$template['openIconUrl'],'imgWidth'=>$url['imgWidth'],'imgHeight'=>$url['imgHeight'],'imageUrl'=>$url['banner']);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
-                return $datas; 
+                return $datas;
             }
             return false;
-        }      
+        }
         return false;
     }
 
@@ -546,7 +556,7 @@ class Db_Base
                 $extraData = array('spreadId'=>$spreadId,'imgWidth'=>$spread['imgWidth'],'imgHeight'=>$spread['imgHeight'],'added_time'=>$releaseTime);
                 //合成一条app数据
                 $datas = array('xmlType'=>$template['templateName'],'view'=>$view,'extraData'=>$extraData);
-                return $datas;           
+                return $datas;
             }
             return false;
         }
@@ -623,7 +633,7 @@ class Db_Base
             $tempArr['extraData']['processType'] = 114;
             $tempArr['extraData']['images'] = $extraData;
             $return[] = $tempArr;
-            return $return;        
+            return $return;
         } else {
             return false;
         }
@@ -636,8 +646,8 @@ class Db_Base
     public function _parseEtags($data,$page,$keys = false){
         if($page === 0){
            date_default_timezone_set('PRC');
-           header('Cache-Control: max-age=86400,must-revalidate'); 
-           header('Last-Modified: ' .gmdate('D, d M Y H:i:s') . ' GMT' ); 
+           header('Cache-Control: max-age=86400,must-revalidate');
+           header('Last-Modified: ' .gmdate('D, d M Y H:i:s') . ' GMT' );
            header('Expires: ' .gmdate ('D, d M Y H:i:s', time() + '86400' ). ' GMT');
            if($keys){
                 $key = $keys;
@@ -645,12 +655,12 @@ class Db_Base
                 $data = json_decode($data);
                 $key = array_pop($data);
            }
-            if (isset($_SERVER['HTTP_IF_NONE_MATCH'])  && $_SERVER['HTTP_IF_NONE_MATCH'] == $key){ 
-                  header("Etag:".$key,true,304); 
-                  exit; 
-            } else {  
-               header("Etag:".$key); 
-            }            
+            if (isset($_SERVER['HTTP_IF_NONE_MATCH'])  && $_SERVER['HTTP_IF_NONE_MATCH'] == $key){
+                  header("Etag:".$key,true,304);
+                  exit;
+            } else {
+               header("Etag:".$key);
+            }
         }
 
     }

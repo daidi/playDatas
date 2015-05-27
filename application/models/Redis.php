@@ -192,7 +192,7 @@ class RedisModel extends Db_Base
                 }
             } elseif (isset($val['extraData']['urlId'])) {
                 $this->redis->select(5);
-                $key = 'appboxU_u_'.$val['extraData']['urlId'].'_'.$this->language;//专题url详情
+                $key = 'appboxU_u_'.$val['extraData']['urlId'].'_'.$this->language.'_'.$this->ver_code;//专题url详情
                 $tempArr[] = $key;
                 if(!$this->redis->exists($key)) {
                     $this->redis->set($key,json_encode($val),$this->expire);

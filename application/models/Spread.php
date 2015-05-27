@@ -120,7 +120,6 @@ class SpreadModel extends RedisModel {
                 $arr['dataRedis'] = 'from redis';
                 return json_encode($arr);
             }
-
             //当前专题里所有的信息，从mysql中获取数据
             $sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id desc limit $page," . $this->pageNum;
             $spreadList = $this->_db->getAll($sql);

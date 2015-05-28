@@ -1,5 +1,6 @@
 <?php
 define("DS", '/');
+define("D",'appbox_');
 define("APP_PATH",  dirname(__FILE__).DS.'application'.DS);
 //define("APP_PATH",  realpath(dirname(__FILE__).DS.'..'.DS.'application'.DS));
 session_start(); 

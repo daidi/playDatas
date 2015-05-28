@@ -110,7 +110,6 @@ class OtherModel extends Db_Base {
         $currentTime = time();
         $arr['currentTime'] = $currentTime;
         $cSql = "select typeId from appbox_announce where status=1 and releaseTime<$currentTime and releaseTime>";
-        //$cSql = "select typeId from appbox_announce where status=1 and releaseTime>";
         foreach ($timeArr as $key => $val) {
             $sql = $cSql . "$val and ";
             switch ($key) {
@@ -265,6 +264,18 @@ class OtherModel extends Db_Base {
         return json_encode($arr);
     }
 
+    /**
+     * 在用户留言时，查找留言标签，以及建议的一句话
+     * @return string
+     */
+    public function sendFeedbackTag(){
+        $sql = "select id,name from ".D."feedback_tag where status=1 and language='{$this->language}'";
+        $tag['tag'] = $this->_db->getAll($sql);//标签
+        $sql = "select content from ".D."feedback_word where status=1 and language='{$this->language}'";
+        $word = $this->_db->getRow($sql);
+        $data = array_merge($tag,$word);
+        return json_encode($data);
+    }
     //意见反馈接口
     public function setFeedback() {
         $uuid = isset($_REQUEST['uuid']) ? $_REQUEST['uuid'] : '';
@@ -276,7 +287,6 @@ class OtherModel extends Db_Base {
         $ver_code = isset($_REQUEST['ver_code']) ? $_REQUEST['ver_code'] : '';
         $model = isset($_REQUEST['model']) ? $_REQUEST['model'] : '';
         $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
-
         if (!$uuid || !$feedback || !$language || !$country || !$android_version || !$manufacture || !$ver_code || !$model) {
             echo '参数错误！';
         }

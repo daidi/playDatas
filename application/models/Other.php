@@ -287,10 +287,19 @@ class OtherModel extends Db_Base {
         $ver_code = isset($_REQUEST['ver_code']) ? $_REQUEST['ver_code'] : '';
         $model = isset($_REQUEST['model']) ? $_REQUEST['model'] : '';
         $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
+        $rating = isset($_REQUEST['rating']) ? $_REQUEST['rating'] : '';
+        $tag = isset($_REQUEST['tag']) ? $_REQUEST['tag'] : '';//选择的点击标签
         if (!$uuid || !$feedback || !$language || !$country || !$android_version || !$manufacture || !$ver_code || !$model) {
-            echo '参数错误！';
+            return json_encode(array('status'=>$this->is_true,'info'=>'参数错误'));
         }
-        $sql = "insert into appbox_feedback values('','$uuid','$email','$language','$country','$android_version','$ver_code','$manufacture','$model','" . time() . "','$feedback')";
+        if($tag){
+            $tagArr = explode(',',$tag);
+            foreach($tagArr as $val){
+                $sql = "update ".D."feedback_tag set click_num=click_num+1 where id=$val";
+                $this->_db->query($sql);
+            }
+        }
+        $sql = "insert into ".D."feedback values('','$uuid','$email','$language','$country','$android_version','$ver_code','$manufacture','$model','" . time() . "','$feedback','$rating')";
         $is_true = $this->_db->query($sql);
         if ($is_true) {
             return json_encode(array('info' => '留言成功！', 'status' => 1));

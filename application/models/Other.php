@@ -269,10 +269,14 @@ class OtherModel extends Db_Base {
      * @return string
      */
     public function sendFeedbackTag(){
-        $sql = "select id,name from ".D."feedback_tag where status=1 and language='{$this->language}'";
-        $tag['tag'] = $this->_db->getAll($sql);//标签
+        //标签
+        $sql = "select id,name from ".D."feedback_tag_content where  language='{$this->language}'";
+        $tag['tag'] = $this->_db->getAll($sql);
+        $tag['tag'] = $tag['tag'] ? $tag['tag'] : $this->_db->getAll("select id,name from ".D."feedback_tag_content where  language='en'");
+        //提示语
         $sql = "select content from ".D."feedback_word where status=1 and language='{$this->language}'";
         $word = $this->_db->getRow($sql);
+        $word = $word ? $word : $this->_db->getRow("select content from ".D."feedback_word where status=1 and language='en'");
         $data = array_merge($tag,$word);
         return json_encode($data);
     }
@@ -289,13 +293,18 @@ class OtherModel extends Db_Base {
         $email = isset($_REQUEST['email']) ? $_REQUEST['email'] : '';
         $rating = isset($_REQUEST['rating']) ? $_REQUEST['rating'] : '';
         $tag = isset($_REQUEST['tag']) ? $_REQUEST['tag'] : '';//选择的点击标签
-        if (!$uuid || !$feedback || !$language || !$country || !$android_version || !$manufacture || !$ver_code || !$model) {
+/*        if (!$uuid || !$feedback || !$language || !$country || !$android_version || !$manufacture || !$ver_code || !$model) {
             return json_encode(array('status'=>$this->is_true,'info'=>'参数错误'));
-        }
+        }*/
         if($tag){
             $tagArr = explode(',',$tag);
             foreach($tagArr as $val){
-                $sql = "update ".D."feedback_tag set click_num=click_num+1 where id=$val";
+                $pid = $this->_db->getRow("select pid from ".D."feedback_tag_content where id=$val");
+                //更改整组标签的点击数
+                $sql = "update ".D."feedback_tag set click_num=click_num+1 where id={$pid['pid']}";
+                $this->_db->query($sql);
+                //更改单个标签的点击数
+                $sql = "update ".D."feedback_tag_content set click_num=click_num+1 where id=$val";
                 $this->_db->query($sql);
             }
         }

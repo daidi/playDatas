@@ -259,7 +259,7 @@ class OtherModel extends Db_Base {
      */
     public function sendFeedbackTag(){
         //标签
-        $sql = "select id,name from ".D."feedback_tag_content where  language='{$this->language}'";
+        $sql = "select id,name from ".D."feedback_tag_content where language='{$this->language}'";
         $tag['tag'] = $this->_db->getAll($sql);
         $tag['tag'] = $tag['tag'] ? $tag['tag'] : $this->_db->getAll("select id,name from ".D."feedback_tag_content where  language='en'");
         //提示语

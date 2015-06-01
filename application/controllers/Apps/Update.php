@@ -23,11 +23,11 @@ class Apps_UpdateController extends Yaf_Controller_Abstract {
     public function announceAction() {
         $currentTime = date('Y-m-d',time());
         $time = strtotime($currentTime);
-        $timeArr['giftUpdateTime'] = isset($_GET['giftUpdateTime']) ? ($_GET['giftUpdateTime'] < $currentTime ? $currentTime : $_GET['giftUpdateTime']) : 0;
-        $timeArr['spreadUpdateTime'] = isset($_GET['spreadUpdateTime']) ? ($_GET['spreadUpdateTime'] < $currentTime ? $currentTime : $_GET['spreadUpdateTime']) : 0;
-        $timeArr['appUpdateTime'] = isset($_GET['appUpdateTime']) ? ($_GET['appUpdateTime'] < $currentTime ? $currentTime : $_GET['appUpdateTime']) : 0;
-        $timeArr['gameUpdateTime'] = isset($_GET['gameUpdateTime']) ? ($_GET['gameUpdateTime'] < $currentTime ? $currentTime : $_GET['gameUpdateTime']) : 0;
-        $timeArr['articleUpdateTime'] = isset($_GET['articleUpdateTime']) ? ($_GET['articleUpdateTime'] < $currentTime ? $currentTime : $_GET['articleUpdateTime']) : 0;
+        $timeArr['giftUpdateTime'] = isset($_GET['giftUpdateTime']) ? ($_GET['giftUpdateTime'] < $time ? $time : $_GET['giftUpdateTime']) : $time;
+        $timeArr['spreadUpdateTime'] = isset($_GET['spreadUpdateTime']) ? ($_GET['spreadUpdateTime'] < $time ? $time : $_GET['spreadUpdateTime']) : $time;
+        $timeArr['appUpdateTime'] = isset($_GET['appUpdateTime']) ? ($_GET['appUpdateTime'] < $time ? $time : $_GET['appUpdateTime']) : $time;
+        $timeArr['gameUpdateTime'] = isset($_GET['gameUpdateTime']) ? ($_GET['gameUpdateTime'] < $time ? $time : $_GET['gameUpdateTime']) : $time;
+        $timeArr['articleUpdateTime'] = isset($_GET['articleUpdateTime']) ? ($_GET['articleUpdateTime'] < $time ? $time : $_GET['articleUpdateTime']) : $time;
         $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';
         $other_mod = new OtherModel();
         $json = $other_mod->getAnnounce($timeArr, $ver_code);

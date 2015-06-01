@@ -35,14 +35,8 @@ class OtherModel extends Db_Base {
      *   是否更新 9版本之前的更新通知
      */
     public function getUpdate($giftUpdateTime, $spreadUpdateTime, $dayilyUpdateTime, $ver_code) {
-        return json_decode(array('status' => 0));
-
-        if (!$ver_code) {
-            echo '参数错误！';
-            exit;
-        }
+        if (!$ver_code) die('缺少版本号！');
         $arr = array('status' => 1);//返回的json
-
         //精选有无更新
         $sql = "select count(*) as num from appbox_dayily where addTime>$dayilyUpdateTime and status=1 and releaseTime<" . time();
         $dayily = $this->_db->getAll($sql);
@@ -95,9 +89,8 @@ class OtherModel extends Db_Base {
                 }
             }
         }
-
         //检查自身版本是后否有更新
-        $arr['appUpdate'] = $this->getVersion();
+        $arr['appUpdate'] = $this->getVersion($this->ver_code);
         return json_encode($arr);
     }
 
@@ -105,7 +98,6 @@ class OtherModel extends Db_Base {
      *   是否更新 9版本之后的更新通知接口
      */
     public function getAnnounce($timeArr, $ver_code) {
-        return json_decode(array('status' => 0));
         $arr = array('status' => 1, 'updateTime' => '60 6:00;12:00;18:00');//返回的json
         $currentTime = time();
         $arr['currentTime'] = $currentTime;
@@ -219,13 +211,10 @@ class OtherModel extends Db_Base {
      *   添加取消收藏
      */
     public function getFavorite($uuid, $packageName, $cancel) {
-        if ($cancel == 1)//取消收藏
-        {
+        if ($cancel == 1) { //取消收藏
             $sql = "delete from appbox_user_favorite where uuid=$uuid and packageName='$packageName'";
-            if ($this->_db->query($sql))
-                return json_encode(array('status' => 1, 'info' => '取消收藏成功!~'));
-            else
-                return json_encode(array('status' => $this->is_true, 'info' => '取消收藏失败!~'));
+            if ($this->_db->query($sql)) return json_encode(array('status' => 1, 'info' => '取消收藏成功!~'));
+            else return json_encode(array('status' => $this->is_true, 'info' => '取消收藏失败!~'));
         }
         $sql = "insert into appbox_user_favorite values('$uuid','$packageName')";
         if ($this->_db->query($sql))
@@ -322,8 +311,6 @@ class OtherModel extends Db_Base {
         $sql = "select max(version) as id from appbox_rom where status=1 and channel_id='$channelId' and package_name='$packageNameSelf'";
         $maxVersionCode = $this->_db->getRow($sql);
         $arr['status'] = 1;
-        //echo $sql;
-        //print_r($maxVersionCode);
         if ($maxVersionCode['id'] > $ver_code) {
             $sql = "select * from appbox_rom where version=" . $maxVersionCode['id'] . " and status=1 and channel_id='$channelId' and package_name='$packageNameSelf'";
             $data = $this->_db->getRow($sql);

@@ -15,7 +15,7 @@ class Apps_UpdateController extends Yaf_Controller_Abstract {
         $language = isset($_GET['language']) ? $_GET['language'] : 'en';
         $other_mod = new OtherModel($language);
         $json = $other_mod->getUpdate($giftUpdateTime, $spreadUpdateTime, $dayilyUpdateTime, $ver_code);
-        file_put_contents('../json.json', $json);//推入文件，方便查看
+        if($_SERVER['REMOTE_ADDR'] == '127.0.0.1') file_put_contents('../json.json', $json);//推入文件，方便查看
         echo $json;
     }
 
@@ -31,14 +31,14 @@ class Apps_UpdateController extends Yaf_Controller_Abstract {
         $ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : '';
         $other_mod = new OtherModel();
         $json = $other_mod->getAnnounce($timeArr, $ver_code);
-        file_put_contents('../json.json', $json);//推入文件，方便查看
+        if($_SERVER['REMOTE_ADDR'] == '127.0.0.1') file_put_contents('../json.json', $json);//推入文件，方便查看
         echo $json;
     }
 
     public function timerAction() {
         $other_mod = new OtherModel();
         $json = $other_mod->getTimer();
-        file_put_contents('../json.json', $json);//推入文件，方便查看
+        if($_SERVER['REMOTE_ADDR'] == '127.0.0.1') file_put_contents('../json.json', $json);//推入文件，方便查看
         echo $json;
     }
 
@@ -49,7 +49,7 @@ class Apps_UpdateController extends Yaf_Controller_Abstract {
         $cancel = isset($_GET['cancel']) ? $_GET['cancel'] : '';
         $other_mod = new OtherModel();
         $json = $other_mod->getFavorite($uuid, $packageName, $cancel);
-        file_put_contents('../json.json', $json);//推入文件，方便查看
+        if($_SERVER['REMOTE_ADDR'] == '127.0.0.1') file_put_contents('../json.json', $json);//推入文件，方便查看
         echo $json;
     }
 
@@ -57,7 +57,7 @@ class Apps_UpdateController extends Yaf_Controller_Abstract {
     public function sendKeywordsAction() {
         $other_mod = new OtherModel();
         $json = $other_mod->getKeywords();
-        file_put_contents('../json.json', $json);//推入文件，方便查看
+        if($_SERVER['REMOTE_ADDR'] == '127.0.0.1') file_put_contents('../json.json', $json);//推入文件，方便查看
         echo $json;
     }
 
@@ -65,7 +65,7 @@ class Apps_UpdateController extends Yaf_Controller_Abstract {
     public function feedbackTagAction(){
         $other_mod = new OtherModel();
         $json = $other_mod->sendFeedbackTag();
-        file_put_contents('../json.json', $json);//推入文件，方便查看
+        if($_SERVER['REMOTE_ADDR'] == '127.0.0.1') file_put_contents('../json.json', $json);//推入文件，方便查看
         echo $json;
     }
     //用户反馈接口

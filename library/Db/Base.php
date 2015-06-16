@@ -648,7 +648,7 @@ class Db_Base
            date_default_timezone_set('PRC');
            header('Cache-Control: max-age=86400,must-revalidate');
            header('Last-Modified: ' .gmdate('D, d M Y H:i:s') . ' GMT' );
-           header('Expires: ' .gmdate ('D, d M Y H:i:s', time() + '86400' ). ' GMT');
+           header('Expires: ' .gmdate ('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + '86400' ). ' GMT');
            if($keys){
                 $key = $keys;
            } else {

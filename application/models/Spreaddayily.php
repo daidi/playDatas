@@ -5,7 +5,7 @@
  */
 class SpreaddayilyModel extends RedisModel {
     public $ver_code;
-    public $pageNum = 100;
+    public $pageNum = 25;
     public $expire = '1800';
 
     public function __construct($language = '') {
@@ -19,27 +19,26 @@ class SpreaddayilyModel extends RedisModel {
      * @return string
      */
     public function getJson($page = '', $templateUpdateTime = 0) {
-        $this->ver_code = isset($_GET['ver_code']) ? $_GET['ver_code'] : 8;//获取版本号
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
-        $arr['currentTime'] = time();
+        $arr['currentTime'] = $_SERVER['REQUEST_TIME'];
         $this->page = isset($page) ? (int)$page : 0;
-        $sql = "select count(*) as num from appbox_spread where status=1 and dayily_sort!=0 and is_jx=1 and releaseTime<=" . time();
+        $sql = "select count(*) as num from appbox_spread where status=1 and dayily_sort!=0 and is_jx=1 and releaseTime<=" . $arr['currentTime'];
         $arr['hasNextPage'] = $this->getPage($sql, $this->page, $this->pageNum);
         $page = $this->page * $this->pageNum;//初始化页数
 
-        $arr['defaultSearchWord'] = $this->getNewKeywords();
+        $arr['defaultSearchWord'] = $this->getNewKeywords();//获取关键词
         $this->redis->select(5);
         //获取推广列表
         $keys = 'appbox_dayily_info_' . $this->language . '_' . $this->ver_code . '_' . $this->page;//推入缓存的key
         $bannerKeys = 'banner_' . $this->language . '_' . $this->ver_code;
-        if (($redis_data = $this->redis->get($keys)) && ($banner = $this->redis->get($bannerKeys))) {
+        if ($redis_data = $this->redis->get($keys)) {
             $this->_parseEtags($redis_data, $this->page);//从查询第一页缓存是否有更新
             $myData = json_decode($redis_data, true);
             array_pop($myData);//删除数组最后一个元素，即设置的etag缓存时间
             $arr['data'] = $myData;
-            if ($this->page == 0) $arr['banner'] = json_decode($banner, true);
+            if ($this->page === 0) $arr['banner'] = json_decode($this->redis->get($bannerKeys), true);
             $arr['dataRedis'] = 'from redis';
         } else {
             if ($this->page == 0) $arr['banner'] = $this->getNav();//获取导航顺序列表

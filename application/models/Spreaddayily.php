@@ -39,16 +39,15 @@ class SpreaddayilyModel extends RedisModel {
             array_pop($myData);//删除数组最后一个元素，即设置的etag缓存时间
             $arr['data'] = $myData;
             if ($this->page === 0) $arr['banner'] = json_decode($this->redis->get($bannerKeys), true);
-            $arr['dataRedis'] = 'from redis';
+            //$arr['dataRedis'] = 'from redis';
         } else {
             if ($this->page == 0) $arr['banner'] = $this->getNav();//获取导航顺序列表
             $spread = $this->getList($page, 'is_jx');
             if (!$spread) return json_encode(array('status' => $this->is_true));
             if ($this->ver_code >= 15) {//版本为15以上，数据格式改变
                 if (isset($arr['banner'])) {//如果是在第一页的情况下
-                    $banner = $arr['banner'];
+                    $arr['banner']['subjects'] = $arr['banner'];
                     unset($arr['banner']);
-                    $arr['banner']['subjects'] = $banner;
                     $arr['banner']['promotions'] = $this->getBanners(1);//推广位置1：精选2：游戏3：应用，4礼包
                 }
                 foreach ($spread as $key => $val) {//将精选推入到数组
@@ -63,11 +62,10 @@ class SpreaddayilyModel extends RedisModel {
             }
             if ($arr['data']) {//推入缓存中
                 $this->redis->select(5);
-                $time = time();
-                $arr['data'][] = $time;
-                $this->_parseEtags(0, 0, $time);//从查询第一页缓存是否有更新
+                $arr['data'][] = $_SERVER['REQUEST_TIME'];
+                $this->_parseEtags(0, 0, $_SERVER['REQUEST_TIME']);//设置etag
                 $this->redis->set($keys, json_encode($arr['data']), $this->expire);
-                $this->redis->set($bannerKeys, json_encode($arr['banner']), $this->expire);
+                if($this->page === 0) $this->redis->set($bannerKeys, json_encode($arr['banner']), $this->expire);
                 array_pop($arr['data']);
             }
         }

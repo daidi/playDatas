@@ -336,6 +336,10 @@ class OtherModel extends Db_Base {
         return json_encode($arr);
     }
 
+    /**
+     * 每个一个小时检测是否有新闻更新，如果有则发出通知
+     * @return string
+     */
     public function getTimer() {
         $this->redis->select(0);
         $key = 'appbox_article_info_';

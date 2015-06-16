@@ -167,8 +167,7 @@ class SpreaddayilyModel extends RedisModel {
         $spread_mod = new SpreadModel($this->language);
         foreach ($data as $key => $val) {
             $tempData = $spread_mod->parseType($val, 'appbox_spread_url', $templatePos);
-            if ($tempData)
-                $arr[] = $tempData;
+            if ($tempData) $arr[] = $tempData;
         }
         return $arr;
     }

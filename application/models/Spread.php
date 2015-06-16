@@ -278,16 +278,12 @@ class SpreadModel extends RedisModel {
             case 'url':
                 $sql = "select releaseTime,id from $table where id={$val['typeId']}";
                 $url = $this->_db->getRow($sql);
-                $tempArr = $this->getUrlDetail($url['releaseTime'], $url['id'], $table);
-                if ($tempArr)
-                    $arr = $tempArr;
+                $arr = $this->getUrlDetail($url['releaseTime'], $url['id'], $table);
                 break;
             case 'gift':
                 $sql = "select gift.start_time,gift.id from appbox_gift as gift left join appbox_app as app on app.package_id=gift.package_id where gift.id={$val['typeId']}";
                 $gift = $this->_db->getRow($sql);
-                $tempArr = $this->getGiftDetail($gift['start_time'], $val['typeId']);
-                if ($tempArr)
-                    $arr = $tempArr;
+                $arr = $this->getGiftDetail($gift['start_time'], $val['typeId']);
                 break;
             case 'app':
                 $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='" . $this->language . "'";
@@ -296,23 +292,17 @@ class SpreadModel extends RedisModel {
                     $sql = "select releaseTime,id,package_name from appbox_app where package_id={$val['typeId']} and language='en'";
                     $app = $this->_db->getRow($sql);
                 }
-                $tempArr = $this->getAppDetail($app['releaseTime'], $val['typeId'], $templatePos);
-                if ($tempArr)
-                    $arr = $tempArr;
+                $arr = $this->getAppDetail($app['releaseTime'], $val['typeId'], $templatePos);
                 break;
             case 'news':
                 $sql = "select release_time,id from appbox_news where id={$val['typeId']}";
                 $news = $this->_db->getRow($sql);
-                $tempArr = $this->getNewsDetail($news['release_time'], $val['typeId']);
-                if ($tempArr)
-                    $arr = $tempArr;
+                $arr = $this->getNewsDetail($news['release_time'], $val['typeId']);
                 break;
             case 'spread':
                 $sql = "select releaseTime from appbox_spread where id={$val['typeId']}";
                 $spread = $this->_db->getRow($sql);
-                $tempArr = $this->getSpreadDetail($spread['releaseTime'], $val['typeId'], $templatePos);
-                if ($tempArr)
-                    $arr = $tempArr;
+                $arr = $this->getSpreadDetail($spread['releaseTime'], $val['typeId'], $templatePos);
                 break;
         }
         return $arr;

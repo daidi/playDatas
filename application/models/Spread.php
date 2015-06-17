@@ -218,7 +218,6 @@ class SpreadModel extends RedisModel {
 
         $template = $this->getSelfTemplate($data['releaseTime'], 4);//获取与其时间对应的模板
         if ($template) {
-
             //此专题数据在第一页的时候重新获取一次用于填充
             $firstData = array();
             if ($this->page == 0) {

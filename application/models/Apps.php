@@ -36,7 +36,7 @@ class AppsModel extends RedisModel {
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
-        $arr['currentTime'] = time();
+        $arr['currentTime'] = $_SERVER['REQUEST_TIME'];
 
         $this->page = isset($page) ? (int)$page : 0;
         $sql = "select count(*) as num from appbox_app where status=1 and is_game=" . $this->is_game . " and language='" . $this->language . "'";
@@ -202,7 +202,7 @@ class AppsModel extends RedisModel {
                 where app.package_name='$packageName' and app.language='{$this->language}'";
             $data = $this->_db->getRow($sql);
             if ($data) {
-                if (time() - $data['releaseTime'] >= 86400) {//检查更新，如果更新时间大于一天，则去更新应用,重新获取数据
+                if ($_SERVER['REQUEST_TIME'] - $data['releaseTime'] >= 86400) {//检查更新，如果更新时间大于一天，则去更新应用,重新获取数据
                     file_get_contents('http://play.mobappbox.com/index.php?m=Admin&c=Application&a=getAppInfo&flag=1&language=' . $this->language . '&package_name=' . $packageName);
                     $redisData = $data;
                     $data = $this->_db->getRow($sql);
@@ -289,7 +289,7 @@ class AppsModel extends RedisModel {
         $sql .= "left join appbox_gift_desc as descs on descs.gid=gift.id ";
         $sql .= "left join appbox_app as app on app.package_id=gift.package_id where ";
         $sql .= "(descs.name like '%$keywords%' or app.app_name like '%$keywords%') and gift.status=1 and descs.language='" . $this->language . "' ";
-        $sql .= "and gift.start_time<=" . time() . " and gift.end_time>=" . time() . " and gift.package_id>0 ";
+        $sql .= "and gift.start_time<=" . $_SERVER['REQUEST_TIME'] . " and gift.end_time>=" . $_SERVER['REQUEST_TIME'] . " and gift.package_id>0 ";
         $sql .= "order by gift.sort desc,gift.id desc";
         $gifts = $this->_db->getAll($sql);
         $returnGifts = array();
@@ -328,7 +328,7 @@ class AppsModel extends RedisModel {
                 }
                 //取得专题类似数据
                 $sql = "select spread.id,spread.releaseTime from appbox_spread as spread ";
-                $sql .= "where spread.status=1 and releaseTime<=" . time() . " and spread.name like '%$keywords%' ";
+                $sql .= "where spread.status=1 and releaseTime<=" . $_SERVER['REQUEST_TIME'] . " and spread.name like '%$keywords%' ";
                 $sql .= "order by spread.sort desc,spread.id desc limit 0,$limit";
                 $spreads = $this->_db->getAll($sql);
                 $returnSpreads = array();

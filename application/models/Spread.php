@@ -21,9 +21,9 @@ class SpreadModel extends RedisModel {
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
-        $arr['currentTime'] = time();
+        $arr['currentTime'] = $_SERVER['REQUEST_TIME'];
         $this->page = isset($page) ? (int)$page : 0;
-        $sql = "select count(*) as num from appbox_spread where status=1 and is_zt=1 and releaseTime<=" . time();
+        $sql = "select count(*) as num from appbox_spread where status=1 and is_zt=1 and releaseTime<=" . $_SERVER['REQUEST_TIME'];
         $arr['hasNextPage'] = $this->getPage($sql, $this->page, $this->pageNum);
         $page = $this->page * $this->pageNum;//初始化页数
 

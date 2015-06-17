@@ -31,11 +31,11 @@ class SpreadModel extends RedisModel {
         if ($redis_data = $this->redis->get('appboxsL_' . $this->language . '_' . $this->page)) {
             $this->_parseEtags($redis_data, $this->page);//从查询第一页缓存是否有更新
             $arr['data'] = $this->getSpreadRedis($redis_data);
-            $arr['dataRedis'] = 'from redis';
+            //$arr['dataRedis'] = 'from redis';
         } else {
             $spread = $this->getList($page);
             if (!$spread) return json_encode(array('status' => $this->is_true));
-            foreach ($spread as $val) {//将app推入到数组
+            foreach ($spread as $val) {//将专题推入到数组
                 $tempData = $this->getSpreadDetail($val['releaseTime'], $val['id']);
                 if ($tempData) $arr['data'][] = $tempData;
                 else continue;
@@ -44,7 +44,6 @@ class SpreadModel extends RedisModel {
                 $this->setSpreadRedis($arr['data']);
             }
         }
-        //print_r($arr);exit;
         return json_encode($arr);
     }
 
@@ -55,7 +54,7 @@ class SpreadModel extends RedisModel {
         //获取应用app
         $sql = "select spread.id,spread.releaseTime
                     from appbox_spread as spread
-                    where spread.status=1 and releaseTime<=" . time() . " and $position=1
+                    where spread.status=1 and releaseTime<=" . $_SERVER['REQUEST_TIME'] . " and $position=1
                     order by spread.sort desc,spread.id desc
                     limit $p,10";
         $info = $this->_db->getAll($sql);
@@ -67,19 +66,19 @@ class SpreadModel extends RedisModel {
         $this->page = isset($page) && $page ? (int)$page : 0;
         $arr = array();
         $arr['status'] = 1;
-        $arr['currentTime'] = time();
-        $is_news = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;//是否显示新闻
-        $is_images = isset($_REQUEST['is_images']) ? $_REQUEST['is_images'] : 0;//是否显示采集过来的图片
-        $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';//是否显示采集过来的图片
-        if ($is_news || $type == 'is_news') {//判断是否采集过来的新闻
+        $arr['currentTime'] = $_SERVER['REQUEST_TIME'];
+        $_REQUEST['type'] = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';//是否显示采集过来的图片
+        $_REQUEST['is_news'] = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;//是否显示新闻
+        $_REQUEST['is_images'] = isset($_REQUEST['is_images']) ? $_REQUEST['is_images'] : 0;//是否显示采集过来的图片
+        if ($_REQUEST['is_news'] || $_REQUEST['type'] == 'is_news') {//判断是否采集过来的新闻
             $this->redis->select('5');
             $arr['hasNextPage'] = false;
             $arr['data'] = $this->getCollectNews(100);
             return json_encode($arr);
-        } elseif ($is_images || $type == 'is_images') {
+        } elseif ($_REQUEST['is_images'] || $_REQUEST['type'] == 'is_images') {
             return $this->getCollectData('appbox_collect_colsplay', $page, $id);
         }
-        switch ($type) {
+        switch ($_REQUEST['type']) {
             case 'gifs':
                 return $this->getCollectData('appbox_collect_gifs', $page, $id);//获取采集gif图片资源
                 break;

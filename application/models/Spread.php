@@ -126,8 +126,7 @@ class SpreadModel extends RedisModel {
             if (!$spreadList) return json_encode(array('status' => $this->is_true));
             foreach ($spreadList as $val) {
                 $temp = $this->parseType($val);
-                if ($temp)
-                    $arr['data'][] = $temp;
+                if ($temp) $arr['data'][] = $temp;
             }
             if ($arr['data'] && !empty($arr['data'])) {//设置缓存
                 $this->setSpreadDetailRedis($arr['data'], $id);

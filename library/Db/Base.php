@@ -437,14 +437,11 @@ class Db_Base {
     }
 
     public function getUrl($id, $field, $type, $language) {
-        $sql = "select $field,url.imgHeight,url.imgWidth
-                    from $type as url
-                    where url.id=$id";
+        $sql = "select $field,url.imgHeight,url.imgWidth from $type as url where url.id=$id";
         $data = $this->_db->getRow($sql);
         if (isset($data['content']) && $data['content']) {
             $arr = json_decode($data['content'], true);
             $data['content'] = isset($arr[$language]) ? $arr[$language] : $arr['en'];
-            unset($arr);
         }
         return $data;
     }

@@ -33,12 +33,12 @@ class SpreaddayilyModel extends RedisModel {
         //获取推广列表
         $keys = 'appbox_dayily_info_' . $this->language . '_' . $this->ver_code . '_' . $this->page;//推入缓存的key
         $bannerKeys = 'banner_' . $this->language . '_' . $this->ver_code;
-        if ($redis_data = $this->redis->get($keys)) {
+        if (($redis_data = $this->redis->get($keys)) && ($banner = $this->redis->get($bannerKeys))) {
             $this->_parseEtags($redis_data, $this->page);//从查询第一页缓存是否有更新
             $myData = json_decode($redis_data, true);
             array_pop($myData);//删除数组最后一个元素，即设置的etag缓存时间
             $arr['data'] = $myData;
-            if ($this->page === 0) $arr['banner'] = json_decode($this->redis->get($bannerKeys), true);
+            if ($this->page === 0) $arr['banner'] = json_decode($banner, true);
             //$arr['dataRedis'] = 'from redis';
         } else {
             if ($this->page == 0) $arr['banner'] = $this->getNav();//获取导航顺序列表
@@ -47,7 +47,7 @@ class SpreaddayilyModel extends RedisModel {
             if ($this->ver_code >= 15) {//版本为15以上，数据格式改变
                 if (isset($arr['banner'])) {//如果是在第一页的情况下
                     $arr['banner']['subjects'] = $arr['banner'];
-                    unset($arr['banner']);
+                    unset($arr['banner'][0]);
                     $arr['banner']['promotions'] = $this->getBanners(1);//推广位置1：精选2：游戏3：应用，4礼包
                 }
                 foreach ($spread as $key => $val) {//将精选推入到数组

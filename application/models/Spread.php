@@ -312,19 +312,15 @@ class SpreadModel extends RedisModel {
      *   获取单个banner里需要的字段数据
      */
     public function getBanner($id, $field, $language) {
-        $sql = "select $field
-                    from appbox_banner as banner
-                    where banner.id=$id";
+        $sql = "select $field from appbox_banner as banner where banner.id=$id";
         $data = $this->_db->getRow($sql);
         if (isset($data['name']) && $data['name']) {
             $arr = json_decode(htmlspecialchars_decode($data['name']), true);
             $data['name'] = isset($arr[$language]) && $arr[$language] ? $arr[$language] : $arr['en'];
-            unset($arr);
         }
         if (isset($data['description']) && $data['description']) {
             $arr = json_decode(htmlspecialchars_decode($data['description']), true);
             $data['description'] = isset($arr[$language]) && $arr[$language] ? $arr[$language] : $arr['en'];
-            unset($arr);
         }
         return $data;
     }

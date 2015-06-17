@@ -218,16 +218,7 @@ class SpreadModel extends RedisModel {
 
         $template = $this->getSelfTemplate($data['releaseTime'], 4);//获取与其时间对应的模板
         if ($template) {
-            //从redis中获取数据 
-            $this->redis->select(6);
-            $key = 'appboxbDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code;
-            if ($redis_datas = $this->redis->get($key)) {
-                $data = $this->getSpreadDetailRedis($redis_datas, 'appbox_banner_url');
-                if ($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData, $data);
-                else $arr['data'] = $data;
-                $arr['dataRedis'] = 'from redis';
-                return json_encode($arr);
-            }
+
             //此专题数据在第一页的时候重新获取一次用于填充
             $firstData = array();
             if ($this->page == 0) {
@@ -247,6 +238,18 @@ class SpreadModel extends RedisModel {
                 }
                 $firstData[] = $datas;
             }
+
+            //从redis中获取数据
+            $this->redis->select(6);
+            $key = 'appboxbDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code;
+            if ($redis_datas = $this->redis->get($key)) {
+                $data = $this->getSpreadDetailRedis($redis_datas, 'appbox_banner_url');
+                if ($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData, $data);
+                else $arr['data'] = $data;
+                $arr['dataRedis'] = 'from redis';
+                return json_encode($arr);
+            }
+
             //当前模板里所有的信息，从mysql中获取数据
             $arr['data'] = $firstData;
             $sql = "select * from appbox_banner_list where bannerId=$id order by sort desc,id asc limit $page," . $this->pageNum;

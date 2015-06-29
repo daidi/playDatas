@@ -120,7 +120,15 @@ class SpreadModel extends RedisModel {
                 return json_encode($arr);
             }
             //当前专题里所有的信息，从mysql中获取数据
-            $sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id desc limit $page," . $this->pageNum;
+            //$sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id desc limit $page," . $this->pageNum;
+            $where = "list.spreadId=$id ";
+            $order = "order by list.sort desc,list.id desc";
+            if($this->ver_code<=16 || $_REQUEST['is_rom'] != 'true'){//版本是16以下，或者不是线下版本，则下发Googleplay上的所有数据，否则下发所有数据
+                $where .= " and app.is_self=0";
+            }
+            $sql = "select list.* from appbox_spread_list as list left join appbox_app as app on app.package_id=list.typeId ";
+            $sql .= "where $where group by list.typeId $order limit $page," . $this->pageNum;
+
             $spreadList = $this->_db->getAll($sql);
             if (!$spreadList) return json_encode(array('status' => $this->is_true));
             foreach ($spreadList as $val) {
@@ -240,7 +248,7 @@ class SpreadModel extends RedisModel {
 
             //从redis中获取数据
             $this->redis->select(6);
-            $key = 'appboxbDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code;
+            $key = 'appboxbDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code.'_'.$_REQUEST['is_rom'];
             if ($redis_datas = $this->redis->get($key)) {
                 $data = $this->getSpreadDetailRedis($redis_datas, 'appbox_banner_url');
                 if ($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData, $data);
@@ -251,7 +259,15 @@ class SpreadModel extends RedisModel {
 
             //当前模板里所有的信息，从mysql中获取数据
             $arr['data'] = $firstData;
-            $sql = "select * from appbox_banner_list where bannerId=$id order by sort desc,id asc limit $page," . $this->pageNum;
+            //$sql = "select * from appbox_banner_list where bannerId=$id order by sort desc,id asc limit $page," . $this->pageNum;
+            $where = "list.bannerId=$id ";
+            $order = "order by list.sort desc,list.id desc";
+            if($this->ver_code<=16 || $_REQUEST['is_rom'] != 'true'){//版本是16以下，或者不是线下版本，则下发Googleplay上的所有数据，否则下发所有数据
+                $where .= " and app.is_self=0";
+            }
+            $sql = "select list.* from appbox_banner_list as list left join appbox_app as app on app.package_id=list.typeId ";
+            $sql .= "where $where group by list.typeId $order limit $page," . $this->pageNum;
+
             $bannerList = $this->_db->getAll($sql);
             foreach ($bannerList as $val) {
                 $arr['data'][] = $this->parseType($val, 'appbox_banner_url');

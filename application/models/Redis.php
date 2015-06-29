@@ -11,6 +11,7 @@ class RedisModel extends Db_Base {
         $this->redis->select(8);
         foreach ($arr as $key => $val) {
             $key = 'appboxL_' . $val['extraData']['appId'] . '_' . $this->language . '_' . $val['extraData']['templateId'] . '_' . $this->ver_code;
+            $key .= '_'.$_REQUEST['is_rom'];
             $tempArr[] = $key;
             if (!$this->redis->exists($key)) {
                 $this->redis->set($key, json_encode($val), $this->expire);
@@ -21,9 +22,11 @@ class RedisModel extends Db_Base {
         $tempArr[] = $time;
         if (!$this->cid && $type) {//最新，下载，评分缓存
             $key = 'appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page . '_' . $this->ver_code;
+            $key .= '_'.$_REQUEST['is_rom'];
             $this->redis->set($key, json_encode($tempArr), $this->expire);//键app_new_0
         } else {//每个分类进行缓存
             $cidKey = 'appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page . '_' . $sort . '_' . $this->ver_code;
+            $cidKey .= '_'.$_REQUEST['is_rom'];
             $this->redis->set($cidKey, json_encode($tempArr), $this->expire);//键app_cid3_0
         }
         $this->_parseEtags(0, 0, $time);//从查询第一页缓存是否有更新
@@ -206,11 +209,11 @@ class RedisModel extends Db_Base {
         $tempArr[] = $time;
         if ($is_banner && $is_banner == 'banner') {
             $this->redis->select(6);
-            $key = 'appboxbDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code;
+            $key = 'appboxbDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code.'_'.$_REQUEST['is_rom'];
             $this->redis->set($key, json_encode($tempArr), $this->expire);
         } else {
             $this->redis->select(5);
-            $key = 'appboxsDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code;
+            $key = 'appboxsDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code.'_'.$_REQUEST['is_rom'];
             $this->redis->set($key, json_encode($tempArr), $this->expire);
         }
         $this->_parseEtags(0, 0, $time);//从查询第一页缓存是否有更新

@@ -221,7 +221,7 @@ class Db_Base {
      *   获取单个app里需要的字段数据
      */
     public function getApp($packageId, $field, $language) {
-        $cSql = "select $field,app.package_name,app.status
+        $cSql = "select $field,app.package_name,app.status,app.is_self as downloadDirect,app.download_url as downloadUrl
                     from appbox_app as app
                     where app.package_id=$packageId and app.language=";
         $sql = $cSql . "'{$language}'";
@@ -265,8 +265,10 @@ class Db_Base {
                 //json格式中的view
                 $view = $this->getView($field['data'], $app);
                 //json格式中的extraData
-                $extraData = array('appId' => $packageId, 'packageName' => $app['package_name'], 'market_url' => $this->url . $app['package_name'], 'downIconUrl' => $template['downIconUrl'], 'openIconUrl' => $template['openIconUrl'], 'downloadCount' => $app['install_count'], 'templateId' => $template['id'], 'haveGift' => $haveGift, 'iconUrl' => $app['icon'],
-                    'appName' => $app['app_name'], 'rateScore' => $app['score']);
+                $extraData = array('appId' => $packageId, 'packageName' => $app['package_name'], 'market_url' => $this->url . $app['package_name'],
+                    'downIconUrl' => $template['downIconUrl'], 'openIconUrl' => $template['openIconUrl'], 'downloadCount' => $app['install_count'],
+                    'templateId' => $template['id'], 'haveGift' => $haveGift, 'iconUrl' => $app['icon'],'appName' => $app['app_name'],
+                    'rateScore' => $app['score'],'downloadDirect'=>$app['downloadDirect'],'downloadUrl'=>$app['downloadUrl']);
                 //合成一条app数据
                 $datas = array('xmlType' => $template['templateName'], 'view' => $view, 'extraData' => $extraData);
                 return $datas;

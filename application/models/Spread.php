@@ -21,9 +21,9 @@ class SpreadModel extends RedisModel {
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
-        $arr['currentTime'] = time();
+        $arr['currentTime'] = $_SERVER['REQUEST_TIME'];
         $this->page = isset($page) ? (int)$page : 0;
-        $sql = "select count(*) as num from appbox_spread where status=1 and is_zt=1 and releaseTime<=" . time();
+        $sql = "select count(*) as num from appbox_spread where status=1 and is_zt=1 and releaseTime<=" . $_SERVER['REQUEST_TIME'];
         $arr['hasNextPage'] = $this->getPage($sql, $this->page, $this->pageNum);
         $page = $this->page * $this->pageNum;//初始化页数
 
@@ -31,11 +31,11 @@ class SpreadModel extends RedisModel {
         if ($redis_data = $this->redis->get('appboxsL_' . $this->language . '_' . $this->page)) {
             $this->_parseEtags($redis_data, $this->page);//从查询第一页缓存是否有更新
             $arr['data'] = $this->getSpreadRedis($redis_data);
-            $arr['dataRedis'] = 'from redis';
+            //$arr['dataRedis'] = 'from redis';
         } else {
             $spread = $this->getList($page);
             if (!$spread) return json_encode(array('status' => $this->is_true));
-            foreach ($spread as $val) {//将app推入到数组
+            foreach ($spread as $val) {//将专题推入到数组
                 $tempData = $this->getSpreadDetail($val['releaseTime'], $val['id']);
                 if ($tempData) $arr['data'][] = $tempData;
                 else continue;
@@ -44,7 +44,6 @@ class SpreadModel extends RedisModel {
                 $this->setSpreadRedis($arr['data']);
             }
         }
-        //print_r($arr);exit;
         return json_encode($arr);
     }
 
@@ -55,7 +54,7 @@ class SpreadModel extends RedisModel {
         //获取应用app
         $sql = "select spread.id,spread.releaseTime
                     from appbox_spread as spread
-                    where spread.status=1 and releaseTime<=" . time() . " and $position=1
+                    where spread.status=1 and releaseTime<=" . $_SERVER['REQUEST_TIME'] . " and $position=1
                     order by spread.sort desc,spread.id desc
                     limit $p,10";
         $info = $this->_db->getAll($sql);
@@ -67,19 +66,19 @@ class SpreadModel extends RedisModel {
         $this->page = isset($page) && $page ? (int)$page : 0;
         $arr = array();
         $arr['status'] = 1;
-        $arr['currentTime'] = time();
-        $is_news = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;//是否显示新闻
-        $is_images = isset($_REQUEST['is_images']) ? $_REQUEST['is_images'] : 0;//是否显示采集过来的图片
-        $type = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';//是否显示采集过来的图片
-        if ($is_news || $type == 'is_news') {//判断是否采集过来的新闻
+        $arr['currentTime'] = $_SERVER['REQUEST_TIME'];
+        $_REQUEST['type'] = isset($_REQUEST['type']) ? $_REQUEST['type'] : '';//是否显示采集过来的图片
+        $_REQUEST['is_news'] = isset($_REQUEST['is_news']) ? $_REQUEST['is_news'] : 0;//是否显示新闻
+        $_REQUEST['is_images'] = isset($_REQUEST['is_images']) ? $_REQUEST['is_images'] : 0;//是否显示采集过来的图片
+        if ($_REQUEST['is_news'] || $_REQUEST['type'] == 'is_news') {//判断是否采集过来的新闻
             $this->redis->select('5');
             $arr['hasNextPage'] = false;
             $arr['data'] = $this->getCollectNews(100);
             return json_encode($arr);
-        } elseif ($is_images || $type == 'is_images') {
+        } elseif ($_REQUEST['is_images'] || $_REQUEST['type'] == 'is_images') {
             return $this->getCollectData('appbox_collect_colsplay', $page, $id);
         }
-        switch ($type) {
+        switch ($_REQUEST['type']) {
             case 'gifs':
                 return $this->getCollectData('appbox_collect_gifs', $page, $id);//获取采集gif图片资源
                 break;
@@ -121,13 +120,20 @@ class SpreadModel extends RedisModel {
                 return json_encode($arr);
             }
             //当前专题里所有的信息，从mysql中获取数据
-            $sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id desc limit $page," . $this->pageNum;
+            //$sql = "select * from appbox_spread_list where spreadId=$id order by sort desc,id desc limit $page," . $this->pageNum;
+            $where = "list.spreadId=$id ";
+            $order = "order by list.sort desc,list.id desc";
+            if($this->ver_code<=16 || $_REQUEST['is_rom'] != 'true'){//版本是16以下，或者不是线下版本，则下发Googleplay上的所有数据，否则下发所有数据
+                $where .= " and app.is_self=0";
+            }
+            $sql = "select list.* from appbox_spread_list as list left join appbox_app as app on app.package_id=list.typeId ";
+            $sql .= "where $where group by list.typeId $order limit $page," . $this->pageNum;
+
             $spreadList = $this->_db->getAll($sql);
             if (!$spreadList) return json_encode(array('status' => $this->is_true));
             foreach ($spreadList as $val) {
                 $temp = $this->parseType($val);
-                if ($temp)
-                    $arr['data'][] = $temp;
+                if ($temp) $arr['data'][] = $temp;
             }
             if ($arr['data'] && !empty($arr['data'])) {//设置缓存
                 $this->setSpreadDetailRedis($arr['data'], $id);
@@ -220,16 +226,6 @@ class SpreadModel extends RedisModel {
 
         $template = $this->getSelfTemplate($data['releaseTime'], 4);//获取与其时间对应的模板
         if ($template) {
-            //从redis中获取数据 
-            $this->redis->select(6);
-            $key = 'appboxbDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code;
-            if ($redis_datas = $this->redis->get($key)) {
-                $data = $this->getSpreadDetailRedis($redis_datas, 'appbox_banner_url');
-                if ($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData, $data);
-                else $arr['data'] = $data;
-                $arr['dataRedis'] = 'from redis';
-                return json_encode($arr);
-            }
             //此专题数据在第一页的时候重新获取一次用于填充
             $firstData = array();
             if ($this->page == 0) {
@@ -249,9 +245,29 @@ class SpreadModel extends RedisModel {
                 }
                 $firstData[] = $datas;
             }
+
+            //从redis中获取数据
+            $this->redis->select(6);
+            $key = 'appboxbDL_' . $this->language . '_' . $this->page . '_' . $id . '_' . $this->ver_code.'_'.$_REQUEST['is_rom'];
+            if ($redis_datas = $this->redis->get($key)) {
+                $data = $this->getSpreadDetailRedis($redis_datas, 'appbox_banner_url');
+                if ($firstData && !empty($firstData)) $arr['data'] = array_merge($firstData, $data);
+                else $arr['data'] = $data;
+                $arr['dataRedis'] = 'from redis';
+                return json_encode($arr);
+            }
+
             //当前模板里所有的信息，从mysql中获取数据
             $arr['data'] = $firstData;
-            $sql = "select * from appbox_banner_list where bannerId=$id order by sort desc,id asc limit $page," . $this->pageNum;
+            //$sql = "select * from appbox_banner_list where bannerId=$id order by sort desc,id asc limit $page," . $this->pageNum;
+            $where = "list.bannerId=$id ";
+            $order = "order by list.sort desc,list.id desc";
+            if($this->ver_code<=16 || $_REQUEST['is_rom'] != 'true'){//版本是16以下，或者不是线下版本，则下发Googleplay上的所有数据，否则下发所有数据
+                $where .= " and app.is_self=0";
+            }
+            $sql = "select list.* from appbox_banner_list as list left join appbox_app as app on app.package_id=list.typeId ";
+            $sql .= "where $where group by list.typeId $order limit $page," . $this->pageNum;
+
             $bannerList = $this->_db->getAll($sql);
             foreach ($bannerList as $val) {
                 $arr['data'][] = $this->parseType($val, 'appbox_banner_url');
@@ -312,19 +328,15 @@ class SpreadModel extends RedisModel {
      *   获取单个banner里需要的字段数据
      */
     public function getBanner($id, $field, $language) {
-        $sql = "select $field
-                    from appbox_banner as banner
-                    where banner.id=$id";
+        $sql = "select $field from appbox_banner as banner where banner.id=$id";
         $data = $this->_db->getRow($sql);
         if (isset($data['name']) && $data['name']) {
             $arr = json_decode(htmlspecialchars_decode($data['name']), true);
             $data['name'] = isset($arr[$language]) && $arr[$language] ? $arr[$language] : $arr['en'];
-            unset($arr);
         }
         if (isset($data['description']) && $data['description']) {
             $arr = json_decode(htmlspecialchars_decode($data['description']), true);
             $data['description'] = isset($arr[$language]) && $arr[$language] ? $arr[$language] : $arr['en'];
-            unset($arr);
         }
         return $data;
     }

@@ -35,6 +35,7 @@ class OtherModel extends Db_Base {
      *   是否更新 9版本之前的更新通知
      */
     public function getUpdate($giftUpdateTime, $spreadUpdateTime, $dayilyUpdateTime, $ver_code) {
+        return json_decode(array('status' => 0));exit;
         if (!$ver_code) die('缺少版本号！');
         $arr = array('status' => 1);//返回的json
         //精选有无更新
@@ -98,6 +99,7 @@ class OtherModel extends Db_Base {
      *   是否更新 9版本之后的更新通知接口
      */
     public function getAnnounce($timeArr, $ver_code) {
+        return json_decode(array('status' => 0));exit;
         $arr = array('status' => 1, 'updateTime' => '60 6:00;12:00;18:00');//返回的json
         $currentTime = time();
         $arr['currentTime'] = $currentTime;
@@ -341,6 +343,7 @@ class OtherModel extends Db_Base {
      * @return string
      */
     public function getTimer() {
+        return json_decode(array('status' => 0));exit;
         $this->redis->select(0);
         $key = 'appbox_article_info_';
         $data = $this->redis->get($key . $this->language);

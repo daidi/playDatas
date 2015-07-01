@@ -31,14 +31,14 @@ class SpreaddayilyModel extends RedisModel {
         $arr['defaultSearchWord'] = $this->getNewKeywords();//获取关键词
         $this->redis->select(5);
         //获取推广列表
-        $keys = 'appbox_dayily_info_' . $this->language . '_' . $this->ver_code . '_' . $this->page;//推入缓存的key
+        $keys = 'appbox_dayily_info_' . $this->language . '_' . $this->ver_code . '_' . $this->page.'_'.$_REQUEST['is_rom'];//推入缓存的key
         $bannerKeys = 'banner_' . $this->language . '_' . $this->ver_code;
-        if ($redis_data = $this->redis->get($keys)) {
+        if (($redis_data = $this->redis->get($keys)) && ($banner = $this->redis->get($bannerKeys))) {
             $this->_parseEtags($redis_data, $this->page);//从查询第一页缓存是否有更新
             $myData = json_decode($redis_data, true);
             array_pop($myData);//删除数组最后一个元素，即设置的etag缓存时间
             $arr['data'] = $myData;
-            if ($this->page === 0) $arr['banner'] = json_decode($this->redis->get($bannerKeys), true);
+            if ($this->page === 0) $arr['banner'] = json_decode($banner, true);
             //$arr['dataRedis'] = 'from redis';
         } else {
             if ($this->page == 0) $arr['banner'] = $this->getNav();//获取导航顺序列表
@@ -46,8 +46,9 @@ class SpreaddayilyModel extends RedisModel {
             if (!$spread) return json_encode(array('status' => $this->is_true));
             if ($this->ver_code >= 15) {//版本为15以上，数据格式改变
                 if (isset($arr['banner'])) {//如果是在第一页的情况下
-                    $arr['banner']['subjects'] = $arr['banner'];
+                    $subjects = $arr['banner'];
                     unset($arr['banner']);
+                    $arr['banner']['subjects'] = $subjects;
                     $arr['banner']['promotions'] = $this->getBanners(1);//推广位置1：精选2：游戏3：应用，4礼包
                 }
                 foreach ($spread as $key => $val) {//将精选推入到数组
@@ -163,7 +164,14 @@ class SpreaddayilyModel extends RedisModel {
      * @return array
      */
     public function getDetailJson($id, $nums, $templatePos = '') {
-        $sql = "select * from appbox_spread_list where spreadId=$id and type='app' order by sort desc,id desc limit " . $nums;
+        //$sql = "select * from appbox_spread_list where spreadId=$id and type='app' order by sort desc,id desc limit " . $nums;
+        $where = "list.spreadId=$id and list.type='app'";
+        $order = "order by list.sort desc,list.id desc";
+        if($this->ver_code<=16 || $_REQUEST['is_rom'] != 'true'){//版本是16以下，或者不是线下版本，则下发Googleplay上的所有数据，否则下发所有数据
+            $where .= " and app.is_self=0";
+        }
+        $sql = "select list.* from appbox_spread_list as list left join appbox_app as app on app.package_id=list.typeId ";
+        $sql .= "where $where group by list.typeId $order limit ".$nums;
         $data = $this->_db->getAll($sql);
         $spread_mod = new SpreadModel($this->language);
         foreach ($data as $key => $val) {

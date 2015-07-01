@@ -36,7 +36,7 @@ class AppsModel extends RedisModel {
         //获取模板内容，如果模板未更新，则什么都不返回
         $arr = $this->getTemplate($templateUpdateTime);
         $arr['status'] = 1;//状态
-        $arr['currentTime'] = time();
+        $arr['currentTime'] = $_SERVER['REQUEST_TIME'];
 
         $this->page = isset($page) ? (int)$page : 0;
         $sql = "select count(*) as num from appbox_app where status=1 and is_game=" . $this->is_game . " and language='" . $this->language . "'";
@@ -64,9 +64,11 @@ class AppsModel extends RedisModel {
         //获取应用app
         if ($this->cid) {
             $cidKey = 'appbox_' . $is_game . '_cid' . $this->cid . '_' . $this->language . '_' . $this->page . '_' . $sort . '_' . $this->ver_code;
+            $cidKey .=  '_'.$_REQUEST['is_rom'];
             $redis_datas = $this->redis->get($cidKey);
         } else {
             $key = 'appbox_' . $is_game . '_' . $type . '_' . $this->language . '_' . $this->page . '_' . $this->ver_code;
+            $key = '_'.$_REQUEST['is_rom'];
             $redis_datas = $this->redis->get($key);
         }
 
@@ -112,8 +114,7 @@ class AppsModel extends RedisModel {
      * 获取应用
      */
     public function getList($p, $order, $sort = '') {
-        if ($this->cid == 0)//如果不存在分类查询
-        {
+        if ($this->cid == 0){ //如果不存在分类查询
             $where = $this->where . " app.status=1 and app.is_game=" . $this->is_game;
         } else {//存在分类查询
             $sql = "select `where` from appbox_google_category where category_id=" . $this->cid;
@@ -160,7 +161,9 @@ class AppsModel extends RedisModel {
                     break;
             }
         }
-
+        if($this->ver_code<=16 || $_REQUEST['is_rom'] != 'true'){//版本是16以下，或者不是线下版本，则下发Googleplay上的所有数据，否则下发所有数据
+            $where .= " and is_self=0";
+        }
         //获取应用app
         $sql = "select app.package_id as id,app.releaseTime
                     from appbox_app as app
@@ -197,12 +200,15 @@ class AppsModel extends RedisModel {
             return $data;
         } else {
             $arr = array('status' => 1);
-            $sql = "select app.package_id,app.package_name as packageName,app.comment_nums as commentCounts,app.app_name as name,app.icon as iconUrl,app.current_version as versionName,app.install_avarage as downloadCount,app.updated as lastUpdateTime,app.score as rate,app.size,app.hateCount as treadCount,app.likeCount as praiseCount,app.desc as description,app.price as paymentAmount,app.screen_shots,app.comment_detail,app.google_category,app.extend_info,app.status,app.releaseTime
+            $sql = "select app.package_id,app.package_name as packageName,app.comment_nums as commentCounts,app.app_name as name,app.icon as iconUrl,app.current_version as versionName,app.install_avarage as downloadCount,app.updated as lastUpdateTime,app.score as rate,app.size,app.hateCount as treadCount,app.likeCount as praiseCount,app.desc as description,app.price as paymentAmount,app.screen_shots,app.comment_detail,app.google_category,app.extend_info,app.status,app.releaseTime,app.is_self as downloadDirect,app.download_url as downloadUrl
                 from appbox_app as app
-                where app.package_name='$packageName' and app.language='{$this->language}'";
-            $data = $this->_db->getRow($sql);
+                where app.package_name='$packageName' ";
+            $data = $this->_db->getRow($sql."and app.language='{$this->language}'");
+            if(!$data){
+                $data = $this->_db->getRow($sql."and app.language='en'");
+            }
             if ($data) {
-                if (time() - $data['releaseTime'] >= 86400) {//检查更新，如果更新时间大于一天，则去更新应用,重新获取数据
+                if ($_SERVER['REQUEST_TIME'] - $data['releaseTime'] >= 86400 && !$data['downloadDirect']) {//检查更新，如果更新时间大于一天，则去更新应用,重新获取数据
                     file_get_contents('http://play.mobappbox.com/index.php?m=Admin&c=Application&a=getAppInfo&flag=1&language=' . $this->language . '&package_name=' . $packageName);
                     $redisData = $data;
                     $data = $this->_db->getRow($sql);
@@ -289,7 +295,7 @@ class AppsModel extends RedisModel {
         $sql .= "left join appbox_gift_desc as descs on descs.gid=gift.id ";
         $sql .= "left join appbox_app as app on app.package_id=gift.package_id where ";
         $sql .= "(descs.name like '%$keywords%' or app.app_name like '%$keywords%') and gift.status=1 and descs.language='" . $this->language . "' ";
-        $sql .= "and gift.start_time<=" . time() . " and gift.end_time>=" . time() . " and gift.package_id>0 ";
+        $sql .= "and gift.start_time<=" . $_SERVER['REQUEST_TIME'] . " and gift.end_time>=" . $_SERVER['REQUEST_TIME'] . " and gift.package_id>0 ";
         $sql .= "order by gift.sort desc,gift.id desc";
         $gifts = $this->_db->getAll($sql);
         $returnGifts = array();
@@ -328,7 +334,7 @@ class AppsModel extends RedisModel {
                 }
                 //取得专题类似数据
                 $sql = "select spread.id,spread.releaseTime from appbox_spread as spread ";
-                $sql .= "where spread.status=1 and releaseTime<=" . time() . " and spread.name like '%$keywords%' ";
+                $sql .= "where spread.status=1 and releaseTime<=" . $_SERVER['REQUEST_TIME'] . " and spread.name like '%$keywords%' ";
                 $sql .= "order by spread.sort desc,spread.id desc limit 0,$limit";
                 $spreads = $this->_db->getAll($sql);
                 $returnSpreads = array();

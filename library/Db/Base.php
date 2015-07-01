@@ -594,7 +594,7 @@ class Db_Base
 /**
 *   返回采集的图片资源
 */
-    public function getCollectImages($keys){
+    public function getCollectImages($keys,$processType=114){
         $this->redis->select(10);
         $collectImagesJson = $this->redis->lRange($keys,0,5);
         if($collectImagesJson){
@@ -629,8 +629,8 @@ class Db_Base
                 $extraData[] = $val['url'];
             }
             $tempArr['xmlType'] = $template['templateName'];
-            $tempArr['view'] = array("item_images"=>array('text'=>'','processType'=>114));
-            $tempArr['extraData']['processType'] = 114;
+            $tempArr['view'] = array("item_images"=>array('text'=>'','processType'=>$processType));
+            $tempArr['extraData']['processType'] = $processType;
             $tempArr['extraData']['images'] = $extraData;
             $return[] = $tempArr;
             return $return;

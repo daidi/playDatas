@@ -140,7 +140,8 @@ class SpreaddayilyModel extends RedisModel {
         } elseif (($val['spread_type'] == 2 || $val['spread_type'] == 3) && $this->ver_code > 8) {
             $keys = $val['spread_type'] == 2 ? 'appbox_collect_colsplay' : 'appbox_collect_gifs';
             $type = $val['spread_type'] == 2 ? 'is_images' : 'is_gifs';
-            $tempData = $this->getCollectImages($keys);
+            $processType = $val['spread_type'] == 2 ? 114 : 120;
+            $tempData = $this->getCollectImages($keys,$processType);
             if ($tempData) {
                 $datas[$type] = true;
                 $datas['subject_title'] = $name[$this->language];
